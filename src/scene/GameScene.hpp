@@ -9,7 +9,7 @@ class GameScene : public BaseScene
 public:
 
     // コンストラクタ
-    GameScene(ComPtr<ID3D11Device> device);
+    GameScene(const ComPtr<ID3D11Device>& device);
 
     // デストラクタ
     ~GameScene();
@@ -23,7 +23,7 @@ public:
 private:
 
     // 頂点バッファの作成処理
-    HRESULT createVertexBuffer(ComPtr<ID3D11Device> device) override;
+    HRESULT createVertexBuffer(const ComPtr<ID3D11Device>& device) override;
 
     // 描画処理
     void draw() const override;

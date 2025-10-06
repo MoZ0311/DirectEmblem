@@ -19,7 +19,7 @@ SceneManager& SceneManager::GetInstance()
 	return instance;
 }
 
-bool SceneManager::initialize(ComPtr<ID3D11Device> device, Scene initScene)
+bool SceneManager::initialize(const ComPtr<ID3D11Device>& device, const Scene initScene)
 {
 	m_device = device;
 
@@ -50,7 +50,7 @@ void SceneManager::execute()
 	m_currentScene.get()->drawScene();
 }
 
-void SceneManager::changeScene(Scene targetScene)
+void SceneManager::changeScene(const Scene targetScene)
 {
 	m_currentScene.reset();
 	switch (targetScene)

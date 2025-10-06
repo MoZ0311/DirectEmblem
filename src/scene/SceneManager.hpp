@@ -15,13 +15,13 @@ public:
 	static SceneManager& GetInstance();
 
 	// 初期化処理
-	bool initialize(ComPtr<ID3D11Device> device, SceneSettings::Scene initScene);
+	bool initialize(const ComPtr<ID3D11Device>& device, const SceneSettings::Scene initScene);
 
 	// ゲーム処理の更新/実行
 	void execute();
 
 	// シーンチェンジ
-	void changeScene(SceneSettings::Scene targetScene);
+	void changeScene(const SceneSettings::Scene targetScene);
 
 private:
 

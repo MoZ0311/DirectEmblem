@@ -2,7 +2,7 @@
 
 # include "GameScene.hpp"
 
-GameScene::GameScene(ComPtr<ID3D11Device> device)
+GameScene::GameScene(const ComPtr<ID3D11Device>& device)
 	: BaseScene(device)
 {
 	// îwåiêFÇê›íË
@@ -14,7 +14,7 @@ GameScene::~GameScene()
 
 }
 
-HRESULT GameScene::createVertexBuffer(ComPtr<ID3D11Device> device)
+HRESULT GameScene::createVertexBuffer(const ComPtr<ID3D11Device>& device)
 {
 	return 0;
 }

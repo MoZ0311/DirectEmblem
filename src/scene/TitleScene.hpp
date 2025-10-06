@@ -9,7 +9,7 @@ class TitleScene : public BaseScene
 public:
 
     // コンストラクタ
-    TitleScene(ComPtr<ID3D11Device> device);
+    TitleScene(const ComPtr<ID3D11Device>& device);
 
     // デストラクタ
     ~TitleScene();
@@ -23,7 +23,7 @@ public:
 private:
 
     // 頂点バッファの作成処理
-    HRESULT createVertexBuffer(ComPtr<ID3D11Device> device) override;
+    HRESULT createVertexBuffer(const ComPtr<ID3D11Device>& device) override;
 
     // 描画処理
     void draw() const override;

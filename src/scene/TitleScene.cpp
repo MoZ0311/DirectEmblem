@@ -2,7 +2,7 @@
 
 # include "TitleScene.hpp"
 
-TitleScene::TitleScene(ComPtr<ID3D11Device> device)
+TitleScene::TitleScene(const ComPtr<ID3D11Device>& device)
 	: BaseScene(device)
 {
 	// 背景色を設定
@@ -14,7 +14,7 @@ TitleScene::~TitleScene()
 
 }
 
-HRESULT TitleScene::createVertexBuffer(ComPtr<ID3D11Device> device)
+HRESULT TitleScene::createVertexBuffer(const ComPtr<ID3D11Device>& device)
 {
 	// 画面中央に配置する一つの正方形の頂点データ
 	Vertex vertices[]{

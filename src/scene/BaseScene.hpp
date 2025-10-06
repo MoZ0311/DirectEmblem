@@ -11,10 +11,10 @@ class BaseScene
 public:
 
     // コンストラクタ
-    BaseScene(ComPtr<ID3D11Device> device);
+    BaseScene(const ComPtr<ID3D11Device>& device);
 
     // 初期化処理
-    bool initialize(ComPtr<ID3D11Device> device);
+    bool initialize(const ComPtr<ID3D11Device>& device);
 
     // 更新処理
     virtual void update() = 0;
@@ -38,7 +38,7 @@ protected:
 private:
 
     // 頂点バッファの作成処理
-    virtual HRESULT createVertexBuffer(ComPtr<ID3D11Device> device) = 0;
+    virtual HRESULT createVertexBuffer(const ComPtr<ID3D11Device>& device) = 0;
 
     // 描画処理
     virtual void draw() const = 0;
