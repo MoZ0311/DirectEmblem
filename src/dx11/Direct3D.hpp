@@ -25,18 +25,17 @@ public:
 	// Direct3Dの初期化処理
 	bool initialize(HWND hWnd);
 
-	// 描画処理
-	void draw(UINT vertexCount, ColorF backgroundColor) const;
+	// 画面のクリア処理
+	void clearBackground(ColorF backgroundColor) const;
+
+	// 画面の転送処理
+	void flip(UINT vertexCount);
 
 	// デバイスの取得
 	ComPtr<ID3D11Device> getDevice() const;
 
 	// デバイスコンテキスト取得
 	ComPtr<ID3D11DeviceContext> getDeviceContext() const;
-
-	ComPtr<ID3D11VertexShader> m_vertexShader;			// 頂点シェーダー
-	ComPtr<ID3D11PixelShader> m_pixelShader;			// ピクセルシェーダー
-	ComPtr<ID3D11InputLayout> m_inputLayout;			// インプットレイアウト
 
 private:
 
@@ -73,6 +72,10 @@ private:
 	ComPtr<IDXGISwapChain> m_swapChain;					// スワップチェイン
 	ComPtr<ID3D11RenderTargetView> m_renderTargetView;	// レンダーターゲットビュー
 	ComPtr<ID3D11Buffer> m_vertexBuffer;				// 頂点バッファ
+
+	ComPtr<ID3D11VertexShader> m_vertexShader;			// 頂点シェーダー
+	ComPtr<ID3D11PixelShader> m_pixelShader;			// ピクセルシェーダー
+	ComPtr<ID3D11InputLayout> m_inputLayout;			// インプットレイアウト
 
 	// 2D描画シェーダー
 	ComPtr<ID3DBlob> m_compiledVertexShader;			// コンパイル済みの頂点シェーダー

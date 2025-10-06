@@ -26,9 +26,12 @@ bool BaseScene::initialize(const ComPtr<ID3D11Device>& device)
 
 void BaseScene::drawScene() const
 {
+	// シーンの画面をクリア
+	Direct3D::GetInstance().clearBackground(m_backgroundColor);
+
 	// 純粋仮想関数の描画処理実行
 	draw();
 
-	// シーンの描画情報をDirectXに転送
-	Direct3D::GetInstance().draw(m_vertexCount, m_backgroundColor);
+	// DirectX側でフリップ処理
+	Direct3D::GetInstance().flip(m_vertexCount);
 }

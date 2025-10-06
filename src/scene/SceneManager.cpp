@@ -41,7 +41,7 @@ bool SceneManager::initialize(const ComPtr<ID3D11Device>& device, const Scene in
 		return false;
 	}
 
-	m_currentScene.get()->initialize(m_device);	
+	return m_currentScene.get()->initialize(m_device);	
 }
 
 void SceneManager::execute()

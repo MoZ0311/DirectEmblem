@@ -70,7 +70,7 @@ bool Direct3D::initialize(HWND hWnd)
         MessageBox(m_hWnd, L"Direct3D: 頂点バッファの作成に失敗しました。", L"DirectX エラー", MB_ICONERROR);
         return false;
     }
-
+    
     // インプットレイアウトの作成
     const HRESULT inputLayoutResult{ createInputLayout() };
     if (FAILED(inputLayoutResult))
@@ -80,18 +80,24 @@ bool Direct3D::initialize(HWND hWnd)
         return false;
     }
 
+    // パイプライン設定
+    setRenderPipeline();
+
     // 全てが正常終了時、trueを返す
 	return true;
 }
 
-void Direct3D::draw(UINT vertexCount, ColorF backgroundColor) const
+void Direct3D::clearBackground(ColorF backgroundColor) const
 {
     // パイプライン設定
-    setRenderPipeline();
+    // setRenderPipeline();
 
     // 背景のクリア
     m_deviceContext->ClearRenderTargetView(m_renderTargetView.Get(), backgroundColor.rgba);
+}
 
+void Direct3D::flip(UINT vertexCount)
+{
     // 描画コマンド
     m_deviceContext->Draw(vertexCount, 0);
 
@@ -234,10 +240,10 @@ HRESULT Direct3D::createVertexBuffer()
     // 頂点データ設定
     Vertex vertices[]{
         // 頂点データ: { x, y, z, r, g, b, a }
-        { -1.0f,  1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f }, // 左上 (赤)
-        {  1.0f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f }, // 右上 (緑)
-        { -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f }, // 左下 (青)
-        {  1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f }, // 右下 (黄)
+        { -0.7f,  0.7f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f }, // 左上 (赤)
+        {  0.7f,  0.7f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f }, // 右上 (緑)
+        { -0.7f, -0.7f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f }, // 左下 (青)
+        {  0.7f, -0.7f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f }, // 右下 (黄)
     };
 
     // 頂点バッファ設定

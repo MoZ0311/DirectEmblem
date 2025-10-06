@@ -30,6 +30,7 @@ protected:
     // 背景色
     ColorF m_backgroundColor;
 
+    // 頂点バッファ
     ComPtr<ID3D11Buffer> m_vertexBuffer;
 
     // 頂点数
