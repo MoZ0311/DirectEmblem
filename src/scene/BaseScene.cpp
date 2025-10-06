@@ -2,12 +2,12 @@
 
 # include "BaseScene.hpp"
 
-BaseScene::BaseScene(const ComPtr<ID3D11Device>& device)
+BaseScene::BaseScene()
 	: m_backgroundColor{ 0.0f }
 	, m_vertexBuffer{ nullptr }
 	, m_vertexCount{ 0 }
 {
-	initialize(device);
+
 }
 
 bool BaseScene::initialize(const ComPtr<ID3D11Device>& device)

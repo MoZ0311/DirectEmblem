@@ -2,8 +2,7 @@
 
 # include "TitleScene.hpp"
 
-TitleScene::TitleScene(const ComPtr<ID3D11Device>& device)
-	: BaseScene(device)
+TitleScene::TitleScene()
 {
 	// ”wŒiF‚ğİ’è
 	m_backgroundColor = { 0.0f, 0.0f, 0.251f, 1.0f };

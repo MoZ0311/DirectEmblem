@@ -2,8 +2,7 @@
 
 # include "GameScene.hpp"
 
-GameScene::GameScene(const ComPtr<ID3D11Device>& device)
-	: BaseScene(device)
+GameScene::GameScene()
 {
 	// ”wŒiF‚ğİ’è
 	m_backgroundColor = { 0.0f, 0.502f, 0.502f, 1.0f };

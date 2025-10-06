@@ -9,7 +9,7 @@ class GameScene : public BaseScene
 public:
 
     // コンストラクタ
-    GameScene(const ComPtr<ID3D11Device>& device);
+    GameScene();
 
     // デストラクタ
     ~GameScene();

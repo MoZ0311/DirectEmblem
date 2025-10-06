@@ -11,7 +11,7 @@ class BaseScene
 public:
 
     // コンストラクタ
-    BaseScene(const ComPtr<ID3D11Device>& device);
+    BaseScene();
 
     // 初期化処理
     bool initialize(const ComPtr<ID3D11Device>& device);

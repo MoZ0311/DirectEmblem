@@ -9,7 +9,7 @@ class TitleScene : public BaseScene
 public:
 
     // コンストラクタ
-    TitleScene(const ComPtr<ID3D11Device>& device);
+    TitleScene();
 
     // デストラクタ
     ~TitleScene();

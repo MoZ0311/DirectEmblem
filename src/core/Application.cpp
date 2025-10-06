@@ -42,9 +42,9 @@ bool Application::initialize()
 		return false;
 	}
 
-	// SceneManagerの初期化
-	ComPtr<ID3D11Device> device{ Direct3D::GetInstance().getDevice() };
-	if (!SceneManager::GetInstance().initialize(device, SceneSettings::Scene::Game))
+	// SceneManagerの初期化(ついでに初期シーンの設定)
+	const ComPtr<ID3D11Device> device{ Direct3D::GetInstance().getDevice() };
+	if (!SceneManager::GetInstance().initialize(device, SceneSettings::Scene::Title))
 	{
 		// 失敗時、エラーメッセージとともにreturn
 		MessageBox(NULL, L"Application: SceneManagerクラスの初期化に失敗しました", L"エラー", MB_ICONERROR);

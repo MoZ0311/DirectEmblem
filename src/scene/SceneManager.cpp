@@ -9,7 +9,7 @@ SceneManager::SceneManager()
 	, m_currentScene{ nullptr }
 	, m_transitionState{ TransitionState::None }
 {
-	int i{ 50 };
+
 }
 
 SceneManager& SceneManager::GetInstance()
@@ -21,27 +21,27 @@ SceneManager& SceneManager::GetInstance()
 
 bool SceneManager::initialize(const ComPtr<ID3D11Device>& device, const Scene initScene)
 {
+	// デバイスのアドレスをメンバ変数に格納
 	m_device = device;
 
 	switch (initScene)
 	{
 	case SceneSettings::Scene::Title:
-		// タイトルシーンのインスタンスを作成してreturn
-		m_currentScene = std::make_unique<TitleScene>(m_device);
-		return true;
+		// タイトルシーンのインスタンスを作成
+		m_currentScene = std::make_unique<TitleScene>();
 		break;
 
 	case SceneSettings::Scene::Game:
-		// ゲームシーンのインスタンスを作成してreturn
-		m_currentScene = std::make_unique<GameScene>(m_device);
-		return true;
+		// ゲームシーンのインスタンスを作成
+		m_currentScene = std::make_unique<GameScene>();
 		break;
 
 	default:
-		break;
+		// 不正なシーン引数が渡された時、falseを返す
+		return false;
 	}
 
-	return false;
+	m_currentScene.get()->initialize(m_device);	
 }
 
 void SceneManager::execute()
@@ -56,12 +56,14 @@ void SceneManager::changeScene(const Scene targetScene)
 	switch (targetScene)
 	{
 	case Scene::Title:
-		m_currentScene = std::make_unique<TitleScene>(m_device);
+		m_currentScene = std::make_unique<TitleScene>();
 		break;
 	case Scene::Game:
-		m_currentScene = std::make_unique<GameScene>(m_device);
+		m_currentScene = std::make_unique<GameScene>();
 		break;
 	default:
 		break;
 	}
+
+	m_currentScene.get()->initialize(m_device);
 }
