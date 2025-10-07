@@ -10,9 +10,6 @@ class BaseScene
 {
 public:
 
-    // コンストラクタ
-    BaseScene();
-
     // デストラクタ
     virtual ~BaseScene() = default;
 
@@ -26,6 +23,9 @@ public:
     void drawScene() const;
 
 protected:
+
+    // コンストラクタ
+    BaseScene();   
 
     // Direct3Dクラスのインスタンス
     Direct3D& m_direct3D;

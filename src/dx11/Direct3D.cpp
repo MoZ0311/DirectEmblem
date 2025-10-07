@@ -280,6 +280,6 @@ void Direct3D::setRenderPipeline() const
     // インプットレイアウトを設定
     m_deviceContext->IASetInputLayout(m_inputLayout.Get());
 
-    // 描画するプリミティブ（図形の種類）を三角形ストリップに設定
-    m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+    // 描画するプリミティブ（図形の種類）を三角形リストに設定
+    m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
