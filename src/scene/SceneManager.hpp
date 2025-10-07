@@ -15,7 +15,7 @@ public:
 	static SceneManager& GetInstance();
 
 	// 初期化処理
-	bool initialize(const ComPtr<ID3D11Device>& device, const SceneSettings::Scene initScene);
+	bool initialize(const SceneSettings::Scene initScene);
 
 	// ゲーム処理の更新/実行
 	void execute();
@@ -27,9 +27,6 @@ private:
 
 	// コンストラクタ
 	SceneManager();
-
-	// Direct3Dのデバイス
-	ComPtr<ID3D11Device> m_device;
 
 	// 現在のシーン
 	std::unique_ptr<BaseScene> m_currentScene;

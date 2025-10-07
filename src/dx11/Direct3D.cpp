@@ -25,12 +25,12 @@ Direct3D& Direct3D::GetInstance()
 	return instance;
 }
 
-bool Direct3D::initialize(HWND hWnd)
+bool Direct3D::initialize(const HWND& hWnd)
 {
     m_hWnd = hWnd;
 
     // スワップチェーン設定
-    DXGI_SWAP_CHAIN_DESC scDesc{ registerSwapChain() };
+    const DXGI_SWAP_CHAIN_DESC scDesc{ registerSwapChain() };
 
     // スワップチェーン作成
     const HRESULT swapChainResult{ createDeviceAndSwapChain(scDesc) };
@@ -82,7 +82,7 @@ ComPtr<ID3D11Buffer> Direct3D::createVertexBuffer(const std::vector<Vertex>& ver
     // バッファの仕様を設定する
     D3D11_BUFFER_DESC bufferDesc{};
     bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    bufferDesc.ByteWidth = sizeof(Vertex) * vertices.size(); // バイトサイズを計算(構造体のバイト数 * 要素数)
+    bufferDesc.ByteWidth = sizeof(Vertex) * static_cast<UINT>(vertices.size()); // バイトサイズを計算(構造体のバイト数 * 要素数)
     bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     bufferDesc.MiscFlags = 0;
     bufferDesc.CPUAccessFlags = 0;
@@ -95,7 +95,7 @@ ComPtr<ID3D11Buffer> Direct3D::createVertexBuffer(const std::vector<Vertex>& ver
     initData.pSysMem = vertices.data();
 
     // 頂点バッファ作成
-    HRESULT vertexBufferResult{ m_device->CreateBuffer(&bufferDesc, &initData, vertexBuffer.GetAddressOf()) };
+    const HRESULT vertexBufferResult{ m_device->CreateBuffer(&bufferDesc, &initData, vertexBuffer.GetAddressOf()) };
     if (FAILED(vertexBufferResult))
     {
         // 失敗時、return
@@ -109,8 +109,8 @@ ComPtr<ID3D11Buffer> Direct3D::createVertexBuffer(const std::vector<Vertex>& ver
 void Direct3D::setVertexBuffer(const ComPtr<ID3D11Buffer>& vertexBuffer)
 {
     // 頂点バッファをインプットアセンブラ(IA)ステージに設定
-    UINT stride = sizeof(Vertex); // 1つの頂点データのサイズ
-    UINT offset = 0;
+    const UINT stride{ sizeof(Vertex) }; // 1つの頂点データのサイズ
+    const UINT offset{ 0 };
 
     // 頂点バッファのアドレス取得
     auto* buffer{ vertexBuffer.Get() };
@@ -123,13 +123,13 @@ void Direct3D::setVertexBuffer(const ComPtr<ID3D11Buffer>& vertexBuffer)
     );
 }
 
-void Direct3D::clearBackground(ColorF backgroundColor) const
+void Direct3D::clearBackground(const ColorF& backgroundColor) const
 {
     // 背景のクリア
     m_deviceContext->ClearRenderTargetView(m_renderTargetView.Get(), backgroundColor.rgba);
 }
 
-void Direct3D::draw(UINT vertexCount) const
+void Direct3D::draw(const UINT& vertexCount) const
 {
     m_deviceContext->Draw(vertexCount, 0);
 }
@@ -138,16 +138,6 @@ void Direct3D::flip() const
 {
     // バックバッファの内容をフロント側に転送
     m_swapChain->Present(1, 0);
-}
-
-ComPtr<ID3D11Device> Direct3D::getDevice() const
-{
-    return m_device;
-}
-
-ComPtr<ID3D11DeviceContext> Direct3D::getDeviceContext() const
-{
-    return m_deviceContext;
 }
 
 DXGI_SWAP_CHAIN_DESC Direct3D::registerSwapChain() const
@@ -171,24 +161,24 @@ DXGI_SWAP_CHAIN_DESC Direct3D::registerSwapChain() const
 
 HRESULT Direct3D::createDeviceAndSwapChain(const DXGI_SWAP_CHAIN_DESC& scDesc)
 {
-    D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_1 }; // 使用するのはDirectX11.1
-    UINT numFeatureLevels = ARRAYSIZE(featureLevels);               // 要求するバージョンの要素数
-    UINT createDeviceFlags = 0;                                     // デバイス作成における特殊なオプションは使用しない
+    const D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_1 };   // 使用するのはDirectX11.1
+    const UINT numFeatureLevels = ARRAYSIZE(featureLevels);                 // 要求するバージョンの要素数
+    const UINT createDeviceFlags = 0;                                       // デバイス作成における特殊なオプションは使用しない
 
     // デバイス作成呼び出し
     const HRESULT hResult = D3D11CreateDeviceAndSwapChain(
-        NULL,                                                       // 既定のグラフィックスカードを使用する
-        D3D_DRIVER_TYPE_HARDWARE,                                   // 物理GPUを使用する
-        NULL,                                                       // ソフトウェアGPUじゃないから、NULL
-        createDeviceFlags,                                          // デバイスの作成オプション
-        featureLevels,                                              // 要求機能リスト
-        numFeatureLevels,                                           // 要求機能の要素数
-        D3D11_SDK_VERSION,                                          // D3D11 SDKのバージョン指定
-        &scDesc,                                                    // スワップチェーンのポインタ
-        m_swapChain.GetAddressOf(),                                 // スワップチェーンの格納先
-        m_device.GetAddressOf(),                                    // デバイスの格納先
-        NULL,                                                       // デバイスの機能レベル情報は、使わない
-        m_deviceContext.GetAddressOf()                              // デバイスコンテキストの格納先
+        NULL,                                                               // 既定のグラフィックスカードを使用する
+        D3D_DRIVER_TYPE_HARDWARE,                                           // 物理GPUを使用する
+        NULL,                                                               // ソフトウェアGPUじゃないから、NULL
+        createDeviceFlags,                                                  // デバイスの作成オプション
+        featureLevels,                                                      // 要求機能リスト
+        numFeatureLevels,                                                   // 要求機能の要素数
+        D3D11_SDK_VERSION,                                                  // D3D11 SDKのバージョン指定
+        &scDesc,                                                            // スワップチェーンのポインタ
+        m_swapChain.GetAddressOf(),                                         // スワップチェーンの格納先
+        m_device.GetAddressOf(),                                            // デバイスの格納先
+        NULL,                                                               // デバイスの機能レベル情報は、使わない
+        m_deviceContext.GetAddressOf()                                      // デバイスコンテキストの格納先
     );
 
     return hResult;
@@ -224,7 +214,7 @@ void Direct3D::setViewPortSettings() const
     m_deviceContext->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), nullptr);
 
     // ビューポート設定
-    D3D11_VIEWPORT viewPort{ 0.0f, 0.0f, WindowWidth, WindowHeight, 0.0f, 1.0f };
+    const D3D11_VIEWPORT viewPort{ 0.0f, 0.0f, WindowWidth, WindowHeight, 0.0f, 1.0f };
     m_deviceContext->RSSetViewports(1, &viewPort);
 }
 

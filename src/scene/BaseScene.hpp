@@ -33,13 +33,16 @@ protected:
     // 頂点バッファ
     ComPtr<ID3D11Buffer> m_vertexBuffer;
 
+    // 頂点情報
+    std::vector<Vertex> m_vertices;
+
     // 頂点数
     UINT m_vertexCount;
 
 private:
 
-    // 頂点バッファの作成処理
-    virtual bool createVertexBuffer() = 0;
+    // 頂点情報の作成処理
+    virtual void createVertices() = 0;
 
     // 描画処理
     virtual void draw() const = 0;

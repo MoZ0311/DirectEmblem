@@ -5,8 +5,7 @@
 using namespace SceneSettings;
 
 SceneManager::SceneManager()
-	: m_device{ nullptr }
-	, m_currentScene{ nullptr }
+	: m_currentScene{ nullptr }
 	, m_transitionState{ TransitionState::None }
 {
 
@@ -19,11 +18,8 @@ SceneManager& SceneManager::GetInstance()
 	return instance;
 }
 
-bool SceneManager::initialize(const ComPtr<ID3D11Device>& device, const Scene initScene)
+bool SceneManager::initialize(const Scene initScene)
 {
-	// デバイスのアドレスをメンバ変数に格納
-	m_device = device;
-
 	switch (initScene)
 	{
 	case SceneSettings::Scene::Title:

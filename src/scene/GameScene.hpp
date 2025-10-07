@@ -20,7 +20,7 @@ public:
 private:
 
     // 頂点バッファの作成処理
-    bool createVertexBuffer() override;
+    void createVertices() override;
 
     // 描画処理
     void draw() const override;

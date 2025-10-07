@@ -4,7 +4,7 @@
 
 using namespace Config;
 
-Application::Application(HINSTANCE hInstance, int nCmdShow)
+Application::Application(const HINSTANCE& hInstance, const int nCmdShow)
 	: m_hInstance{ hInstance }
 	, m_nCmdShow{ nCmdShow }
 	, m_hWnd{ nullptr }
@@ -43,8 +43,7 @@ bool Application::initialize()
 	}
 
 	// SceneManagerの初期化(ついでに初期シーンの設定)
-	const ComPtr<ID3D11Device> device{ Direct3D::GetInstance().getDevice() };
-	if (!SceneManager::GetInstance().initialize(device, SceneSettings::Scene::Title))
+	if (!SceneManager::GetInstance().initialize(SceneSettings::Scene::Title))
 	{
 		// 失敗時、エラーメッセージとともにreturn
 		MessageBox(NULL, L"Application: SceneManagerクラスの初期化に失敗しました", L"エラー", MB_ICONERROR);
@@ -89,7 +88,7 @@ MSG Application::run() const
 	return msg;
 }
 
-LRESULT CALLBACK Application::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK Application::wndProc(const HWND hWnd, const UINT message, const WPARAM wParam, const LPARAM lParam)
 {
 	if (message == WM_DESTROY)
 	{
@@ -125,8 +124,8 @@ bool Application::registerWindowClass() const
 
 bool Application::createWindow()
 {
-	RECT windowRect = { 0, 0, WindowWidth, WindowHeight };
-	DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+	RECT windowRect{ 0, 0, WindowWidth, WindowHeight };
+	const DWORD dwStyle{ WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX };
 
 	// 目的のクライアント領域サイズから、ウィンドウ全体のサイズを計算
 	AdjustWindowRect(&windowRect, dwStyle, FALSE);

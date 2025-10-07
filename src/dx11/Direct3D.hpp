@@ -23,7 +23,7 @@ public:
 	static Direct3D& GetInstance();
 	
 	// Direct3Dの初期化処理
-	bool initialize(HWND hWnd);
+	bool initialize(const HWND& hWnd);
 
 	// 頂点バッファの作成処理
 	ComPtr<ID3D11Buffer> createVertexBuffer(const std::vector<Vertex>& vertices);
@@ -32,19 +32,13 @@ public:
 	void setVertexBuffer(const ComPtr<ID3D11Buffer>& vertexBuffer);
 
 	// 画面のクリア処理
-	void clearBackground(ColorF backgroundColor) const;
+	void clearBackground(const ColorF& backgroundColor) const;
 
 	// 画面の描画処理
-	void draw(UINT vertexCount) const;
+	void draw(const UINT& vertexCount) const;
 
 	// 画面の転送処理
 	void flip() const;
-
-	// デバイスの取得
-	ComPtr<ID3D11Device> getDevice() const;
-
-	// デバイスコンテキスト取得
-	ComPtr<ID3D11DeviceContext> getDeviceContext() const;
 
 private:
 
