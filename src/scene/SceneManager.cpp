@@ -41,12 +41,12 @@ bool SceneManager::initialize(const ComPtr<ID3D11Device>& device, const Scene in
 		return false;
 	}
 
-	return m_currentScene.get()->initialize(m_device);	
+	return m_currentScene.get()->initialize();	
 }
 
 void SceneManager::execute()
 {
-	m_currentScene.get()->update();
+	m_currentScene.get()->updateScene();
 	m_currentScene.get()->drawScene();
 }
 
@@ -65,5 +65,5 @@ void SceneManager::changeScene(const Scene targetScene)
 		break;
 	}
 
-	m_currentScene.get()->initialize(m_device);
+	m_currentScene.get()->initialize();
 }

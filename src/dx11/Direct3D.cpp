@@ -10,7 +10,6 @@ Direct3D::Direct3D()
     , m_deviceContext{ nullptr }
     , m_swapChain{ nullptr }
     , m_renderTargetView{ nullptr }
-    , m_vertexBuffer{ nullptr }
     , m_vertexShader{ nullptr }
     , m_pixelShader{ nullptr }
     , m_inputLayout{ nullptr }
@@ -34,7 +33,7 @@ bool Direct3D::initialize(HWND hWnd)
     DXGI_SWAP_CHAIN_DESC scDesc{ registerSwapChain() };
 
     // スワップチェーン作成
-    const HRESULT swapChainResult{ createSwapChain(scDesc) };
+    const HRESULT swapChainResult{ createDeviceAndSwapChain(scDesc) };
     if (FAILED(swapChainResult))
     {
         // 失敗時、return
@@ -61,15 +60,6 @@ bool Direct3D::initialize(HWND hWnd)
         MessageBox(m_hWnd, L"Direct3D: シェーダーの作成に失敗しました。", L"DirectX エラー", MB_ICONERROR);
         return false;
     }
-
-    // 頂点バッファの作成
-    const HRESULT vertexBufferResult{ createVertexBuffer() };
-    if (FAILED(vertexBufferResult))
-    {
-        // 失敗時、return
-        MessageBox(m_hWnd, L"Direct3D: 頂点バッファの作成に失敗しました。", L"DirectX エラー", MB_ICONERROR);
-        return false;
-    }
     
     // インプットレイアウトの作成
     const HRESULT inputLayoutResult{ createInputLayout() };
@@ -87,21 +77,66 @@ bool Direct3D::initialize(HWND hWnd)
 	return true;
 }
 
+ComPtr<ID3D11Buffer> Direct3D::createVertexBuffer(const std::vector<Vertex>& vertices)
+{
+    // バッファの仕様を設定する
+    D3D11_BUFFER_DESC bufferDesc{};
+    bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+    bufferDesc.ByteWidth = sizeof(Vertex) * vertices.size(); // バイトサイズを計算(構造体のバイト数 * 要素数)
+    bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    bufferDesc.MiscFlags = 0;
+    bufferDesc.CPUAccessFlags = 0;
+
+    // 頂点バッファ
+    ComPtr<ID3D11Buffer> vertexBuffer;
+
+    // 書き込むデータ
+    D3D11_SUBRESOURCE_DATA initData{};
+    initData.pSysMem = vertices.data();
+
+    // 頂点バッファ作成
+    HRESULT vertexBufferResult{ m_device->CreateBuffer(&bufferDesc, &initData, vertexBuffer.GetAddressOf()) };
+    if (FAILED(vertexBufferResult))
+    {
+        // 失敗時、return
+        MessageBox(m_hWnd, L"Direct3D: 頂点バッファの作成に失敗しました。", L"DirectX エラー", MB_ICONERROR);
+        return nullptr;
+    }
+
+    return vertexBuffer;
+}
+
+void Direct3D::setVertexBuffer(const ComPtr<ID3D11Buffer>& vertexBuffer)
+{
+    // 頂点バッファをインプットアセンブラ(IA)ステージに設定
+    UINT stride = sizeof(Vertex); // 1つの頂点データのサイズ
+    UINT offset = 0;
+
+    // 頂点バッファのアドレス取得
+    auto* buffer{ vertexBuffer.Get() };
+    m_deviceContext->IASetVertexBuffers(
+        0,							// 開始スロット
+        1,							// バッファ数
+        &buffer,
+        &stride,
+        &offset
+    );
+}
+
 void Direct3D::clearBackground(ColorF backgroundColor) const
 {
-    // パイプライン設定
-    // setRenderPipeline();
-
     // 背景のクリア
     m_deviceContext->ClearRenderTargetView(m_renderTargetView.Get(), backgroundColor.rgba);
 }
 
-void Direct3D::flip(UINT vertexCount)
+void Direct3D::draw(UINT vertexCount) const
 {
-    // 描画コマンド
     m_deviceContext->Draw(vertexCount, 0);
+}
 
-    // バックバッファの内容を画面に表示
+void Direct3D::flip() const
+{
+    // バックバッファの内容をフロント側に転送
     m_swapChain->Present(1, 0);
 }
 
@@ -134,7 +169,7 @@ DXGI_SWAP_CHAIN_DESC Direct3D::registerSwapChain() const
     return swapChainDesc;
 }
 
-HRESULT Direct3D::createSwapChain(DXGI_SWAP_CHAIN_DESC& scDesc)
+HRESULT Direct3D::createDeviceAndSwapChain(const DXGI_SWAP_CHAIN_DESC& scDesc)
 {
     D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_1 }; // 使用するのはDirectX11.1
     UINT numFeatureLevels = ARRAYSIZE(featureLevels);               // 要求するバージョンの要素数
@@ -159,7 +194,7 @@ HRESULT Direct3D::createSwapChain(DXGI_SWAP_CHAIN_DESC& scDesc)
     return hResult;
 }
 
-HRESULT Direct3D::createRenderTargetView(DXGI_SWAP_CHAIN_DESC& scDesc)
+HRESULT Direct3D::createRenderTargetView(const DXGI_SWAP_CHAIN_DESC& scDesc)
 {
     // スワップチェーンからバックバッファのポインターを取得
     ComPtr<ID3D11Texture2D> pBackBuffer;
@@ -235,33 +270,6 @@ bool Direct3D::compileShader()
     return true;
 }
 
-HRESULT Direct3D::createVertexBuffer()
-{
-    // 頂点データ設定
-    Vertex vertices[]{
-        // 頂点データ: { x, y, z, r, g, b, a }
-        { -0.7f,  0.7f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f }, // 左上 (赤)
-        {  0.7f,  0.7f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f }, // 右上 (緑)
-        { -0.7f, -0.7f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f }, // 左下 (青)
-        {  0.7f, -0.7f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f }, // 右下 (黄)
-    };
-
-    // 頂点バッファ設定
-    D3D11_BUFFER_DESC bufferDesc{};
-    bufferDesc.Usage = D3D11_USAGE_DEFAULT;				// 作成するバッファの使用法
-    bufferDesc.ByteWidth = sizeof(vertices);			// 作成するバッファのバイトサイズ
-    bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;	// デバイスにバインドするときの種類(頂点バッファ、インデックスバッファ、定数バッファなど)
-    bufferDesc.MiscFlags = 0;							// その他のフラグ
-    bufferDesc.CPUAccessFlags = 0;
-
-    // 初期データ設定
-    D3D11_SUBRESOURCE_DATA initData{};
-    initData.pSysMem = vertices;
-
-    // 頂点バッファ作成
-    return m_device->CreateBuffer(&bufferDesc, &initData, m_vertexBuffer.GetAddressOf());
-}
-
 HRESULT Direct3D::createInputLayout()
 {
     D3D11_INPUT_ELEMENT_DESC layout[]{
@@ -275,17 +283,6 @@ HRESULT Direct3D::createInputLayout()
 
 void Direct3D::setRenderPipeline() const
 {
-    // 頂点バッファをインプットアセンブラ(IA)ステージに設定
-    UINT stride = sizeof(Vertex); // 1つの頂点データのサイズ
-    UINT offset = 0;
-    m_deviceContext->IASetVertexBuffers(
-        0,							// 開始スロット
-        1,							// バッファ数
-        m_vertexBuffer.GetAddressOf(),
-        &stride,
-        &offset
-    );
-
     // シェーダーを設定
     m_deviceContext->VSSetShader(m_vertexShader.Get(), nullptr, 0);
     m_deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);

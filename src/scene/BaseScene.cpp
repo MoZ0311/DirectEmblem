@@ -3,17 +3,17 @@
 # include "BaseScene.hpp"
 
 BaseScene::BaseScene()
-	: m_backgroundColor{ 0.0f }
+	: m_direct3D{ Direct3D::GetInstance() }
+	, m_backgroundColor{ 0.0f }
 	, m_vertexBuffer{ nullptr }
 	, m_vertexCount{ 0 }
 {
 
 }
 
-bool BaseScene::initialize(const ComPtr<ID3D11Device>& device)
+bool BaseScene::initialize()
 {
-	const HRESULT vertexBufferResult{ createVertexBuffer(device) };
-	if (FAILED(vertexBufferResult))
+	if (!createVertexBuffer())
 	{
 		// 失敗時、エラーメッセージとともにreturn
 		MessageBox(NULL, L"Scene: 頂点バッファの作成に失敗しました", L"エラー", MB_ICONERROR);
@@ -27,11 +27,16 @@ bool BaseScene::initialize(const ComPtr<ID3D11Device>& device)
 void BaseScene::drawScene() const
 {
 	// シーンの画面をクリア
-	Direct3D::GetInstance().clearBackground(m_backgroundColor);
+	m_direct3D.clearBackground(m_backgroundColor);
+
+	m_direct3D.setVertexBuffer(m_vertexBuffer);
 
 	// 純粋仮想関数の描画処理実行
 	draw();
 
+	// DirectX側で描画コマンドを実行
+	m_direct3D.draw(m_vertexCount);
+
 	// DirectX側でフリップ処理
-	Direct3D::GetInstance().flip(m_vertexCount);
+	m_direct3D.flip();
 }

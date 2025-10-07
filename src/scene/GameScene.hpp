@@ -15,15 +15,12 @@ public:
     ~GameScene();
 
     // 更新処理
-    void update() override;
-
-    // 終了処理
-    void exit() override;
+    void updateScene() override;
 
 private:
 
     // 頂点バッファの作成処理
-    HRESULT createVertexBuffer(const ComPtr<ID3D11Device>& device) override;
+    bool createVertexBuffer() override;
 
     // 描画処理
     void draw() const override;

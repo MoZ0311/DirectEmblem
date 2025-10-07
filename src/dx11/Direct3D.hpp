@@ -25,11 +25,20 @@ public:
 	// Direct3Dの初期化処理
 	bool initialize(HWND hWnd);
 
+	// 頂点バッファの作成処理
+	ComPtr<ID3D11Buffer> createVertexBuffer(const std::vector<Vertex>& vertices);
+
+	// 頂点バッファのステージング処理
+	void setVertexBuffer(const ComPtr<ID3D11Buffer>& vertexBuffer);
+
 	// 画面のクリア処理
 	void clearBackground(ColorF backgroundColor) const;
 
+	// 画面の描画処理
+	void draw(UINT vertexCount) const;
+
 	// 画面の転送処理
-	void flip(UINT vertexCount);
+	void flip() const;
 
 	// デバイスの取得
 	ComPtr<ID3D11Device> getDevice() const;
@@ -46,19 +55,16 @@ private:
 	DXGI_SWAP_CHAIN_DESC registerSwapChain() const;
 
 	// スワップチェーン、デバイスの作成
-	HRESULT createSwapChain(DXGI_SWAP_CHAIN_DESC& scDesc);
+	HRESULT createDeviceAndSwapChain(const DXGI_SWAP_CHAIN_DESC& scDesc);
 
 	// レンダーターゲットビューの作成
-	HRESULT createRenderTargetView(DXGI_SWAP_CHAIN_DESC& scDesc);
+	HRESULT createRenderTargetView(const DXGI_SWAP_CHAIN_DESC& scDesc);
 
 	// ビューポートの設定
 	void setViewPortSettings() const;
 
 	// シェーダーのコンパイル
 	bool compileShader();
-
-	// 頂点バッファの作成
-	HRESULT createVertexBuffer();
 
 	// インプットレイアウト作成
 	HRESULT createInputLayout();
@@ -71,7 +77,6 @@ private:
 	ComPtr<ID3D11DeviceContext> m_deviceContext;		// デバイスコンテキスト
 	ComPtr<IDXGISwapChain> m_swapChain;					// スワップチェイン
 	ComPtr<ID3D11RenderTargetView> m_renderTargetView;	// レンダーターゲットビュー
-	ComPtr<ID3D11Buffer> m_vertexBuffer;				// 頂点バッファ
 
 	ComPtr<ID3D11VertexShader> m_vertexShader;			// 頂点シェーダー
 	ComPtr<ID3D11PixelShader> m_pixelShader;			// ピクセルシェーダー
