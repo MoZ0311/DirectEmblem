@@ -129,7 +129,7 @@ void Direct3D::clearBackground(const ColorF& backgroundColor) const
     m_deviceContext->ClearRenderTargetView(m_renderTargetView.Get(), backgroundColor.rgba);
 }
 
-void Direct3D::draw(const UINT& vertexCount) const
+void Direct3D::draw(const UINT vertexCount) const
 {
     m_deviceContext->Draw(vertexCount, 0);
 }

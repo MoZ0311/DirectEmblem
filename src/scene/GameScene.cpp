@@ -13,15 +13,17 @@ GameScene::~GameScene()
 
 }
 
-void GameScene::createVertices()
+std::vector<Vertex> GameScene::createVertices() const
 {
 	// 画面中央に配置する一つの正方形の頂点データ
-	m_vertices = {
+	const std::vector<Vertex> vertices{
 		// 頂点データ: { x, y, z, r, g, b, a } 
 		{ -0.9f, -0.9f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },	// 左下
 		{ 0.0f, 0.85f, 0.0f, 1.0f, 0.0f, 1.0, 1.0f },	// 上
 		{ 0.9f, -0.9f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f },	// 右下
 	};
+
+	return vertices;
 }
 
 void GameScene::updateScene()
@@ -31,5 +33,5 @@ void GameScene::updateScene()
 
 void GameScene::draw() const
 {
-
+	m_direct3D.draw(m_vertexCount);
 }

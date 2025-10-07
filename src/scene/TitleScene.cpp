@@ -13,16 +13,18 @@ TitleScene::~TitleScene()
 
 }
 
-void TitleScene::createVertices()
+std::vector<Vertex> TitleScene::createVertices() const
 {
 	// 画面中央に配置する一つの正方形の頂点データ
-	m_vertices = {
+	const std::vector<Vertex> vertices{
 		// 頂点データ: { x, y, z, r, g, b, a } 
 		{ -0.9f,  0.9f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f }, // 左上 (赤)
 		{  0.9f,  0.9f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f }, // 右上 (緑)
 		{ -0.9f, -0.9f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f }, // 左下 (青)
 		{  0.9f, -0.9f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f }, // 右下 (黄)
 	};
+
+	return vertices;
 }
 
 void TitleScene::updateScene()

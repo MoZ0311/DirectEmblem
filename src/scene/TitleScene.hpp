@@ -20,7 +20,7 @@ public:
 private:
 
     // 頂点バッファの作成処理
-    void createVertices() override;
+    std::vector<Vertex> createVertices() const override;
 
     // 描画処理
     void draw() const override;

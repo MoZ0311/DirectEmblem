@@ -13,6 +13,9 @@ public:
     // コンストラクタ
     BaseScene();
 
+    // デストラクタ
+    virtual ~BaseScene() = default;
+
     // 初期化処理
     bool initialize();
 
@@ -33,16 +36,13 @@ protected:
     // 頂点バッファ
     ComPtr<ID3D11Buffer> m_vertexBuffer;
 
-    // 頂点情報
-    std::vector<Vertex> m_vertices;
-
     // 頂点数
     UINT m_vertexCount;
 
 private:
 
     // 頂点情報の作成処理
-    virtual void createVertices() = 0;
+    virtual std::vector<Vertex> createVertices() const = 0;
 
     // 描画処理
     virtual void draw() const = 0;

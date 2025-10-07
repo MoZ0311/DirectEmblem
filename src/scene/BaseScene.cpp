@@ -6,7 +6,6 @@ BaseScene::BaseScene()
 	: m_direct3D{ Direct3D::GetInstance() }
 	, m_backgroundColor{ 0.0f }
 	, m_vertexBuffer{ nullptr }
-	, m_vertices{}
 	, m_vertexCount{ 0 }
 {
 
@@ -15,13 +14,13 @@ BaseScene::BaseScene()
 bool BaseScene::initialize()
 {
 	// 頂点情報の作成
-	createVertices();
+	const std::vector<Vertex> vertices{ createVertices() };
 
 	// 頂点数の設定
-	m_vertexCount = static_cast<UINT>(m_vertices.size());
+	m_vertexCount = static_cast<UINT>(vertices.size());
 
 	// バッファの作成
-	m_vertexBuffer = m_direct3D.createVertexBuffer(m_vertices);
+	m_vertexBuffer = m_direct3D.createVertexBuffer(vertices);
 
 	// バッファ作成の成否をreturn
 	return m_vertexBuffer != nullptr;

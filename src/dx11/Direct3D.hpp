@@ -35,7 +35,7 @@ public:
 	void clearBackground(const ColorF& backgroundColor) const;
 
 	// ‰æ–Ê‚Ì•`‰æˆ—
-	void draw(const UINT& vertexCount) const;
+	void draw(const UINT vertexCount) const;
 
 	// ‰æ–Ê‚Ì“]‘—ˆ—
 	void flip() const;
