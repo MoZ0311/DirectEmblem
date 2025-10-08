@@ -124,7 +124,10 @@ bool Application::registerWindowClass() const
 
 bool Application::createWindow()
 {
+	// クライアント領域の矩形
 	RECT windowRect{ 0, 0, WindowWidth, WindowHeight };
+
+	// メニュー等の設定
 	const DWORD dwStyle{ WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX };
 
 	// 目的のクライアント領域サイズから、ウィンドウ全体のサイズを計算

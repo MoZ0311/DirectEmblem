@@ -26,7 +26,7 @@ std::vector<Vertex> GameScene::createVertices() const
 	return vertices;
 }
 
-void GameScene::updateScene()
+void GameScene::update()
 {
 
 }
