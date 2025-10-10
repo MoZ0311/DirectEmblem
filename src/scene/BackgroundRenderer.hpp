@@ -1,19 +1,15 @@
-// MapRenderer class
+// BackgroundRenderer class
 
 # pragma once
 
-# include "../core/Config.hpp"
 # include "../dx11/Direct3D.hpp"
 
-class MapRenderer
+class BackgroundRenderer
 {
 public:
 
 	// コンストラクタ
-	MapRenderer();
-
-	// 更新処理
-	void update();
+	BackgroundRenderer();
 
 	// 描画処理
 	void draw() const;
@@ -25,9 +21,6 @@ private:
 
 	// 頂点情報の作成処理
 	std::vector<Vertex> createVertices() const;
-
-	// マップデータの二次元配列
-	const Config::MapSettings::TileType m_mapData[Config::MapSettings::MapHeight][Config::MapSettings::MapWidth];
 
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
