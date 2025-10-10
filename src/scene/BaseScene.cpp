@@ -7,27 +7,10 @@ using namespace std::chrono;
 BaseScene::BaseScene()
 	: m_direct3D{ Direct3D::GetInstance() }
 	, m_backgroundColor{ 0.0f }
-	, m_vertexBuffer{ nullptr }
-	, m_vertexCount{ 0 }
 	, m_prevTime{ high_resolution_clock::now() }
 	, m_deltaTime{ 0.001f }
 {
 
-}
-
-bool BaseScene::initialize()
-{
-	// 頂点情報の作成
-	const std::vector<Vertex> vertices{ createVertices() };
-
-	// 頂点数の設定
-	m_vertexCount = static_cast<UINT>(vertices.size());
-
-	// バッファの作成
-	m_vertexBuffer = m_direct3D.createVertexBuffer(vertices);
-
-	// バッファ作成の成否をreturn
-	return m_vertexBuffer != nullptr;
 }
 
 void BaseScene::calculateDeltaTime()
@@ -49,16 +32,13 @@ void BaseScene::updateScene()
 	calculateDeltaTime();
 
 	// 純粋仮想関数の更新処理実行
-	update();
+	update();	
 }
 
 void BaseScene::drawScene() const
 {
 	// シーンの画面をクリア
 	m_direct3D.clearBackground(m_backgroundColor);
-
-	// DirectX側にバッファを転送
-	m_direct3D.setVertexBuffer(m_vertexBuffer);
 
 	// 純粋仮想関数の描画処理実行
 	draw();

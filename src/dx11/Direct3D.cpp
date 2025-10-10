@@ -106,6 +106,19 @@ ComPtr<ID3D11Buffer> Direct3D::createVertexBuffer(const std::vector<Vertex>& ver
     return vertexBuffer;
 }
 
+void Direct3D::updateVeretexBuffer(const ComPtr<ID3D11Buffer>& vertexBuffer, const std::vector<Vertex>& vertices)
+{
+    // UpdateSubresourceを使ってGPU上のバッファの内容を更新
+    m_deviceContext->UpdateSubresource(
+        vertexBuffer.Get(),
+        0,                  // Subresource
+        nullptr,            // pBox (全体を更新するのでnullptr)
+        vertices.data(),    // pSrcData (ソースデータ)
+        0,                  // SrcRowPitch (未使用なので0)
+        0                   // SrcDepthPitch (未使用なので0)
+    );
+}
+
 void Direct3D::setVertexBuffer(const ComPtr<ID3D11Buffer>& vertexBuffer)
 {
     // 頂点バッファをインプットアセンブラ(IA)ステージに設定

@@ -16,9 +16,6 @@ public:
 
 private:
 
-    // 頂点バッファの作成処理
-    std::vector<Vertex> createVertices() const override;
-
     // 更新処理
     void update() override;
 

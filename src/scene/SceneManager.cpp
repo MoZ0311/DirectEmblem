@@ -37,7 +37,8 @@ bool SceneManager::initialize(const Scene initScene)
 		return false;
 	}
 
-	return m_currentScene.get()->initialize();	
+	// 正常にシーンインスタンスが作られた時、true
+	return true;
 }
 
 void SceneManager::execute()
@@ -60,6 +61,4 @@ void SceneManager::changeScene(const Scene targetScene)
 	default:
 		break;
 	}
-
-	m_currentScene.get()->initialize();
 }

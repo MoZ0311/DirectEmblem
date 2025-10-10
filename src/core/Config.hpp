@@ -20,6 +20,23 @@ namespace Config
 
 	// リフレッシュレート
 	static inline constexpr UINT RefreshRate{ 60 };
+
+	namespace MapSettings
+	{
+		// マップの幅
+		static inline constexpr UINT MapWidth{ 16 };
+
+		// マップの高さ
+		static inline constexpr UINT MapHeight{ 16 };
+
+		// タイルの種類
+		enum class TileType
+		{
+			Grass,
+			Forest,
+			Water
+		};
+	}
 };
 
 namespace SceneSettings
@@ -60,4 +77,10 @@ struct Vertex
 {
 	Position position;
 	ColorF color;
+};
+
+struct Vec2
+{
+	float x;
+	float y;
 };
