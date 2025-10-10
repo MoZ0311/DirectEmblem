@@ -2,8 +2,6 @@
 
 # pragma once
 
-# include "../core/Config.hpp"
-# include "../dx11/Direct3D.hpp"
 # include "TitleScene.hpp"
 # include "GameScene.hpp"
 

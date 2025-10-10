@@ -3,7 +3,7 @@
 # pragma once
 
 # include "../core/Config.hpp"
-# include "../dx11/Direct3D.hpp"
+# include "../dx11/DirectX.hpp"
 
 class MapRenderer
 {

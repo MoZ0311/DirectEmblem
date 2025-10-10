@@ -233,11 +233,9 @@ void Direct3D::setViewPortSettings() const
 
 bool Direct3D::compileShader()
 {
-    const WCHAR shaderFileName[]{ L"shader/Shader.hlsl" };
-
     // 頂点シェーダーを読み込み＆コンパイル
     const HRESULT vertexShaderResult{ D3DCompileFromFile(
-        shaderFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+        ShaderFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
         "VSMain", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &m_compiledVertexShader, nullptr)
     };
 
@@ -249,7 +247,7 @@ bool Direct3D::compileShader()
     // ピクセルシェーダーを読み込み＆コンパイル
     ComPtr<ID3DBlob> compiledPixelShader;
     const HRESULT pixelShaderResult{ D3DCompileFromFile(
-        shaderFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+        ShaderFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
         "PSMain", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &compiledPixelShader, nullptr)
     };
 
@@ -295,4 +293,9 @@ void Direct3D::setRenderPipeline() const
 
     // 描画するプリミティブ（図形の種類）を三角形リストに設定
     m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+ComPtr<ID3D11Device> Direct3D::getDevice() const
+{
+    return m_device;
 }

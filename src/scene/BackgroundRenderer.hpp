@@ -2,7 +2,7 @@
 
 # pragma once
 
-# include "../dx11/Direct3D.hpp"
+# include "../dx11/DirectX.hpp"
 
 class BackgroundRenderer
 {

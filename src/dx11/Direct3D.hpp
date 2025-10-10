@@ -2,18 +2,8 @@
 
 # pragma once
 
-# pragma comment(lib, "d3d11.lib")
-# pragma comment(lib, "dxgi.lib")
-# pragma comment(lib, "d3dcompiler.lib")
-
-# include <d3d11.h>
-# include <d3dcompiler.h>
-# include <directxmath.h>
-# include <wrl/client.h>
-# include <vector>
+# include "DirectX.hpp"
 # include "../core/Config.hpp"
-
-using namespace Microsoft::WRL;
 
 class Direct3D
 {
@@ -42,6 +32,9 @@ public:
 
 	// 画面の転送処理
 	void flip() const;
+
+	// デバイスの取得処理
+	ComPtr<ID3D11Device> getDevice() const;
 
 private:
 

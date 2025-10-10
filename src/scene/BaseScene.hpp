@@ -2,10 +2,8 @@
 
 # pragma once
 
-# include <memory>
 # include <chrono>
 # include "../core/Config.hpp"
-# include "../dx11/Direct3D.hpp"
 # include "BackgroundRenderer.hpp"
 
 class BaseScene

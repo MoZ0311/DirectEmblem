@@ -2,9 +2,7 @@
 
 # pragma once
 
-# include "Config.hpp"
 # include "../scene/SceneManager.hpp"
-# include "../dx11/Direct3D.hpp"
 
 class Application
 {

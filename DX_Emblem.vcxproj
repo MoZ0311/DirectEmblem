@@ -162,6 +162,8 @@
     <ClInclude Include="src\core\Application.hpp" />
     <ClInclude Include="src\core\Config.hpp" />
     <ClInclude Include="src\dx11\Direct3D.hpp" />
+    <ClInclude Include="src\dx11\DirectX.hpp" />
+    <ClInclude Include="src\dx11\Texture.hpp" />
     <ClInclude Include="src\map\MapRenderer.hpp" />
     <ClInclude Include="src\scene\BackgroundRenderer.hpp" />
     <ClInclude Include="src\scene\BaseScene.hpp" />
@@ -173,6 +175,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="src\core\Application.cpp" />
     <ClCompile Include="src\dx11\Direct3D.cpp" />
+    <ClCompile Include="src\dx11\Texture.cpp" />
     <ClCompile Include="src\map\MapRenderer.cpp" />
     <ClCompile Include="src\scene\BackgroundRenderer.cpp" />
     <ClCompile Include="src\scene\BaseScene.cpp" />
@@ -183,7 +186,17 @@
   <ItemGroup>
     <FxCompile Include="shader\Shader.hlsl" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\directxtex_uwp.2025.7.10.1\build\native\directxtex_uwp.targets" Condition="Exists('packages\directxtex_uwp.2025.7.10.1\build\native\directxtex_uwp.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>このプロジェクトは、このコンピューター上にない NuGet パッケージを参照しています。それらのパッケージをダウンロードするには、[NuGet パッケージの復元] を使用します。詳細については、http://go.microsoft.com/fwlink/?LinkID=322105 を参照してください。見つからないファイルは {0} です。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\directxtex_uwp.2025.7.10.1\build\native\directxtex_uwp.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\directxtex_uwp.2025.7.10.1\build\native\directxtex_uwp.targets'))" />
+  </Target>
 </Project>

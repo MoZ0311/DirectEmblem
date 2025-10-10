@@ -3,6 +3,9 @@
 # pragma once
 
 # include <windows.h>
+# include <memory>
+// ‰Â•Ï’·”z—ñ
+# include <vector>
 
 namespace Config
 {
@@ -37,6 +40,8 @@ namespace Config
 			Water
 		};
 	}
+
+	static inline constexpr WCHAR ShaderFileName[]{ L"shader/Shader.hlsl" };
 };
 
 namespace SceneSettings
