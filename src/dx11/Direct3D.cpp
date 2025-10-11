@@ -14,6 +14,7 @@ Direct3D::Direct3D()
     , m_pixelShader{ nullptr }
     , m_inputLayout{ nullptr }
     , m_compiledVertexShader{ nullptr }
+    , m_samplerState{ nullptr }
 {
 
 }
@@ -69,6 +70,16 @@ bool Direct3D::initialize(const HWND& hWnd)
         MessageBox(m_hWnd, L"Direct3D: インプットレイアウトの作成に失敗しました。", L"DirectX エラー", MB_ICONERROR);
         return false;
     }
+
+    /* サンプラーステート設定
+    const HRESULT samplerResult{ createSamplerState() };
+    if (FAILED(samplerResult))
+    {
+        // 失敗時、return
+        MessageBox(m_hWnd, L"Direct3D: サンプラーステートの作成に失敗しました。", L"DirectX エラー", MB_ICONERROR);
+        return false;
+    }
+    */
 
     // パイプライン設定
     setRenderPipeline();
@@ -134,6 +145,12 @@ void Direct3D::setVertexBuffer(const ComPtr<ID3D11Buffer>& vertexBuffer)
         &stride,
         &offset
     );
+}
+
+void Direct3D::setTexture(const ComPtr<ID3D11ShaderResourceView>& shaderResourceView) const
+{
+    // シェーダーリソースビューをピクセルシェーダーのt0スロットに設定
+    m_deviceContext->PSSetShaderResources(0, 1, shaderResourceView.GetAddressOf());
 }
 
 void Direct3D::clearBackground(const ColorF& backgroundColor) const
@@ -274,8 +291,9 @@ bool Direct3D::compileShader()
 HRESULT Direct3D::createInputLayout()
 {
     D3D11_INPUT_ELEMENT_DESC layout[]{
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,                           D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,       0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
 
     // 頂点インプットレイアウト作成

@@ -78,10 +78,16 @@ struct Position
 	float xyz[3];
 };
 
+struct UV
+{
+	float uv[2];
+};
+
 struct Vertex
 {
 	Position position;
 	ColorF color;
+	UV uv;
 };
 
 struct Vec2

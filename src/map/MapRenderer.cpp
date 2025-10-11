@@ -7,8 +7,8 @@ using namespace Config::MapSettings;
 MapRenderer::MapRenderer()
 	: m_mapData{ TileType::Grass }
 	, m_direct3D{ Direct3D::GetInstance() }
-	, m_vertexBuffer{ nullptr }
 	, m_vertexCount{ 0 }
+	, m_vertexBuffer{ nullptr }
 {
 	initialize();
 }
@@ -29,10 +29,26 @@ std::vector<Vertex> MapRenderer::createVertices() const
 {
 	// 画面中央に配置する一つの正方形の頂点データ
 	const std::vector<Vertex> vertices{
-		// 頂点データ: { x, y, z, r, g, b, a } 
-		{  0.0f, -0.9f,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f },	// 下
-		{ -0.9f,  0.9f,  0.0f, 1.0f, 1.0f, 0.0f, 1.0f },	// 左上
-		{  0.9f,  0.9f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f },	// 右上
+		// 頂点1:下
+		{
+			{ 0.0f, -0.9f,  0.0f },
+			{ 1.0f, 0.0f, 1.0f, 1.0f },
+			{ 0.5f, 1.0f}
+		},
+
+		// 頂点2:左上
+		{
+			{ -0.9f,  0.9f,  0.0f},
+			{ 1.0f, 1.0f, 0.0f, 1.0f},
+			{ 0.0f, 0.0f }
+		},
+
+		// 頂点:3右上
+		{
+			{ 0.9f,  0.9f,  0.0f },
+			{ 0.0f, 1.0f, 1.0f, 1.0f },
+			{ 1.0f, 0.0f}
+		},
 	};
 
 	return vertices;

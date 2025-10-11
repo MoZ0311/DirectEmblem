@@ -3,6 +3,7 @@
 # pragma once
 
 # include "BaseScene.hpp"
+# include "BackgroundRenderer.hpp"
 
 class TitleScene : public BaseScene
 {
@@ -20,5 +21,8 @@ private:
     void update() override;
 
     // •`‰æˆ—
-    void draw() const override;    
+    void draw() const override;
+
+    // ”wŒi•`‰æƒNƒ‰ƒX
+    BackgroundRenderer backgroundRenderer;
 };

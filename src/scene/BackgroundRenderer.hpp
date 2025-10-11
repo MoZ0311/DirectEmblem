@@ -25,9 +25,12 @@ private:
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
 
-	// 頂点バッファ
-	ComPtr<ID3D11Buffer> m_vertexBuffer;
+	// 背景テクスチャ
+	// Texture m_backgroundTexture;
 
 	// 頂点数
 	UINT m_vertexCount;
+
+	// 頂点バッファ
+	ComPtr<ID3D11Buffer> m_vertexBuffer;
 };

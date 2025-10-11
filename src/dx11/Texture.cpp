@@ -10,11 +10,11 @@ Texture::Texture()
 }
 
 // 読み込み処理
-bool Texture::loadTexture(const WCHAR& filePath)
+bool Texture::loadTexture(const WCHAR* filePath)
 {
     // 画像を読み込む
-    const auto image{ std::make_unique<DirectX::ScratchImage>() };
-    const HRESULT loadResult{ DirectX::LoadFromWICFile(&filePath, DirectX::WIC_FLAGS_NONE, &textureData, *image) };
+    auto image{ std::make_unique<DirectX::ScratchImage>() };
+    const HRESULT loadResult{ DirectX::LoadFromWICFile(filePath, DirectX::WIC_FLAGS_NONE, &textureData, *image) };
     if (FAILED(loadResult))
     {
         textureData = {};
@@ -34,6 +34,9 @@ bool Texture::loadTexture(const WCHAR& filePath)
         textureData = {};
         return false;
     }
+
+    // スロットにセット
+    Direct3D::GetInstance().setTexture(shaderResourceView);
 
     return true;
 }

@@ -4,14 +4,19 @@
 
 BackgroundRenderer::BackgroundRenderer()
 	: m_direct3D{ Direct3D::GetInstance() }
-	, m_vertexBuffer{ nullptr }
 	, m_vertexCount{ 0 }
+	, m_vertexBuffer{ nullptr }
 {
 	initialize();
 }
 
 void BackgroundRenderer::initialize()
 {
+	// 背景テクスチャのロード
+	const WCHAR filePath[]{ L"assets/images/background_title.png" };
+    Texture texture{};
+    texture.loadTexture(filePath);
+
 	// 頂点情報の作成
 	const std::vector<Vertex> vertices{ createVertices() };
 
@@ -25,13 +30,43 @@ void BackgroundRenderer::initialize()
 std::vector<Vertex> BackgroundRenderer::createVertices() const
 {
 	const std::vector<Vertex> vertices{
-		{ -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },	// 左下
-		{ -1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },	// 左上
-		{  1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },	// 右上
+        // 頂点1:左下
+        {
+            { -1.0f, -1.0f, 0.0f },
+            { 1.0f, 1.0f, 1.0f, 1.0f },
+            { 0.0f, 1.0f }
+        },
+        // 頂点2:左上
+        {
+            { -1.0f, 1.0f, 0.0f },
+            { 1.0f, 1.0f, 1.0f, 1.0f },
+            { 0.0f, 0.0f }
+        },
+        // 頂点3:右上
+        {
+            { 1.0f, 1.0f, 0.0f },
+            { 1.0f, 1.0f, 1.0f, 1.0f },
+            { 1.0f, 0.0f }
+        },
 
-		{ -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },	// 左下
-		{  1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },	// 右上
-		{  1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },	// 右下
+        // 頂点4:左下
+        {
+            { -1.0f, -1.0f, 0.0f },
+            { 1.0f, 1.0f, 1.0f, 1.0f },
+            { 0.0f, 1.0f }
+        },
+        // 頂点5:右上
+        {
+            { 1.0f, 1.0f, 0.0f },
+            { 1.0f, 1.0f, 1.0f, 1.0f },
+            { 1.0f, 0.0f }
+        },
+        // 頂点6:右下
+        {
+            { 1.0f, -1.0f, 0.0f },
+            { 1.0f, 1.0f, 1.0f, 1.0f },
+            { 1.0f, 1.0f }
+        },
 	};
 
 	return vertices;

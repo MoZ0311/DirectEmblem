@@ -24,6 +24,9 @@ public:
 	// 頂点バッファのステージング処理
 	void setVertexBuffer(const ComPtr<ID3D11Buffer>& vertexBuffer);
 
+	// テクスチャの設定処理
+	void setTexture(const ComPtr<ID3D11ShaderResourceView>& shaderResourceView) const;
+
 	// 画面のクリア処理
 	void clearBackground(const ColorF& backgroundColor) const;
 
@@ -62,6 +65,9 @@ private:
 	// 頂点バッファをパイプラインに流す処理
 	void setRenderPipeline() const;
 
+	// ウィンドウの識別ハンドル
+	HWND m_hWnd;
+
 	// DirectX 11の主要インターフェース
 	ComPtr<ID3D11Device> m_device;						// Direcr3Dデバイス
 	ComPtr<ID3D11DeviceContext> m_deviceContext;		// デバイスコンテキスト
@@ -75,6 +81,6 @@ private:
 	// 2D描画シェーダー
 	ComPtr<ID3DBlob> m_compiledVertexShader;			// コンパイル済みの頂点シェーダー
 
-	// ウィンドウの識別ハンドル
-	HWND m_hWnd;
+	// 画像のサンプラー
+	ComPtr<ID3D11SamplerState> m_samplerState;			// サンプラーステート
 };

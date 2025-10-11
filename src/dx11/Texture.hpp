@@ -10,7 +10,7 @@ struct Texture
 	Texture();
 
 	// “Ç‚İ‚İˆ—
-	bool loadTexture(const WCHAR& fileName);
+	bool loadTexture(const WCHAR* fileName);
 
 	// ‰æ‘œ‚Ì“Ç‚İæ‚èƒnƒ“ƒhƒ‹
 	ComPtr<ID3D11ShaderResourceView> shaderResourceView;

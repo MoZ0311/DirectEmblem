@@ -4,7 +4,7 @@
 
 # include <chrono>
 # include "../core/Config.hpp"
-# include "BackgroundRenderer.hpp"
+# include "../dx11/Direct3D.hpp"
 
 class BaseScene
 {
@@ -29,9 +29,6 @@ protected:
 
     // Direct3Dクラスのインスタンス
     Direct3D& m_direct3D;
-
-    // 背景描画クラス
-    BackgroundRenderer m_backgroundRenderer;
 
     // 背景色
     ColorF m_backgroundColor;

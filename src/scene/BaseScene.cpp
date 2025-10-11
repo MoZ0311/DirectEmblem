@@ -6,7 +6,6 @@ using namespace std::chrono;
 
 BaseScene::BaseScene()
 	: m_direct3D{ Direct3D::GetInstance() }
-	, m_backgroundRenderer{}
 	, m_backgroundColor{ 0.0f }
 	, m_prevTime{ high_resolution_clock::now() }
 	, m_deltaTime{ 0.001f }
@@ -40,9 +39,6 @@ void BaseScene::drawScene() const
 {
 	// シーンの画面をクリア
 	m_direct3D.clearBackground(m_backgroundColor);
-
-	// 背景描画
-	m_backgroundRenderer.draw();
 
 	// 純粋仮想関数の描画処理実行
 	draw();
