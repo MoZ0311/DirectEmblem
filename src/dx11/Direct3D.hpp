@@ -62,6 +62,9 @@ private:
 	// インプットレイアウト作成
 	HRESULT createInputLayout();
 
+	// サンプラーステート作成
+	HRESULT createSamplerState();
+
 	// 頂点バッファをパイプラインに流す処理
 	void setRenderPipeline() const;
 

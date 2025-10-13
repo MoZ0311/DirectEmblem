@@ -71,7 +71,7 @@ bool Direct3D::initialize(const HWND& hWnd)
         return false;
     }
 
-    /* サンプラーステート設定
+    // サンプラーステート設定
     const HRESULT samplerResult{ createSamplerState() };
     if (FAILED(samplerResult))
     {
@@ -79,7 +79,6 @@ bool Direct3D::initialize(const HWND& hWnd)
         MessageBox(m_hWnd, L"Direct3D: サンプラーステートの作成に失敗しました。", L"DirectX エラー", MB_ICONERROR);
         return false;
     }
-    */
 
     // パイプライン設定
     setRenderPipeline();
@@ -300,11 +299,29 @@ HRESULT Direct3D::createInputLayout()
     return m_device->CreateInputLayout(layout, ARRAYSIZE(layout), m_compiledVertexShader->GetBufferPointer(), m_compiledVertexShader->GetBufferSize(), m_inputLayout.GetAddressOf());
 }
 
+HRESULT Direct3D::createSamplerState()
+{
+    D3D11_SAMPLER_DESC samplerDesc{};
+    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; // 線形補間を使う最も一般的なフィルター
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;    // UV座標が0-1の範囲外の場合、テクスチャを繰り返す
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    samplerDesc.MinLOD = 0;
+    samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+    // サンプラーステートを作成
+    return m_device->CreateSamplerState(&samplerDesc, m_samplerState.GetAddressOf());
+}
+
 void Direct3D::setRenderPipeline() const
 {
     // シェーダーを設定
     m_deviceContext->VSSetShader(m_vertexShader.Get(), nullptr, 0);
     m_deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
+
+    // サンプラーステートをピクセルシェーダーに設定
+    m_deviceContext->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
 
     // インプットレイアウトを設定
     m_deviceContext->IASetInputLayout(m_inputLayout.Get());
