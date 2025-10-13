@@ -6,7 +6,7 @@ using namespace std::chrono;
 
 BaseScene::BaseScene()
 	: m_direct3D{ Direct3D::GetInstance() }
-	, m_backgroundColor{ 0.0f }
+	, m_backgroundColor{ 0.0f, 0.0f, 0.0f, 0.0f }
 	, m_prevTime{ high_resolution_clock::now() }
 	, m_deltaTime{ 0.001f }
 {

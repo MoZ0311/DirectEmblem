@@ -28,7 +28,7 @@ public:
 	void setTexture(const ComPtr<ID3D11ShaderResourceView>& shaderResourceView) const;
 
 	// ‰æ–Ê‚ÌƒNƒŠƒAˆ—
-	void clearBackground(const ColorF& backgroundColor) const;
+	void clearBackground(const DirectX::XMFLOAT4& backgroundColor) const;
 
 	// ‰æ–Ê‚Ì•`‰æˆ—
 	void draw(const UINT vertexCount) const;

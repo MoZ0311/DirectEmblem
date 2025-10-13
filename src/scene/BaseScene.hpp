@@ -31,7 +31,7 @@ protected:
     Direct3D& m_direct3D;
 
     // îwåiêF
-    ColorF m_backgroundColor;
+    DirectX::XMFLOAT4 m_backgroundColor;
 
 private:
 

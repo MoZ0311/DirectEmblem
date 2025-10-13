@@ -153,10 +153,10 @@ void Direct3D::setTexture(const ComPtr<ID3D11ShaderResourceView>& shaderResource
     m_deviceContext->PSSetShaderResources(0, 1, shaderResourceView.GetAddressOf());
 }
 
-void Direct3D::clearBackground(const ColorF& backgroundColor) const
+void Direct3D::clearBackground(const DirectX::XMFLOAT4& backgroundColor) const
 {
     // ”wŒi‚ÌƒNƒŠƒA
-    m_deviceContext->ClearRenderTargetView(m_renderTargetView.Get(), backgroundColor.rgba);
+    m_deviceContext->ClearRenderTargetView(m_renderTargetView.Get(), (const float*)&backgroundColor);
 }
 
 void Direct3D::draw(const UINT vertexCount) const

@@ -6,6 +6,7 @@
 # include <memory>
 // 可変長配列
 # include <vector>
+# include <directxmath.h>
 
 namespace Config
 {
@@ -27,10 +28,10 @@ namespace Config
 	namespace MapSettings
 	{
 		// マップの幅
-		static inline constexpr UINT MapWidth{ 16 };
+		static inline constexpr UINT MapWidth{ 11 };
 
 		// マップの高さ
-		static inline constexpr UINT MapHeight{ 16 };
+		static inline constexpr UINT MapHeight{ 11 };
 
 		// タイルの種類
 		enum class TileType
@@ -68,26 +69,11 @@ namespace SceneSettings
 	};
 }
 
-struct ColorF
-{
-	float rgba[4];
-};
-
-struct Position
-{
-	float xyz[3];
-};
-
-struct UV
-{
-	float uv[2];
-};
-
 struct Vertex
 {
-	Position position;
-	ColorF color;
-	UV uv;
+	DirectX::XMFLOAT3 position;
+	DirectX::XMFLOAT4 color;
+	DirectX::XMFLOAT2 uv;
 };
 
 struct Vec2
