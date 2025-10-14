@@ -14,8 +14,10 @@ void BackgroundRenderer::initialize()
 {
 	// 背景テクスチャのロード
 	const WCHAR filePath[]{ L"assets/images/background_title.png" };
-    Texture texture{};
-    texture.loadTexture(filePath);
+    Texture texture{ filePath };
+
+    // 背景テクスチャのセット
+    m_direct3D.setTexture(texture.getShaderResourceView());
 
 	// 頂点情報の作成
 	const std::vector<Vertex> vertices{ createVertices() };
@@ -25,6 +27,9 @@ void BackgroundRenderer::initialize()
 
 	// バッファの作成
 	m_vertexBuffer = m_direct3D.createVertexBuffer(vertices);
+
+    // DirectXにTitleSceneのバッファを転送
+    m_direct3D.setVertexBuffer(m_vertexBuffer);
 }
 
 std::vector<Vertex> BackgroundRenderer::createVertices() const
@@ -74,9 +79,6 @@ std::vector<Vertex> BackgroundRenderer::createVertices() const
 
 void BackgroundRenderer::draw() const
 {
-	// DirectXにTitleSceneのバッファを転送
-	m_direct3D.setVertexBuffer(m_vertexBuffer);
-
 	// 描画コマンド実行
 	m_direct3D.draw(m_vertexCount);
 }

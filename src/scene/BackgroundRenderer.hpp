@@ -25,9 +25,6 @@ private:
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
 
-	// 背景テクスチャ
-	// Texture m_backgroundTexture;
-
 	// 頂点数
 	UINT m_vertexCount;
 

@@ -2,6 +2,7 @@
 
 # pragma once
 
+# include <map>
 # include "../core/Config.hpp"
 # include "../dx11/DirectX.hpp"
 

@@ -2,14 +2,13 @@
 
 # include "Texture.hpp"
 
-Texture::Texture()
+Texture::Texture(const WCHAR* filePath)
 	: shaderResourceView{ nullptr }
 	, textureData{}
 {
-
+    loadTexture(filePath);
 }
 
-// 読み込み処理
 bool Texture::loadTexture(const WCHAR* filePath)
 {
     // 画像を読み込む
@@ -17,6 +16,7 @@ bool Texture::loadTexture(const WCHAR* filePath)
     const HRESULT loadResult{ DirectX::LoadFromWICFile(filePath, DirectX::WIC_FLAGS_NONE, &textureData, *image) };
     if (FAILED(loadResult))
     {
+        // 失敗
         textureData = {};
         return false;
     }
@@ -35,8 +35,10 @@ bool Texture::loadTexture(const WCHAR* filePath)
         return false;
     }
 
-    // スロットにセット
-    Direct3D::GetInstance().setTexture(shaderResourceView);
-
     return true;
+}
+
+ComPtr<ID3D11ShaderResourceView> Texture::getShaderResourceView() const
+{
+    return shaderResourceView;
 }

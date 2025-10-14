@@ -6,7 +6,7 @@ using namespace Config;
 using namespace Config::MapSettings;
 
 MapRenderer::MapRenderer()
-	: m_mapData{ TileType::Grass }
+	: m_mapData{ TileType::Water }
 	, m_direct3D{ Direct3D::GetInstance() }
 	, m_vertexCount{ 0 }
 	, m_vertexBuffer{ nullptr }
@@ -16,6 +16,13 @@ MapRenderer::MapRenderer()
 
 void MapRenderer::initialize()
 {
+    // 背景テクスチャのロード
+    const WCHAR filePath[]{ L"assets/images/tiles/tile_sheet.png" };
+    Texture texture{ filePath };
+
+    // 背景テクスチャのセット
+    m_direct3D.setTexture(texture.getShaderResourceView());
+
 	// 頂点情報の作成
 	std::vector<Vertex> vertices{ createVertices() };
 
@@ -24,6 +31,9 @@ void MapRenderer::initialize()
 
 	// バッファの作成
 	m_vertexBuffer = m_direct3D.createVertexBuffer(vertices);
+
+    // DirectXにTitleSceneのバッファを転送
+    m_direct3D.setVertexBuffer(m_vertexBuffer);
 }
 
 std::vector<Vertex> MapRenderer::createVertices() const
@@ -37,11 +47,8 @@ std::vector<Vertex> MapRenderer::createVertices() const
     const float startX{ -tileWidth * MapWidth / 2 };    // 開始x座標
     const float startY{ tileHeight * MapHeight / 2 };   // 開始y座標
 
-    // テクスチャ座標 (UV: 0.0～1.0)
-    const DirectX::XMFLOAT2 uvTopLeft{ 0.0f, 0.0f };
-    const DirectX::XMFLOAT2 uvTopRight{ 1.0f, 0.0f };
-    const DirectX::XMFLOAT2 uvBottomLeft{ 0.0f, 1.0f };
-    const DirectX::XMFLOAT2 uvBottomRight{ 1.0f, 1.0f };
+    // タイルシートの情報定義
+    const float uvTileWidth = 1.0f / static_cast<float>(TileType::TileMax);
 
     // 色 (テスト用に白(1.0, 1.0, 1.0, 1.0)に設定)
     const DirectX::XMFLOAT4 colorF{ 1.0f, 1.0f, 1.0f, 1.0f };
@@ -50,15 +57,28 @@ std::vector<Vertex> MapRenderer::createVertices() const
     std::vector<Vertex> vertices{};
 
     // 二重ループで頂点を作成
-    for (int y = 0; y < MapHeight; ++y)
+    for (int y{ 0 }; y < MapHeight; ++y)
     {
-        for (int x = 0; x < MapWidth; ++x)
+        for (int x{ 0 }; x < MapWidth; ++x)
         {
             // 各タイルの左上座標を計算 (NDC空間)
-            const float left = startX + x * tileWidth;
-            const float right = startX + (x + 1) * tileWidth;
-            const float top = startY - y * tileHeight;
-            const float bottom = startY - (y + 1) * tileHeight;
+            const float left{ startX + x * tileWidth };
+            const float right{ left + tileWidth };
+            const float top{ startY - y * tileHeight };
+            const float bottom{ top - tileHeight };
+
+            // 現在のタイルを取得
+            const TileType currentMapTile{ m_mapData[y][x] };
+
+            // テクスチャアトラスのuv座標計算
+            const float uvLeft{ static_cast<float>(currentMapTile) * uvTileWidth };
+            const float uvRight{ uvLeft + uvTileWidth };
+
+            // テクスチャ座標 (UV: 0.0～1.0)
+            const DirectX::XMFLOAT2 uvTopLeft{ uvLeft, 0.0f };
+            const DirectX::XMFLOAT2 uvTopRight{ uvRight, 0.0f };
+            const DirectX::XMFLOAT2 uvBottomLeft{ uvLeft, 1.0f };
+            const DirectX::XMFLOAT2 uvBottomRight{ uvRight, 1.0f };
 
             // 正方形を2つの三角形(T1, T2)で構成し、三角形リストに追加
 
@@ -96,9 +116,6 @@ void MapRenderer::update()
 
 void MapRenderer::draw() const
 {
-	// DirectXにTitleSceneのバッファを転送
-	m_direct3D.setVertexBuffer(m_vertexBuffer);
-
 	// 描画コマンド実行
 	m_direct3D.draw(m_vertexCount);
 }

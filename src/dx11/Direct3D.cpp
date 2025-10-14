@@ -195,7 +195,7 @@ HRESULT Direct3D::createDeviceAndSwapChain(const DXGI_SWAP_CHAIN_DESC& scDesc)
     const UINT createDeviceFlags = 0;                                       // デバイス作成における特殊なオプションは使用しない
 
     // デバイス作成呼び出し
-    const HRESULT hResult = D3D11CreateDeviceAndSwapChain(
+    const HRESULT hResult{ D3D11CreateDeviceAndSwapChain(
         NULL,                                                               // 既定のグラフィックスカードを使用する
         D3D_DRIVER_TYPE_HARDWARE,                                           // 物理GPUを使用する
         NULL,                                                               // ソフトウェアGPUじゃないから、NULL
@@ -208,7 +208,7 @@ HRESULT Direct3D::createDeviceAndSwapChain(const DXGI_SWAP_CHAIN_DESC& scDesc)
         m_device.GetAddressOf(),                                            // デバイスの格納先
         NULL,                                                               // デバイスの機能レベル情報は、使わない
         m_deviceContext.GetAddressOf()                                      // デバイスコンテキストの格納先
-    );
+    ) };
 
     return hResult;
 }
@@ -261,7 +261,7 @@ bool Direct3D::compileShader()
     }
 
     // ピクセルシェーダーを読み込み＆コンパイル
-    ComPtr<ID3DBlob> compiledPixelShader;
+    ComPtr<ID3DBlob> compiledPixelShader{};
     const HRESULT pixelShaderResult{ D3DCompileFromFile(
         ShaderFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
         "PSMain", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &compiledPixelShader, nullptr)
@@ -289,14 +289,14 @@ bool Direct3D::compileShader()
 
 HRESULT Direct3D::createInputLayout()
 {
-    D3D11_INPUT_ELEMENT_DESC layout[]{
+    D3D11_INPUT_ELEMENT_DESC layoutDesc[]{
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,       0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
 
     // 頂点インプットレイアウト作成
-    return m_device->CreateInputLayout(layout, ARRAYSIZE(layout), m_compiledVertexShader->GetBufferPointer(), m_compiledVertexShader->GetBufferSize(), m_inputLayout.GetAddressOf());
+    return m_device->CreateInputLayout(layoutDesc, ARRAYSIZE(layoutDesc), m_compiledVertexShader->GetBufferPointer(), m_compiledVertexShader->GetBufferSize(), m_inputLayout.GetAddressOf());
 }
 
 HRESULT Direct3D::createSamplerState()

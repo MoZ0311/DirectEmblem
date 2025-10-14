@@ -38,7 +38,10 @@ namespace Config
 		{
 			Grass,
 			Forest,
-			Water
+			Fence,
+			Water,
+
+			TileMax	// 要素数取得のためのダミー
 		};
 	}
 
