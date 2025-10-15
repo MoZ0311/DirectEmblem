@@ -2,6 +2,8 @@
 
 # include "TitleScene.hpp"
 
+using namespace SceneSettings;
+
 TitleScene::TitleScene()
 	: backgroundRenderer{}
 {
@@ -16,7 +18,10 @@ TitleScene::~TitleScene()
 
 void TitleScene::update()
 {
-	
+	if (InputState::KeyPressed(VK_SPACE))
+	{
+		SceneManager::GetInstance().changeScene(Scene::Game);
+	}
 }
 
 void TitleScene::draw() const

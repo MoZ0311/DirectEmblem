@@ -5,6 +5,7 @@
 # include <chrono>
 # include "../core/Config.hpp"
 # include "../dx11/Direct3D.hpp"
+# include "../util/InputState.hpp"
 
 class BaseScene
 {

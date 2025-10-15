@@ -17,8 +17,7 @@ MapRenderer::MapRenderer()
 void MapRenderer::initialize()
 {
     // 背景テクスチャのロード
-    const WCHAR filePath[]{ L"assets/images/tiles/tile_sheet.png" };
-    Texture texture{ filePath };
+    Texture texture{ Config::TileSheetPath };
 
     // 背景テクスチャのセット
     m_direct3D.setTexture(texture.getShaderResourceView());

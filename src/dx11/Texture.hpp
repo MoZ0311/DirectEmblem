@@ -2,7 +2,7 @@
 
 # pragma once
 
-#include "DirectX.hpp"
+# include "DirectX.hpp"
 
 class Texture
 {

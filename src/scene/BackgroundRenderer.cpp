@@ -13,8 +13,7 @@ BackgroundRenderer::BackgroundRenderer()
 void BackgroundRenderer::initialize()
 {
 	// 背景テクスチャのロード
-	const WCHAR filePath[]{ L"assets/images/background_title.png" };
-    Texture texture{ filePath };
+    Texture texture{ Config::BackgroundPath };
 
     // 背景テクスチャのセット
     m_direct3D.setTexture(texture.getShaderResourceView());

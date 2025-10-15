@@ -3,6 +3,7 @@
 # pragma once
 
 # include "BaseScene.hpp"
+# include "SceneManager.hpp"
 # include "../map/MapRenderer.hpp"
 
 class GameScene : public BaseScene

@@ -2,6 +2,8 @@
 
 # include "GameScene.hpp"
 
+using namespace SceneSettings;
+
 GameScene::GameScene()
 	: m_mapRenderer{}
 {
@@ -16,7 +18,10 @@ GameScene::~GameScene()
 
 void GameScene::update()
 {
-
+	if (InputState::KeyPressed(VK_SPACE))
+	{
+		SceneManager::GetInstance().changeScene(Scene::Title);
+	}
 }
 
 void GameScene::draw() const

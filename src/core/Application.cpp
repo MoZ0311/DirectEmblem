@@ -62,27 +62,16 @@ MSG Application::run() const
 		TranslateMessage(&msg); // キーボード入力を処理
 		DispatchMessage(&msg);  // WndProcへメッセージを送信
 
-		// ループ処理はココ!!
-		if (msg.message == WM_KEYDOWN)
+		if (msg.wParam == VK_ESCAPE)
 		{
-			switch (msg.wParam)
-			{
-			case VK_ESCAPE:
-				PostQuitMessage(0);
-				break;
-
-			case VK_SPACE:
-				SceneManager::GetInstance().changeScene(SceneSettings::Scene::Game);
-				break;
-
-			case VK_BACK:
-				SceneManager::GetInstance().changeScene(SceneSettings::Scene::Title);
-				break;
-
-			default:
-				break;
-			}
+			// Escキーで終了処理
+			PostQuitMessage(0);
 		}
+
+		// キー情報の更新
+		InputState::UpdateKeyState();
+
+		// ループ処理
 		SceneManager::GetInstance().execute();
 	}
 	return msg;

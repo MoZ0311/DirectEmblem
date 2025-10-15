@@ -4,7 +4,6 @@
 
 # include <windows.h>
 # include <memory>
-// 可変長配列
 # include <vector>
 # include <directxmath.h>
 
@@ -28,10 +27,10 @@ namespace Config
 	namespace MapSettings
 	{
 		// マップの幅
-		static inline constexpr UINT MapWidth{ 11 };
+		static inline constexpr UINT MapWidth{ 13 };
 
 		// マップの高さ
-		static inline constexpr UINT MapHeight{ 11 };
+		static inline constexpr UINT MapHeight{ 10 };
 
 		// タイルの種類
 		enum class TileType
@@ -46,6 +45,8 @@ namespace Config
 	}
 
 	static inline constexpr WCHAR ShaderFileName[]{ L"shader/Shader.hlsl" };
+	static inline constexpr WCHAR BackgroundPath[]{ L"assets/images/background_title.png" };
+	static inline constexpr WCHAR TileSheetPath[]{ L"assets/images/tiles/tile_sheet.png" };
 };
 
 namespace SceneSettings
