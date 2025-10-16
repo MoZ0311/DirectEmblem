@@ -170,6 +170,7 @@
     <ClInclude Include="src\scene\GameScene.hpp" />
     <ClInclude Include="src\scene\SceneManager.hpp" />
     <ClInclude Include="src\scene\TitleScene.hpp" />
+    <ClInclude Include="src\util\CSVReader.hpp" />
     <ClInclude Include="src\util\InputState.hpp" />
   </ItemGroup>
   <ItemGroup>

@@ -5,6 +5,7 @@
 # include <windows.h>
 # include <memory>
 # include <vector>
+# include <string>
 # include <directxmath.h>
 
 namespace Config
@@ -16,10 +17,13 @@ namespace Config
 	static inline constexpr WCHAR WindowTitle[]{ L"ダイレクトエムブレム" };
 
 	// ウィンドウの幅
-	static inline constexpr UINT WindowWidth{ 1280 };
+	static inline constexpr int WindowWidth{ 1280 };
 
 	// ウィンドウの高さ
-	static inline constexpr UINT WindowHeight{ 720 };
+	static inline constexpr int WindowHeight{ 720 };
+
+	// 画面の縦横比
+	static inline constexpr float AspectRatio{ static_cast<float>(WindowWidth) / WindowHeight };
 
 	// リフレッシュレート
 	static inline constexpr UINT RefreshRate{ 60 };
@@ -27,13 +31,13 @@ namespace Config
 	namespace MapSettings
 	{
 		// マップの幅
-		static inline constexpr UINT MapWidth{ 13 };
+		static inline constexpr int MapWidth{ 20 };
 
 		// マップの高さ
-		static inline constexpr UINT MapHeight{ 10 };
+		static inline constexpr int MapHeight{ 20 };
 
 		// タイルの種類
-		enum class TileType
+		enum class TileType : int
 		{
 			Grass,
 			Forest,

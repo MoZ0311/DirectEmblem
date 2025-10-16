@@ -5,6 +5,7 @@
 # include <map>
 # include "../core/Config.hpp"
 # include "../dx11/DirectX.hpp"
+# include "../util/CSVReader.hpp"
 
 class MapRenderer
 {
@@ -28,7 +29,7 @@ private:
 	std::vector<Vertex> createVertices() const;
 
 	// マップデータの二次元配列
-	const Config::MapSettings::TileType m_mapData[Config::MapSettings::MapHeight][Config::MapSettings::MapWidth];
+	std::vector<std::vector<int>> m_mapData;
 
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;

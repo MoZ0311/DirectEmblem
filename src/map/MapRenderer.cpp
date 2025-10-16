@@ -6,7 +6,7 @@ using namespace Config;
 using namespace Config::MapSettings;
 
 MapRenderer::MapRenderer()
-	: m_mapData{ TileType::Water }
+    : m_mapData{ CSVReader::ConvertToInteger(CSVReader::readCsvFile("assets/data/map_data.csv")) }
 	, m_direct3D{ Direct3D::GetInstance() }
 	, m_vertexCount{ 0 }
 	, m_vertexBuffer{ nullptr }
@@ -37,11 +37,8 @@ void MapRenderer::initialize()
 
 std::vector<Vertex> MapRenderer::createVertices() const
 {
-    // 縦横比を計算
-    const float aspectRatio{ static_cast<float>(WindowWidth) / WindowHeight };
-
-    const float tileWidth{ 0.1f };                      // タイルの幅(64px)
-    const float tileHeight{ tileWidth * aspectRatio };  // タイルの高さ
+    const float tileWidth{ 0.055f };                    // タイルの幅
+    const float tileHeight{ tileWidth * AspectRatio };  // タイルの高さ
 
     const float startX{ -tileWidth * MapWidth / 2 };    // 開始x座標
     const float startY{ tileHeight * MapHeight / 2 };   // 開始y座標
@@ -49,7 +46,7 @@ std::vector<Vertex> MapRenderer::createVertices() const
     // タイルシートの情報定義
     const float uvTileWidth = 1.0f / static_cast<float>(TileType::TileMax);
 
-    // 色 (テスト用に白(1.0, 1.0, 1.0, 1.0)に設定)
+    // 色 (白(1.0, 1.0, 1.0, 1.0)に設定)
     const DirectX::XMFLOAT4 colorF{ 1.0f, 1.0f, 1.0f, 1.0f };
 
     // 空の頂点群を宣言
