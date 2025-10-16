@@ -37,7 +37,7 @@ namespace Config
 		static inline constexpr int MapHeight{ 20 };
 
 		// タイルの種類
-		enum class TileType : int
+		enum class TileType
 		{
 			Grass,
 			Forest,
@@ -55,7 +55,7 @@ namespace Config
 	static inline constexpr WCHAR TitleImagePath[]{ L"assets/images/background_title.png" };
 
 	// タイルマップ画像のファイルパス
-	static inline constexpr WCHAR TileSheetPath[]{ L"assets/images/tiles/tile_sheet.png" };
+	static inline constexpr WCHAR TileSheetPath[]{ L"assets/images/tile_sheet_pack.png" };
 
 	// キャラのスプライトシートのファイルパス
 	static inline constexpr WCHAR CharacterSheetPath[]{ L"assets/images/character_sheet.png" };

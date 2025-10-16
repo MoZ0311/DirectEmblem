@@ -8,7 +8,7 @@ GameScene::GameScene()
 	: m_mapRenderer{}
 {
 	// ”wŒiF‚ğİ’è
-	m_backgroundColor = { 0.0f, 0.5f, 0.5f, 1.0f };
+	m_backgroundColor = { 0.961f, 0.871f, 0.702f, 1.0f };
 }
 
 GameScene::~GameScene()

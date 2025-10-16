@@ -44,7 +44,9 @@ std::vector<Vertex> MapRenderer::createVertices() const
     const float startY{ tileHeight * MapHeight / 2 };   // 開始y座標
 
     // タイルシートの情報定義
-    const float uvTileWidth = 1.0f / static_cast<float>(TileType::TileMax);
+    // 2 * 2で四つのタイルマップなので、uvの最大1.0の半分ずつ
+    const float uvTileWidth{ 0.5f };                    // タイルのuv座標上の幅
+    const float uvTileHeight{ 0.5f };                   // タイルのuv座標上の高さ
 
     // 色 (白(1.0, 1.0, 1.0, 1.0)に設定)
     const DirectX::XMFLOAT4 colorF{ 1.0f, 1.0f, 1.0f, 1.0f };
@@ -57,7 +59,7 @@ std::vector<Vertex> MapRenderer::createVertices() const
     {
         for (int x{ 0 }; x < MapWidth; ++x)
         {
-            // 各タイルの左上座標を計算 (NDC空間)
+            // タイルの各辺の座標を計算
             const float left{ startX + x * tileWidth };
             const float right{ left + tileWidth };
             const float top{ startY - y * tileHeight };
@@ -67,16 +69,17 @@ std::vector<Vertex> MapRenderer::createVertices() const
             const TileType currentMapTile{ m_mapData[y][x] };
 
             // テクスチャアトラスのuv座標計算
-            const float uvLeft{ static_cast<float>(currentMapTile) * uvTileWidth };
+            const float uvLeft{ static_cast<int>(currentMapTile) % 2 * uvTileWidth };
             const float uvRight{ uvLeft + uvTileWidth };
 
-            // テクスチャ座標 (UV: 0.0～1.0)
-            const DirectX::XMFLOAT2 uvTopLeft{ uvLeft, 0.0f };
-            const DirectX::XMFLOAT2 uvTopRight{ uvRight, 0.0f };
-            const DirectX::XMFLOAT2 uvBottomLeft{ uvLeft, 1.0f };
-            const DirectX::XMFLOAT2 uvBottomRight{ uvRight, 1.0f };
+            const float uvTop{ static_cast<int>(currentMapTile) >= 2 ? uvTileHeight : 0 };
+            const float uvBottom{ uvTop + uvTileHeight };
 
-            // 正方形を2つの三角形(T1, T2)で構成し、三角形リストに追加
+            // テクスチャ座標 (UV: 0.0～1.0)
+            const DirectX::XMFLOAT2 uvTopLeft{ uvLeft, uvTop };
+            const DirectX::XMFLOAT2 uvTopRight{ uvRight, uvTop };
+            const DirectX::XMFLOAT2 uvBottomLeft{ uvLeft, uvBottom };
+            const DirectX::XMFLOAT2 uvBottomRight{ uvRight, uvBottom };
 
             // --- T1 (左下, 左上, 右上) ---
 
