@@ -48,9 +48,17 @@ namespace Config
 		};
 	}
 
+	// シェーダーのファイルパス
 	static inline constexpr WCHAR ShaderFileName[]{ L"shader/Shader.hlsl" };
-	static inline constexpr WCHAR BackgroundPath[]{ L"assets/images/background_title.png" };
+
+	// タイトル画像のファイルパス
+	static inline constexpr WCHAR TitleImagePath[]{ L"assets/images/background_title.png" };
+
+	// タイルマップ画像のファイルパス
 	static inline constexpr WCHAR TileSheetPath[]{ L"assets/images/tiles/tile_sheet.png" };
+
+	// キャラのスプライトシートのファイルパス
+	static inline constexpr WCHAR CharacterSheetPath[]{ L"assets/images/character_sheet.png" };
 };
 
 namespace SceneSettings

@@ -60,19 +60,11 @@ struct CSVReader
             // 現在の行の要素を処理
             for (const auto& letter : row_str)
             {
-                try
-                {
-                    // std::stoi を使用して文字列を整数に変換
-                    int converted_int = std::stoi(letter);
+                // std::stoi を使用して文字列を整数に変換
+                int converted_int = std::stoi(letter);
 
-                    // 変換結果を現在の行に追加
-                    row.push_back(converted_int);
-                }
-                catch (const std::invalid_argument& err)
-                {
-                    // 有効な整数でなかった場合-1を入れる
-                    row.push_back(-1);
-                }
+                // 変換結果を現在の行に追加
+                row.push_back(converted_int);
             }
 
             // 変換が完了した行を結果の二次元ベクトルに追加

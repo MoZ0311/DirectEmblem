@@ -15,6 +15,7 @@ Direct3D::Direct3D()
     , m_inputLayout{ nullptr }
     , m_compiledVertexShader{ nullptr }
     , m_samplerState{ nullptr }
+    , m_blendState{ nullptr }
 {
 
 }
@@ -71,12 +72,21 @@ bool Direct3D::initialize(const HWND& hWnd)
         return false;
     }
 
-    // サンプラーステート設定
+    // サンプラーステート作成
     const HRESULT samplerResult{ createSamplerState() };
     if (FAILED(samplerResult))
     {
         // 失敗時、return
         MessageBox(m_hWnd, L"Direct3D: サンプラーステートの作成に失敗しました。", L"DirectX エラー", MB_ICONERROR);
+        return false;
+    }
+
+    // ブレンドステート作成
+    const HRESULT blendResult{ createBlendState() };
+    if (FAILED(blendResult))
+    {
+        // 失敗時、return
+        MessageBox(m_hWnd, L"Direct3D: ブレンドステートの作成に失敗しました。", L"DirectX エラー", MB_ICONERROR);
         return false;
     }
 
@@ -314,6 +324,24 @@ HRESULT Direct3D::createSamplerState()
     return m_device->CreateSamplerState(&samplerDesc, m_samplerState.GetAddressOf());
 }
 
+HRESULT Direct3D::createBlendState()
+{
+    D3D11_BLEND_DESC blendDesc{};
+
+    // すべてのレンダーターゲットに対して同じ設定を適用する
+    blendDesc.RenderTarget[0].BlendEnable = TRUE;                                     // ブレンドを有効化
+    blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;                       // ソースカラーの乗算係数: ソースのアルファ値 (A_src)
+    blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;                  // デスティネーションカラーの乗算係数: 1 - ソースのアルファ値 (1 - A_src)
+    blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;                           // ブレンド演算: 加算
+    blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;                        // ソースアルファの乗算係数 (通常はONE)
+    blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;                      // デスティネーションアルファの乗算係数 (通常はZERO)
+    blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;                      // アルファブレンド演算: 加算
+    blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;   // すべてのカラーチャンネル (RGBA) への書き込みを有効にする
+
+    // ブレンドステートを作成
+    return m_device->CreateBlendState(&blendDesc, m_blendState.GetAddressOf());
+}
+
 void Direct3D::setRenderPipeline() const
 {
     // シェーダーを設定
@@ -322,6 +350,10 @@ void Direct3D::setRenderPipeline() const
 
     // サンプラーステートをピクセルシェーダーに設定
     m_deviceContext->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
+
+    // ブレンドステートを設定
+    const FLOAT blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };                        // 使用しないため、すべて0.0f
+    m_deviceContext->OMSetBlendState(m_blendState.Get(), blendFactor, 0xffffffff);  // 0xffffffff はサンプルマスク (通常はすべて有効)
 
     // インプットレイアウトを設定
     m_deviceContext->IASetInputLayout(m_inputLayout.Get());
