@@ -2,7 +2,7 @@
 
 #pragma once
 
-# include "UnitBase.hpp"
+# include "BaseUnit.hpp"
 
 class UnitManager
 {
@@ -20,8 +20,8 @@ public:
 private:
 
 	// 自軍ユニット配列
-	std::vector<std::unique_ptr<UnitBase>> m_playerUnitArray;
+	std::vector<std::unique_ptr<BaseUnit>> m_playerUnitArray;
 
 	// 敵軍ユニット配列
-	std::vector<std::unique_ptr<UnitBase>> m_enemyUnitArray;
+	std::vector<std::unique_ptr<BaseUnit>> m_enemyUnitArray;
 };

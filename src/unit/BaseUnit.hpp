@@ -1,28 +1,26 @@
-// UnitBase class
+// BaseUnit class
 
 #pragma once
 
 # include "../dx11/DirectX.hpp"
 
-class UnitBase
+class BaseUnit
 {
 public:
 
 	// デストラクタ
-	~UnitBase() = default;
+	~BaseUnit() = default;
 
 	// 更新処理
 	void update();
 
 	// 描画処理
 	void draw() const;
-
-	// コンストラクタ
-	UnitBase();
-
+	
 protected:
 
-	
+	// コンストラクタ
+	BaseUnit();
 
 	// 初期化処理
 	void initialize();

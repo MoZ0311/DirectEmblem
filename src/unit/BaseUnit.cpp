@@ -1,11 +1,11 @@
-// UnitBase class
+// BaseUnit class
 
-# include "UnitBase.hpp"
+# include "BaseUnit.hpp"
 
 using namespace Util;
 using namespace Config::MapSettings;
 
-UnitBase::UnitBase()
+BaseUnit::BaseUnit()
 	: m_direct3D{ Direct3D::GetInstance() }
 	, m_unitIconTexture{ Config::SlimeIconPath }
 	, m_vertexCount{ 0 }
@@ -18,7 +18,7 @@ UnitBase::UnitBase()
 	initialize();
 }
 
-void UnitBase::initialize()
+void BaseUnit::initialize()
 {
 	// 頂点情報の作成
 	const std::vector<Vertex> vertices{ createVertices() };
@@ -30,7 +30,7 @@ void UnitBase::initialize()
 	m_vertexBuffer = m_direct3D.createVertexBuffer(vertices);
 }
 
-std::vector<Vertex> UnitBase::createVertices() const
+std::vector<Vertex> BaseUnit::createVertices() const
 {
 	std::vector<Vertex> vertices{};
 
@@ -72,12 +72,12 @@ std::vector<Vertex> UnitBase::createVertices() const
 	return vertices;
 }
 
-void UnitBase::update()
+void BaseUnit::update()
 {
 
 }
 
-void UnitBase::draw() const
+void BaseUnit::draw() const
 {
 	// 背景テクスチャのセット
 	m_direct3D.setTexture(m_unitIconTexture.getShaderResourceView());
