@@ -1,17 +1,15 @@
-// MapRenderer class
+// UnitBase class
 
-# pragma once
+#pragma once
 
-# include "../core/Config.hpp"
 # include "../dx11/DirectX.hpp"
-# include "../util/CSVReader.hpp"
 
-class MapRenderer
+class UnitBase
 {
 public:
 
-	// コンストラクタ
-	MapRenderer();
+	// デストラクタ
+	~UnitBase() = default;
 
 	// 更新処理
 	void update();
@@ -19,7 +17,12 @@ public:
 	// 描画処理
 	void draw() const;
 
-private:
+	// コンストラクタ
+	UnitBase();
+
+protected:
+
+	
 
 	// 初期化処理
 	void initialize();
@@ -27,18 +30,23 @@ private:
 	// 頂点情報の作成処理
 	std::vector<Util::Vertex> createVertices() const;
 
-	// マップデータの二次元配列
-	const std::vector<std::vector<int>> m_mapData;
-
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
 
-	// 画像テクスチャ
-	Texture m_mapTexture;
+	Texture m_unitIconTexture;
 
 	// 頂点数
 	UINT m_vertexCount;
 
 	// 頂点バッファ
 	ComPtr<ID3D11Buffer> m_vertexBuffer;
+
+	// ユニットの座標(グリッド位置)
+	Util::Point m_unitPoint;
+
+	// 移動済みであるか
+	bool m_hasMoved;
+
+	// 行動済みであるか
+	bool m_hasActed;
 };

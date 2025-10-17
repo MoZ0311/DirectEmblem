@@ -170,6 +170,8 @@
     <ClInclude Include="src\scene\GameScene.hpp" />
     <ClInclude Include="src\scene\SceneManager.hpp" />
     <ClInclude Include="src\scene\TitleScene.hpp" />
+    <ClInclude Include="src\unit\UnitBase.hpp" />
+    <ClInclude Include="src\unit\UnitManager.hpp" />
     <ClInclude Include="src\util\CSVReader.hpp" />
     <ClInclude Include="src\util\InputState.hpp" />
   </ItemGroup>
@@ -184,6 +186,8 @@
     <ClCompile Include="src\scene\GameScene.cpp" />
     <ClCompile Include="src\scene\SceneManager.cpp" />
     <ClCompile Include="src\scene\TitleScene.cpp" />
+    <ClCompile Include="src\unit\UnitBase.cpp" />
+    <ClCompile Include="src\unit\UnitManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shader\Shader.hlsl" />

@@ -20,7 +20,7 @@ private:
 	void initialize();
 
 	// 頂点情報の作成処理
-	std::vector<Vertex> createVertices() const;
+	std::vector<Util::Vertex> createVertices() const;
 
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;

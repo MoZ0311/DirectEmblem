@@ -2,12 +2,13 @@
 
 # include "MapRenderer.hpp"
 
-using namespace Config;
+using namespace Util;
 using namespace Config::MapSettings;
 
 MapRenderer::MapRenderer()
     : m_mapData{ CSVReader::ConvertToInteger(CSVReader::readCsvFile("assets/data/map_data.csv")) }
 	, m_direct3D{ Direct3D::GetInstance() }
+    , m_mapTexture{ Config::TileSheetPath }
 	, m_vertexCount{ 0 }
 	, m_vertexBuffer{ nullptr }
 {
@@ -16,12 +17,6 @@ MapRenderer::MapRenderer()
 
 void MapRenderer::initialize()
 {
-    // 背景テクスチャのロード
-    Texture texture{ Config::TileSheetPath };
-
-    // 背景テクスチャのセット
-    m_direct3D.setTexture(texture.getShaderResourceView());
-
 	// 頂点情報の作成
 	std::vector<Vertex> vertices{ createVertices() };
 
@@ -30,9 +25,6 @@ void MapRenderer::initialize()
 
 	// バッファの作成
 	m_vertexBuffer = m_direct3D.createVertexBuffer(vertices);
-
-    // DirectXにTitleSceneのバッファを転送
-    m_direct3D.setVertexBuffer(m_vertexBuffer);
 }
 
 std::vector<Vertex> MapRenderer::createVertices() const
@@ -65,11 +57,14 @@ std::vector<Vertex> MapRenderer::createVertices() const
             // 現在のタイルを取得
             const TileType currentMapTile{ m_mapData[y][x] };
 
+            // タイルとテクスチャの対応表を取得
+            const Point uvIndex = TileUVMap.at(currentMapTile);
+
             // テクスチャアトラスのuv座標計算
-            const float uvLeft{ static_cast<int>(currentMapTile) % 2 * uvTileWidth };
+            const float uvLeft{ uvIndex.x * uvTileWidth };
             const float uvRight{ uvLeft + uvTileWidth };
 
-            const float uvTop{ static_cast<int>(currentMapTile) >= 2 ? uvTileHeight : 0 };
+            const float uvTop{ uvIndex.y * uvTileHeight };
             const float uvBottom{ uvTop + uvTileHeight };
 
             // テクスチャ座標 (UV: 0.0～1.0)
@@ -112,6 +107,12 @@ void MapRenderer::update()
 
 void MapRenderer::draw() const
 {
+    // 背景テクスチャのセット
+    m_direct3D.setTexture(m_mapTexture.getShaderResourceView());
+
+    // DirectXにTitleSceneのバッファを転送
+    m_direct3D.setVertexBuffer(m_vertexBuffer);
+
 	// 描画コマンド実行
 	m_direct3D.draw(m_vertexCount);
 }

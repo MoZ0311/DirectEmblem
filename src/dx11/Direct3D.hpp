@@ -16,10 +16,10 @@ public:
 	bool initialize(const HWND& hWnd);
 
 	// 頂点バッファの作成処理
-	ComPtr<ID3D11Buffer> createVertexBuffer(const std::vector<Vertex>& vertices);
+	ComPtr<ID3D11Buffer> createVertexBuffer(const std::vector<Util::Vertex>& vertices);
 
 	// 頂点バッファの更新処理
-	void updateVeretexBuffer(const ComPtr<ID3D11Buffer>& vertexBuffer, const std::vector<Vertex>& vertices);
+	void updateVeretexBuffer(const ComPtr<ID3D11Buffer>& vertexBuffer, const std::vector<Util::Vertex>& vertices);
 
 	// 頂点バッファのステージング処理
 	void setVertexBuffer(const ComPtr<ID3D11Buffer>& vertexBuffer);

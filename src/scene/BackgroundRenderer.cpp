@@ -2,6 +2,8 @@
 
 # include "BackgroundRenderer.hpp"
 
+using namespace Util;
+
 BackgroundRenderer::BackgroundRenderer()
 	: m_direct3D{ Direct3D::GetInstance() }
 	, m_vertexCount{ 0 }

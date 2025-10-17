@@ -5,8 +5,31 @@
 # include <windows.h>
 # include <memory>
 # include <vector>
+# include <map>
 # include <string>
 # include <directxmath.h>
+
+namespace Util
+{
+	struct Vertex
+	{
+		DirectX::XMFLOAT3 position;
+		DirectX::XMFLOAT4 color;
+		DirectX::XMFLOAT2 uv;
+	};
+
+	struct Vec2
+	{
+		float x;
+		float y;
+	};
+
+	struct Point
+	{
+		UINT x;
+		UINT y;
+	};
+}
 
 namespace Config
 {
@@ -50,7 +73,16 @@ namespace Config
 			Fence,
 			Water,
 
-			TileMax	// 要素数取得のためのダミー
+			// TileMax	// 要素数取得のためのダミー
+		};
+
+		// タイルとテクスチャアトラスのuv対応表
+		static inline const std::map<TileType, Util::Point> TileUVMap
+		{
+			{ TileType::Grass,  { 0, 0 } }, // 0列目, 0行目
+			{ TileType::Forest, { 1, 0 } }, // 1列目, 0行目
+			{ TileType::Fence,  { 0, 1 } }, // 0列目, 1行目
+			{ TileType::Water,  { 1, 1 } }  // 1列目, 1行目
 		};
 	}
 
@@ -60,12 +92,18 @@ namespace Config
 	// タイトル画像のファイルパス
 	static inline constexpr WCHAR TitleImagePath[]{ L"assets/images/background_title.png" };
 
+	// タイトルロゴ画像のファイルパス
+	static inline constexpr WCHAR TitleLogoPath[]{ L"assets/images/logo.png" };
+
 	// タイルマップ画像のファイルパス
 	static inline constexpr WCHAR TileSheetPath[]{ L"assets/images/tile_sheet_pack.png" };
 
+	// スライムのアイコン画像のファイルパス
+	static inline constexpr WCHAR SlimeIconPath[]{ L"assets/images/icon_slime.png" };
+
 	// キャラのスプライトシートのファイルパス
 	static inline constexpr WCHAR CharacterSheetPath[]{ L"assets/images/character_sheet.png" };
-};
+}
 
 namespace SceneSettings
 {
@@ -90,16 +128,3 @@ namespace SceneSettings
 
 	};
 }
-
-struct Vertex
-{
-	DirectX::XMFLOAT3 position;
-	DirectX::XMFLOAT4 color;
-	DirectX::XMFLOAT2 uv;
-};
-
-struct Vec2
-{
-	float x;
-	float y;
-};

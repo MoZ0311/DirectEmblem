@@ -2,6 +2,7 @@
 
 # include "Direct3D.hpp"
 
+using namespace Util;
 using namespace Config;
 
 Direct3D::Direct3D()
