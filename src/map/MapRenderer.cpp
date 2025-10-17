@@ -37,11 +37,8 @@ void MapRenderer::initialize()
 
 std::vector<Vertex> MapRenderer::createVertices() const
 {
-    const float tileWidth{ 0.055f };                    // タイルの幅
-    const float tileHeight{ tileWidth * AspectRatio };  // タイルの高さ
-
-    const float startX{ -tileWidth * MapWidth / 2 };    // 開始x座標
-    const float startY{ tileHeight * MapHeight / 2 };   // 開始y座標
+    const float startX{ -TileWidth * MapWidth / 2 };    // 開始x座標
+    const float startY{ TileHeight * MapHeight / 2 };   // 開始y座標
 
     // タイルシートの情報定義
     // 2 * 2で四つのタイルマップなので、uvの最大1.0の半分ずつ
@@ -60,10 +57,10 @@ std::vector<Vertex> MapRenderer::createVertices() const
         for (int x{ 0 }; x < MapWidth; ++x)
         {
             // タイルの各辺の座標を計算
-            const float left{ startX + x * tileWidth };
-            const float right{ left + tileWidth };
-            const float top{ startY - y * tileHeight };
-            const float bottom{ top - tileHeight };
+            const float left{ startX + x * TileWidth };
+            const float right{ left + TileWidth };
+            const float top{ startY - y * TileHeight };
+            const float bottom{ top - TileHeight };
 
             // 現在のタイルを取得
             const TileType currentMapTile{ m_mapData[y][x] };

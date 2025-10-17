@@ -34,7 +34,13 @@ namespace Config
 		static inline constexpr int MapWidth{ 20 };
 
 		// マップの高さ
-		static inline constexpr int MapHeight{ 20 };
+		static inline constexpr int MapHeight{ 16 };
+
+		// タイルの幅
+		static inline constexpr float TileWidth{ 0.068f };
+
+		// タイルの高さ
+		static inline constexpr float TileHeight{ TileWidth * AspectRatio };
 
 		// タイルの種類
 		enum class TileType
