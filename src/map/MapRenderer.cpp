@@ -59,7 +59,7 @@ std::vector<Vertex> MapRenderer::createVertices() const
             const TileType currentMapTile{ m_mapData[y][x] };
 
             // タイルとテクスチャの対応表を取得
-            const Point uvIndex = TileUVMap.at(currentMapTile);
+            const DirectX::XMFLOAT2 uvIndex = TileUVMap.at(currentMapTile);
 
             // テクスチャアトラスのuv座標計算
             const float uvLeft{ uvIndex.x * uvTileWidth };

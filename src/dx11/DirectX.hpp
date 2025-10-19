@@ -19,7 +19,6 @@
 
 // ComPtrを使用できるようにする
 # include <wrl/client.h>
-using namespace Microsoft::WRL;
 
 // 自作クラスのヘッダも纏める
 # include "Direct3D.hpp"

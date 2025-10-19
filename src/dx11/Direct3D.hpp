@@ -16,16 +16,16 @@ public:
 	bool initialize(const HWND& hWnd);
 
 	// 頂点バッファの作成処理
-	ComPtr<ID3D11Buffer> createVertexBuffer(const std::vector<Util::Vertex>& vertices);
+	Microsoft::WRL::ComPtr<ID3D11Buffer> createVertexBuffer(const std::vector<Util::Vertex>& vertices);
 
 	// 頂点バッファの更新処理
-	void updateVeretexBuffer(const ComPtr<ID3D11Buffer>& vertexBuffer, const std::vector<Util::Vertex>& vertices);
+	void updateVeretexBuffer(const Microsoft::WRL::ComPtr<ID3D11Buffer>& vertexBuffer, const std::vector<Util::Vertex>& vertices);
 
 	// 頂点バッファのステージング処理
-	void setVertexBuffer(const ComPtr<ID3D11Buffer>& vertexBuffer);
+	void setVertexBuffer(const Microsoft::WRL::ComPtr<ID3D11Buffer>& vertexBuffer);
 
 	// テクスチャの設定処理
-	void setTexture(const ComPtr<ID3D11ShaderResourceView>& shaderResourceView) const;
+	void setTexture(const Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& shaderResourceView) const;
 
 	// 画面のクリア処理
 	void clearBackground(const DirectX::XMFLOAT4& backgroundColor) const;
@@ -37,7 +37,7 @@ public:
 	void flip() const;
 
 	// デバイスの取得処理
-	ComPtr<ID3D11Device> getDevice() const;
+	Microsoft::WRL::ComPtr<ID3D11Device> getDevice() const;
 
 private:
 
@@ -75,32 +75,32 @@ private:
 	HWND m_hWnd;
 
 	// Direcr3Dデバイス
-	ComPtr<ID3D11Device> m_device;
+	Microsoft::WRL::ComPtr<ID3D11Device> m_device;
 
 	// デバイスコンテキスト
-	ComPtr<ID3D11DeviceContext> m_deviceContext;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
 
 	// スワップチェイン
-	ComPtr<IDXGISwapChain> m_swapChain;
+	Microsoft::WRL::ComPtr<IDXGISwapChain> m_swapChain;
 
 	// レンダーターゲットビュー
-	ComPtr<ID3D11RenderTargetView> m_renderTargetView;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
 
 	// 頂点シェーダー
-	ComPtr<ID3D11VertexShader> m_vertexShader;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> m_vertexShader;
 
 	// ピクセルシェーダー
-	ComPtr<ID3D11PixelShader> m_pixelShader;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pixelShader;
 
 	// インプットレイアウト
-	ComPtr<ID3D11InputLayout> m_inputLayout;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
 
 	// コンパイル済みの頂点シェーダー
-	ComPtr<ID3DBlob> m_compiledVertexShader;
+	Microsoft::WRL::ComPtr<ID3DBlob> m_compiledVertexShader;
 
 	// サンプラーステート
-	ComPtr<ID3D11SamplerState> m_samplerState;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerState;
 
 	// ブレンドステート
-	ComPtr<ID3D11BlendState> m_blendState;
+	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendState;
 };

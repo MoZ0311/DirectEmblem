@@ -2,6 +2,8 @@
 
 # include "BaseUnit.hpp"
 
+# include "../util/InputState.hpp"
+
 using namespace Util;
 using namespace FilePath;
 using namespace Config::MapSettings;
@@ -15,7 +17,7 @@ BaseUnit::BaseUnit()
 
 	, m_unitType{ UnitType::None }
 	, m_unitStatus{ 0, 0, 0, 0, 0 }
-	, m_unitPoint{ 0, 0 }
+	, m_unitPosition{ 0, 0 }
 	, m_hasMoved{ false }
 	, m_hasActed{ false }
 {
@@ -42,9 +44,9 @@ std::vector<Vertex> BaseUnit::createVertices() const
 	const float startY{ TileHeight * MapHeight / 2 };   // マップの開始y座標
 
 	// 各辺の座標を計算
-	const float left{ startX + m_unitPoint.x * TileWidth };
+	const float left{ startX + m_unitPosition.x * TileWidth };
 	const float right{ left + TileWidth };
-	const float top{ startY - m_unitPoint.y * TileHeight };
+	const float top{ startY - m_unitPosition.y * TileHeight };
 	const float bottom{ top - TileHeight };
 
 	// 色 (白(1.0, 1.0, 1.0, 1.0)に設定)
@@ -78,7 +80,33 @@ std::vector<Vertex> BaseUnit::createVertices() const
 
 void BaseUnit::update()
 {
+	GridPosition currentPosition{ m_unitPosition };
+	if (InputState::KeyPressed(VK_UP) || InputState::KeyPressed(0x57))
+	{
+		--currentPosition.y;
+	}
+	if (InputState::KeyPressed(VK_DOWN) || InputState::KeyPressed(0x53))
+	{
+		++currentPosition.y;
+	}
+	if (InputState::KeyPressed(VK_LEFT) || InputState::KeyPressed(0x41))
+	{
+		--currentPosition.x;
+	}
+	if (InputState::KeyPressed(VK_RIGHT) || InputState::KeyPressed(0x44))
+	{
+		++currentPosition.x;
+	}
 
+	currentPosition.x = std::clamp(static_cast<int>(currentPosition.x), 0, MapWidth - 1);
+	currentPosition.y = std::clamp(static_cast<int>(currentPosition.y), 0, MapHeight - 1);
+
+	if (m_unitPosition.x != currentPosition.x ||
+		m_unitPosition.y != currentPosition.y)
+	{
+		m_unitPosition = currentPosition;
+		setUnitPosition(m_unitPosition);
+	}
 }
 
 void BaseUnit::draw() const
@@ -91,4 +119,13 @@ void BaseUnit::draw() const
 
 	// 描画コマンド実行
 	m_direct3D.draw(m_vertexCount);
+}
+
+void BaseUnit::setUnitPosition(const GridPosition& targetPoint)
+{
+	// 位置変更
+	m_unitPosition = targetPoint;
+
+	// 頂点バッファの更新処理
+	m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
 }

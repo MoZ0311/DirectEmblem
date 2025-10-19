@@ -12,7 +12,7 @@ public:
 	Texture(const WCHAR* filePath);
 
 	// シェーダーリソースビューの取得
-	ComPtr<ID3D11ShaderResourceView> getShaderResourceView() const;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> getShaderResourceView() const;
 
 private:
 
@@ -20,7 +20,7 @@ private:
 	bool loadTexture(const WCHAR* filePath);
 
 	// 画像の読み取りハンドル
-	ComPtr<ID3D11ShaderResourceView> shaderResourceView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shaderResourceView;
 
 	// 画像情報
 	DirectX::TexMetadata textureData;

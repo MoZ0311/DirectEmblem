@@ -5,6 +5,7 @@
 using namespace Util;
 using namespace FilePath;
 using namespace Config;
+using namespace Microsoft::WRL;
 
 Direct3D::Direct3D()
     : m_hWnd{ nullptr }

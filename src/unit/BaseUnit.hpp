@@ -31,6 +31,9 @@ protected:
 	// 各種パラメータ設定
 	virtual void setParameter() = 0;
 
+	// グリッド座標の変更処理
+	void setUnitPosition(const Config::MapSettings::GridPosition& targetPoint);
+
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
 
@@ -41,7 +44,7 @@ protected:
 	UINT m_vertexCount;
 
 	// 頂点バッファ
-	ComPtr<ID3D11Buffer> m_vertexBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 
 	// ユニットのタイプ
 	Config::UnitSettings::UnitType m_unitType;
@@ -50,7 +53,7 @@ protected:
 	Config::UnitSettings::UnitStatus m_unitStatus;
 
 	// ユニットの座標(グリッド位置)
-	Util::Point m_unitPoint;
+	Config::MapSettings::GridPosition m_unitPosition;
 
 	// 移動済みであるか
 	bool m_hasMoved;

@@ -38,7 +38,7 @@ bool Texture::loadTexture(const WCHAR* filePath)
     return true;
 }
 
-ComPtr<ID3D11ShaderResourceView> Texture::getShaderResourceView() const
+Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Texture::getShaderResourceView() const
 {
     return shaderResourceView;
 }

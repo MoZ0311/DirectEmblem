@@ -29,5 +29,5 @@ private:
 	UINT m_vertexCount;
 
 	// 頂点バッファ
-	ComPtr<ID3D11Buffer> m_vertexBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 };

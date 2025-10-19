@@ -8,6 +8,7 @@
 # include <map>
 # include <string>
 # include <directxmath.h>
+# include <algorithm>
 
 namespace Util
 {
@@ -22,12 +23,6 @@ namespace Util
 	{
 		float x;
 		float y;
-	};
-
-	struct Point
-	{
-		UINT x;
-		UINT y;
 	};
 }
 
@@ -75,12 +70,19 @@ namespace Config
 		};
 
 		// タイルとテクスチャアトラスのuv対応表
-		static inline const std::map<TileType, Util::Point> TileUVMap
+		static inline const std::map<TileType, DirectX::XMFLOAT2> TileUVMap
 		{
 			{ TileType::Grass,  { 0, 0 } }, // 0列目, 0行目
 			{ TileType::Forest, { 1, 0 } }, // 1列目, 0行目
 			{ TileType::Fence,  { 0, 1 } }, // 0列目, 1行目
 			{ TileType::Water,  { 1, 1 } }  // 1列目, 1行目
+		};
+
+		// グリッド座標上の位置(符号無し整数)
+		struct GridPosition
+		{
+			UINT x;
+			UINT y;
 		};
 	}
 
