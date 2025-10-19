@@ -29,13 +29,13 @@ struct InputState
         return keyState[keyCode] && !prevKeyState[keyCode];
     }
 
-    // キーが押下されている
+    // キーが離された
     static inline bool KeyUp(int keyCode)
     {
         return !keyState[keyCode] && prevKeyState[keyCode];
     }
 
-    // キーが離された
+    // キーが押下されている
     static inline bool KeyDown(int keyCode)
     {
         return keyState[keyCode];
