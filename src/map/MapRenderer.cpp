@@ -3,12 +3,13 @@
 # include "MapRenderer.hpp"
 
 using namespace Util;
+using namespace FilePath;
 using namespace Config::MapSettings;
 
 MapRenderer::MapRenderer()
     : m_mapData{ CSVReader::ConvertToInteger(CSVReader::readCsvFile("assets/data/map_data.csv")) }
 	, m_direct3D{ Direct3D::GetInstance() }
-    , m_mapTexture{ Config::TileSheetPath }
+    , m_mapTexture{ TileSheetPath }
 	, m_vertexCount{ 0 }
 	, m_vertexBuffer{ nullptr }
 {

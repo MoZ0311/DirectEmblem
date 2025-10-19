@@ -3,14 +3,18 @@
 # include "BaseUnit.hpp"
 
 using namespace Util;
+using namespace FilePath;
 using namespace Config::MapSettings;
+using namespace Config::UnitSettings;
 
 BaseUnit::BaseUnit()
 	: m_direct3D{ Direct3D::GetInstance() }
-	, m_unitIconTexture{ Config::SlimeIconPath }
+	, m_unitIconTexture{ SlimeIconPath }
 	, m_vertexCount{ 0 }
 	, m_vertexBuffer{ nullptr }
 
+	, m_unitType{ UnitType::None }
+	, m_unitStatus{ 0, 0, 0, 0, 0 }
 	, m_unitPoint{ 0, 0 }
 	, m_hasMoved{ false }
 	, m_hasActed{ false }

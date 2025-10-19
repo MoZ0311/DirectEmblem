@@ -171,6 +171,7 @@
     <ClInclude Include="src\scene\SceneManager.hpp" />
     <ClInclude Include="src\scene\TitleScene.hpp" />
     <ClInclude Include="src\unit\BaseUnit.hpp" />
+    <ClInclude Include="src\unit\SwordUnit.hpp" />
     <ClInclude Include="src\unit\UnitManager.hpp" />
     <ClInclude Include="src\util\CSVReader.hpp" />
     <ClInclude Include="src\util\InputState.hpp" />
@@ -187,6 +188,7 @@
     <ClCompile Include="src\scene\SceneManager.cpp" />
     <ClCompile Include="src\scene\TitleScene.cpp" />
     <ClCompile Include="src\unit\BaseUnit.cpp" />
+    <ClCompile Include="src\unit\SwordUnit.cpp" />
     <ClCompile Include="src\unit\UnitManager.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -6,7 +6,7 @@ UnitManager::UnitManager()
 	: m_playerUnitArray{}
 	, m_enemyUnitArray{}
 {
-	m_playerUnitArray.push_back(std::make_unique<BaseUnit>());
+	m_playerUnitArray.push_back(std::make_unique<SwordUnit>());
 }
 
 void UnitManager::update()

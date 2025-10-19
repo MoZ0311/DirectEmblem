@@ -68,12 +68,10 @@ namespace Config
 		// タイルの種類
 		enum class TileType
 		{
-			Grass,
-			Forest,
-			Fence,
-			Water,
-
-			// TileMax	// 要素数取得のためのダミー
+			Grass,	// 草原
+			Forest,	// 森
+			Fence,	// 柵
+			Water,	// 水
 		};
 
 		// タイルとテクスチャアトラスのuv対応表
@@ -86,23 +84,27 @@ namespace Config
 		};
 	}
 
-	// シェーダーのファイルパス
-	static inline constexpr WCHAR ShaderFileName[]{ L"shader/Shader.hlsl" };
+	namespace UnitSettings
+	{
+		enum class UnitType
+		{
+			None,	// 無職
 
-	// タイトル画像のファイルパス
-	static inline constexpr WCHAR TitleImagePath[]{ L"assets/images/background_title.png" };
+			Sword,	// 剣使い
+			Spear,	// 槍使い
+			Axe,	// 斧使い
+			Bow		// 弓使い
+		};
 
-	// タイトルロゴ画像のファイルパス
-	static inline constexpr WCHAR TitleLogoPath[]{ L"assets/images/logo.png" };
-
-	// タイルマップ画像のファイルパス
-	static inline constexpr WCHAR TileSheetPath[]{ L"assets/images/tile_sheet_pack.png" };
-
-	// スライムのアイコン画像のファイルパス
-	static inline constexpr WCHAR SlimeIconPath[]{ L"assets/images/icon_slime.png" };
-
-	// キャラのスプライトシートのファイルパス
-	static inline constexpr WCHAR CharacterSheetPath[]{ L"assets/images/character_sheet.png" };
+		struct UnitStatus
+		{
+			int mobility;		// 移動力
+			int maxHealth;		// 最大HP
+			int currentHealth;	// 現在のHP
+			int attackPower;	// 攻撃力
+			int defence;		// 防御力
+		};
+	}
 }
 
 namespace SceneSettings
@@ -127,4 +129,25 @@ namespace SceneSettings
 	{
 
 	};
+}
+
+namespace FilePath
+{
+	// シェーダーのファイルパス
+	static inline constexpr WCHAR ShaderFileName[]{ L"shader/Shader.hlsl" };
+
+	// タイトル画像のファイルパス
+	static inline constexpr WCHAR TitleImagePath[]{ L"assets/images/background_title.png" };
+
+	// タイトルロゴ画像のファイルパス
+	static inline constexpr WCHAR TitleLogoPath[]{ L"assets/images/logo.png" };
+
+	// タイルマップ画像のファイルパス
+	static inline constexpr WCHAR TileSheetPath[]{ L"assets/images/tile_sheet_pack.png" };
+
+	// スライムのアイコン画像のファイルパス
+	static inline constexpr WCHAR SlimeIconPath[]{ L"assets/images/icon_slime.png" };
+
+	// キャラのスプライトシートのファイルパス
+	static inline constexpr WCHAR CharacterSheetPath[]{ L"assets/images/character_sheet.png" };
 }

@@ -33,7 +33,7 @@ private:
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
 
-	// 画像テクスチャ
+	// マップのテクスチャアトラス
 	Texture m_mapTexture;
 
 	// 頂点数

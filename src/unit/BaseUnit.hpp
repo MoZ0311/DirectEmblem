@@ -28,9 +28,13 @@ protected:
 	// 頂点情報の作成処理
 	std::vector<Util::Vertex> createVertices() const;
 
+	// 各種パラメータ設定
+	virtual void setParameter() = 0;
+
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
 
+	// マップ上のアイコンテクスチャ
 	Texture m_unitIconTexture;
 
 	// 頂点数
@@ -38,6 +42,12 @@ protected:
 
 	// 頂点バッファ
 	ComPtr<ID3D11Buffer> m_vertexBuffer;
+
+	// ユニットのタイプ
+	Config::UnitSettings::UnitType m_unitType;
+
+	// ユニットのステータス
+	Config::UnitSettings::UnitStatus m_unitStatus;
 
 	// ユニットの座標(グリッド位置)
 	Util::Point m_unitPoint;

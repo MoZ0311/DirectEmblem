@@ -3,6 +3,7 @@
 # include "BackgroundRenderer.hpp"
 
 using namespace Util;
+using namespace FilePath;
 
 BackgroundRenderer::BackgroundRenderer()
 	: m_direct3D{ Direct3D::GetInstance() }
@@ -15,7 +16,7 @@ BackgroundRenderer::BackgroundRenderer()
 void BackgroundRenderer::initialize()
 {
 	// 背景テクスチャのロード
-    Texture texture{ Config::TitleImagePath };
+    Texture texture{ TitleImagePath };
 
     // 背景テクスチャのセット
     m_direct3D.setTexture(texture.getShaderResourceView());

@@ -19,12 +19,13 @@ GameScene::~GameScene()
 
 void GameScene::update()
 {
+	m_unitManager.update();
+
+	// 他の全ての更新処理の後、シーン遷移の判定
 	if (InputState::KeyPressed(VK_RBUTTON))
 	{
 		SceneManager::GetInstance().changeScene(Scene::Title);
 	}
-
-	m_unitManager.update();
 }
 
 void GameScene::draw() const
