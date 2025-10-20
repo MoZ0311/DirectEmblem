@@ -38,43 +38,47 @@ void BaseUnit::initialize()
 
 std::vector<Vertex> BaseUnit::createVertices() const
 {
-	std::vector<Vertex> vertices{};
-
-	const float startX{ -TileWidth * MapWidth / 2 };    // マップの開始x座標
-	const float startY{ TileHeight * MapHeight / 2 };   // マップの開始y座標
-
 	// 各辺の座標を計算
-	const float left{ startX + m_unitPosition.x * TileWidth };
+	const float left{ MapStartX + m_unitPosition.x * TileWidth };
 	const float right{ left + TileWidth };
-	const float top{ startY - m_unitPosition.y * TileHeight };
+	const float top{ MapStartY - m_unitPosition.y * TileHeight };
 	const float bottom{ top - TileHeight };
 
-	// 色 (白(1.0, 1.0, 1.0, 1.0)に設定)
+	// 色(白)
 	const DirectX::XMFLOAT4 colorF{ 1.0f, 1.0f, 1.0f, 1.0f };
 
-	// --- T1 (左下, 左上, 右上) ---
+	// uv座標定義
+	const DirectX::XMFLOAT2 uvTopLeft{ 0, 0 };		// 左上
+	const DirectX::XMFLOAT2 uvBottomLeft{ 0, 1 };		// 左下
+	const DirectX::XMFLOAT2 uvTopRight{ 1, 0 };	// 右上
+	const DirectX::XMFLOAT2 uvBottomRight{ 1, 1 };	// 右下
 
-	// 頂点1:左下
-	vertices.push_back({ { left, bottom, 0.0f }, colorF, { 0, 1 } });
-
-	// 頂点1:左上
-	vertices.push_back({ { left, top, 0.0f }, colorF, { 0, 0 } });
-
-	// 頂点3:右上
-	vertices.push_back({ { right, top, 0.0f }, colorF, { 1, 0 } });
-
-
-	// --- T2 (左下, 右上, 右下) ---
-
-	// 頂点4:左下
-	vertices.push_back({ { left, bottom, 0.0f }, colorF, { 0, 1 } });
-
-	// 頂点5:右上
-	vertices.push_back({ { right, top, 0.0f }, colorF, { 1, 0 } });
-
-	// 頂点6:右下
-	vertices.push_back({ { right, bottom, 0.0f }, colorF, { 1, 1 } });
-
+	const std::vector<Vertex> vertices{
+		// 頂点1:左下
+		{
+			{ left, bottom, 0.0f }, colorF, uvBottomLeft
+		},
+		// 頂点2:左上
+		{
+			{ left, top, 0.0f }, colorF, uvTopLeft
+		},
+		// 頂点3:右上
+		{
+			{ right, top, 0.0f }, colorF, uvTopRight
+		},
+		// 頂点4:左下
+		{
+			{ left, bottom, 0.0f }, colorF, uvBottomLeft
+		},
+		// 頂点5:右上
+		{
+			{ right, top, 0.0f }, colorF, uvTopRight
+		},
+		// 頂点6:右下
+		{
+			{ right, bottom, 0.0f }, colorF, uvBottomRight
+		}
+	};
 	return vertices;
 }
 

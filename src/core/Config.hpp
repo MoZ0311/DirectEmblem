@@ -48,12 +48,6 @@ namespace Config
 
 	namespace MapSettings
 	{
-		// マップの幅
-		static inline constexpr int MapWidth{ 20 };
-
-		// マップの高さ
-		static inline constexpr int MapHeight{ 16 };
-
 		// タイルの幅
 		static inline constexpr float TileWidth{ 0.068f };
 
@@ -78,12 +72,24 @@ namespace Config
 			{ TileType::Water,  { 1, 1 } }  // 1列目, 1行目
 		};
 
-		// グリッド座標上の位置(符号無し整数)
+		// グリッド座標上の位置
 		struct GridPosition
 		{
-			UINT x;
-			UINT y;
+			int x;
+			int y;
 		};
+
+		// マップの幅
+		static inline constexpr int MapWidth{ 20 };
+
+		// マップの高さ
+		static inline constexpr int MapHeight{ 16 };
+
+		// マップの開始x座標
+		static inline constexpr float MapStartX{ -TileWidth * MapWidth / 2 };
+
+		// マップの開始y座標
+		static inline constexpr float MapStartY{ TileHeight * MapHeight / 2 };
 	}
 
 	namespace UnitSettings
@@ -143,6 +149,9 @@ namespace FilePath
 
 	// タイトルロゴ画像のファイルパス
 	static inline constexpr WCHAR TitleLogoPath[]{ L"assets/images/logo.png" };
+
+	// 白い画像のファイルパス
+	static inline constexpr WCHAR WhiteTexturePath[]{ L"assets/images/white.png" };
 
 	// タイルマップ画像のファイルパス
 	static inline constexpr WCHAR TileSheetPath[]{ L"assets/images/tile_sheet_pack.png" };

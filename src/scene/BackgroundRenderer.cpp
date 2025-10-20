@@ -75,7 +75,6 @@ std::vector<Vertex> BackgroundRenderer::createVertices() const
             { 1.0f, 1.0f }
         },
 	};
-
 	return vertices;
 }
 

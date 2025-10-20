@@ -68,6 +68,9 @@ MSG Application::run() const
 			PostQuitMessage(0);
 		}
 
+		// マウス情報の更新
+		InputState::UpdateMouseState(m_hWnd);
+
 		// キー情報の更新
 		InputState::UpdateKeyState();
 

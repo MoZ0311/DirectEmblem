@@ -19,6 +19,7 @@ GameScene::~GameScene()
 
 void GameScene::update()
 {
+	m_mapRenderer.update();
 	m_unitManager.update();
 
 	// 他の全ての更新処理の後、シーン遷移の判定
