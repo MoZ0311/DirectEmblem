@@ -22,6 +22,13 @@ MapRenderer::MapRenderer()
 	initialize();
 }
 
+MapRenderer& MapRenderer::GetInstance()
+{
+    // 静的インスタンスを保持し、返す
+    static MapRenderer instance;
+    return instance;
+}
+
 void MapRenderer::initialize()
 {
 	// 頂点情報の作成

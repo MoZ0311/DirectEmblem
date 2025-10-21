@@ -26,7 +26,7 @@ private:
     void draw() const override;
 
     // マップ描画クラス
-    MapRenderer m_mapRenderer;
+    MapRenderer& m_mapRenderer;
 
     // ユニット管理クラス
     UnitManager m_unitManager;

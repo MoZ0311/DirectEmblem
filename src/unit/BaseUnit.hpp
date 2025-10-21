@@ -3,6 +3,7 @@
 #pragma once
 
 # include "../dx11/DirectX.hpp"
+# include "../map/MapRenderer.hpp"
 
 class BaseUnit
 {
@@ -37,8 +38,14 @@ protected:
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
 
+	// MapRendererクラスのインスタンス
+	MapRenderer& m_mapRenderer;
+
 	// マップ上のアイコンテクスチャ
 	Texture m_unitIconTexture;
+
+	// アイコンの色
+	DirectX::XMFLOAT4 m_iconColor;
 
 	// 頂点数
 	UINT m_vertexCount;
@@ -54,6 +61,9 @@ protected:
 
 	// ユニットの座標(グリッド位置)
 	Config::MapSettings::GridPosition m_unitPosition;
+
+	// 選択中であるか
+	bool m_hasSelected;
 
 	// 移動済みであるか
 	bool m_hasMoved;

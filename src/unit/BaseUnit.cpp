@@ -11,13 +11,16 @@ using namespace Config::UnitSettings;
 
 BaseUnit::BaseUnit()
 	: m_direct3D{ Direct3D::GetInstance() }
+	, m_mapRenderer{ MapRenderer::GetInstance() }
 	, m_unitIconTexture{ SlimeIconPath }
+	, m_iconColor{ 1.0f, 1.0f, 1.0f, 1.0f }
 	, m_vertexCount{ 0 }
 	, m_vertexBuffer{ nullptr }
 
 	, m_unitType{ UnitType::None }
 	, m_unitStatus{ 0, 0, 0, 0, 0 }
 	, m_unitPosition{ 0, 0 }
+	, m_hasSelected{ false }
 	, m_hasMoved{ false }
 	, m_hasActed{ false }
 {
@@ -44,39 +47,36 @@ std::vector<Vertex> BaseUnit::createVertices() const
 	const float top{ MapStartY - m_unitPosition.y * TileHeight };
 	const float bottom{ top - TileHeight };
 
-	// 色(白)
-	const DirectX::XMFLOAT4 colorF{ 1.0f, 1.0f, 1.0f, 1.0f };
-
 	// uv座標定義
 	const DirectX::XMFLOAT2 uvTopLeft{ 0, 0 };		// 左上
-	const DirectX::XMFLOAT2 uvBottomLeft{ 0, 1 };		// 左下
-	const DirectX::XMFLOAT2 uvTopRight{ 1, 0 };	// 右上
+	const DirectX::XMFLOAT2 uvBottomLeft{ 0, 1 };	// 左下
+	const DirectX::XMFLOAT2 uvTopRight{ 1, 0 };		// 右上
 	const DirectX::XMFLOAT2 uvBottomRight{ 1, 1 };	// 右下
 
 	const std::vector<Vertex> vertices{
 		// 頂点1:左下
 		{
-			{ left, bottom, 0.0f }, colorF, uvBottomLeft
+			{ left, bottom, 0.0f }, m_iconColor, uvBottomLeft
 		},
 		// 頂点2:左上
 		{
-			{ left, top, 0.0f }, colorF, uvTopLeft
+			{ left, top, 0.0f }, m_iconColor, uvTopLeft
 		},
 		// 頂点3:右上
 		{
-			{ right, top, 0.0f }, colorF, uvTopRight
+			{ right, top, 0.0f }, m_iconColor, uvTopRight
 		},
 		// 頂点4:左下
 		{
-			{ left, bottom, 0.0f }, colorF, uvBottomLeft
+			{ left, bottom, 0.0f }, m_iconColor, uvBottomLeft
 		},
 		// 頂点5:右上
 		{
-			{ right, top, 0.0f }, colorF, uvTopRight
+			{ right, top, 0.0f }, m_iconColor, uvTopRight
 		},
 		// 頂点6:右下
 		{
-			{ right, bottom, 0.0f }, colorF, uvBottomRight
+			{ right, bottom, 0.0f }, m_iconColor, uvBottomRight
 		}
 	};
 	return vertices;
@@ -110,6 +110,27 @@ void BaseUnit::update()
 	{
 		m_unitPosition = currentPosition;
 		setUnitPosition(m_unitPosition);
+	}
+
+	// マウスのグリッド座標を取得
+	const GridPosition mousePosition{ m_mapRenderer.getMouseGridPosition()};
+	
+	// ユニットの上にマウスがあるか
+	const bool mouseOnUnit{ m_unitPosition.x == mousePosition.x && m_unitPosition.y == mousePosition.y };
+
+	if (InputState::KeyPressed(VK_RBUTTON))
+	{
+		// ユニットが右クリック(キャンセル)された時
+		m_hasSelected = false;
+		m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
+	}
+	else if (InputState::KeyPressed(VK_LBUTTON) && mouseOnUnit)
+	{
+		// 左クリック(選択)された時
+		m_hasSelected = true;
+		m_iconColor = { 1.0f, 1.0f, 0.3f, 1.0f };
+		m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
 	}
 }
 

@@ -44,6 +44,9 @@ private:
 	// コンストラクタ
 	Direct3D();
 
+	// コピーコンストラクタを削除
+	Direct3D(const Direct3D&) = delete;
+
 	// スワップチェーンの設定
 	DXGI_SWAP_CHAIN_DESC registerSwapChain() const;
 

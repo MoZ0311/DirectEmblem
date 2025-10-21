@@ -5,7 +5,7 @@
 using namespace SceneSettings;
 
 GameScene::GameScene()
-	: m_mapRenderer{}
+	: m_mapRenderer{ MapRenderer::GetInstance() }
 	, m_unitManager{}
 {
 	// 背景色を設定
@@ -25,7 +25,7 @@ void GameScene::update()
 	// 他の全ての更新処理の後、シーン遷移の判定
 	if (InputState::KeyPressed(VK_RBUTTON))
 	{
-		SceneManager::GetInstance().changeScene(Scene::Title);
+		// SceneManager::GetInstance().changeScene(Scene::Title);
 	}
 }
 

@@ -11,8 +11,8 @@ class MapRenderer
 {
 public:
 
-	// コンストラクタ
-	MapRenderer();
+	// シングルトンインスタンスの生成/取得
+	static MapRenderer& GetInstance();
 
 	// 更新処理
 	void update();
@@ -24,6 +24,12 @@ public:
 	Config::MapSettings::GridPosition getMouseGridPosition() const;
 
 private:
+
+	// コンストラクタ
+	MapRenderer();
+
+	// コピーコンストラクタを削除
+	MapRenderer(const MapRenderer&) = delete;
 
 	// 初期化処理
 	void initialize();
