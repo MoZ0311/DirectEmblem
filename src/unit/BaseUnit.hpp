@@ -3,7 +3,7 @@
 #pragma once
 
 # include "../dx11/DirectX.hpp"
-# include "../map/MapRenderer.hpp"
+# include "../map/FieldMap.hpp"
 
 class BaseUnit
 {
@@ -38,8 +38,8 @@ protected:
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
 
-	// MapRendererクラスのインスタンス
-	MapRenderer& m_mapRenderer;
+	// FieldMapクラスのインスタンス
+	FieldMap& m_mapRenderer;
 
 	// マップ上のアイコンテクスチャ
 	Texture m_unitIconTexture;

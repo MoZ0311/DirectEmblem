@@ -164,7 +164,7 @@
     <ClInclude Include="src\dx11\Direct3D.hpp" />
     <ClInclude Include="src\dx11\DirectX.hpp" />
     <ClInclude Include="src\dx11\Texture.hpp" />
-    <ClInclude Include="src\map\MapRenderer.hpp" />
+    <ClInclude Include="src\map\FieldMap.hpp" />
     <ClInclude Include="src\scene\BackgroundRenderer.hpp" />
     <ClInclude Include="src\scene\BaseScene.hpp" />
     <ClInclude Include="src\scene\GameScene.hpp" />
@@ -181,7 +181,7 @@
     <ClCompile Include="src\core\Application.cpp" />
     <ClCompile Include="src\dx11\Direct3D.cpp" />
     <ClCompile Include="src\dx11\Texture.cpp" />
-    <ClCompile Include="src\map\MapRenderer.cpp" />
+    <ClCompile Include="src\map\FieldMap.cpp" />
     <ClCompile Include="src\scene\BackgroundRenderer.cpp" />
     <ClCompile Include="src\scene\BaseScene.cpp" />
     <ClCompile Include="src\scene\GameScene.cpp" />

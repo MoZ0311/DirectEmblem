@@ -1,4 +1,4 @@
-// MapRenderer class
+// FieldMap class
 
 # pragma once
 
@@ -7,12 +7,12 @@
 # include "../util/CSVReader.hpp"
 # include "../util/InputState.hpp"
 
-class MapRenderer
+class FieldMap
 {
 public:
 
 	// シングルトンインスタンスの生成/取得
-	static MapRenderer& GetInstance();
+	static FieldMap& GetInstance();
 
 	// 更新処理
 	void update();
@@ -29,10 +29,10 @@ public:
 private:
 
 	// コンストラクタ
-	MapRenderer();
+	FieldMap();
 
 	// コピーコンストラクタを削除
-	MapRenderer(const MapRenderer&) = delete;
+	FieldMap(const FieldMap&) = delete;
 
 	// 初期化処理
 	void initialize();

@@ -1,13 +1,13 @@
-// MapRenderer class
+// FieldMap class
 
-# include "MapRenderer.hpp"
+# include "FieldMap.hpp"
 
 using namespace Util;
 using namespace FilePath;
 using namespace Config;
 using namespace Config::MapSettings;
 
-MapRenderer::MapRenderer()
+FieldMap::FieldMap()
     : m_mapData{ CSVReader::ConvertToInteger(CSVReader::readCsvFile("assets/data/map_data.csv")) }
 	, m_direct3D{ Direct3D::GetInstance() }
     , m_mapTexture{ TileSheetPath }
@@ -22,14 +22,14 @@ MapRenderer::MapRenderer()
 	initialize();
 }
 
-MapRenderer& MapRenderer::GetInstance()
+FieldMap& FieldMap::GetInstance()
 {
     // 静的インスタンスを保持し、返す
-    static MapRenderer instance;
+    static FieldMap instance;
     return instance;
 }
 
-void MapRenderer::initialize()
+void FieldMap::initialize()
 {
 	// 頂点情報の作成
 	const std::vector<Vertex> vertices{ createVertices() };
@@ -50,7 +50,7 @@ void MapRenderer::initialize()
     m_highlightBuffer = m_direct3D.createVertexBuffer(highlightVertices);
 }
 
-std::vector<Vertex> MapRenderer::createVertices() const
+std::vector<Vertex> FieldMap::createVertices() const
 {
     // タイルシートの情報定義
     // 2 * 2で四つのタイルマップなので、uvの最大1.0の半分ずつ
@@ -115,7 +115,7 @@ std::vector<Vertex> MapRenderer::createVertices() const
 	return vertices;
 }
 
-std::vector<Vertex> MapRenderer::createHighlightVertices() const
+std::vector<Vertex> FieldMap::createHighlightVertices() const
 {
     // グリッド位置に応じて各辺の座標を計算
     const float left{ MapStartX + m_mouseGridPosition.x * TileWidth };
@@ -156,7 +156,7 @@ std::vector<Vertex> MapRenderer::createHighlightVertices() const
     return vertices;
 }
 
-void MapRenderer::update()
+void FieldMap::update()
 {
     // マウスの座標を取得
     const Vec2 mousePosition{ InputState::mouseWorldPosition };
@@ -183,7 +183,7 @@ void MapRenderer::update()
     }
 }
 
-void MapRenderer::draw() const
+void FieldMap::draw() const
 {
     // 背景テクスチャのセット
     m_direct3D.setTexture(m_mapTexture.getShaderResourceView());
@@ -207,18 +207,18 @@ void MapRenderer::draw() const
     }
 }
 
-void MapRenderer::updateHighlightBuffer()
+void FieldMap::updateHighlightBuffer()
 {
     // Direct3DのupdateVeretexBufferで既存のバッファを更新
     m_direct3D.updateVeretexBuffer(m_highlightBuffer, createHighlightVertices());
 }
 
-GridPosition MapRenderer::getMouseGridPosition() const
+GridPosition FieldMap::getMouseGridPosition() const
 {
     return m_mouseGridPosition;
 }
 
-bool MapRenderer::getMouseOnMap() const
+bool FieldMap::getMouseOnMap() const
 {
     return m_mouseOnMap;
 }

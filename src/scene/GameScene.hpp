@@ -4,7 +4,7 @@
 
 # include "BaseScene.hpp"
 # include "SceneManager.hpp"
-# include "../map/MapRenderer.hpp"
+# include "../map/FieldMap.hpp"
 # include "../unit/UnitManager.hpp"
 
 class GameScene : public BaseScene
@@ -25,8 +25,8 @@ private:
     // 描画処理
     void draw() const override;
 
-    // マップ描画クラス
-    MapRenderer& m_mapRenderer;
+    // FieldMapクラスのインスタンス
+    FieldMap& m_mapRenderer;
 
     // ユニット管理クラス
     UnitManager m_unitManager;

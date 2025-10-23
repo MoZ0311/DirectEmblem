@@ -11,7 +11,7 @@ using namespace Config::UnitSettings;
 
 BaseUnit::BaseUnit()
 	: m_direct3D{ Direct3D::GetInstance() }
-	, m_mapRenderer{ MapRenderer::GetInstance() }
+	, m_mapRenderer{ FieldMap::GetInstance() }
 	, m_unitIconTexture{ SlimeIconPath }
 	, m_iconColor{ 1.0f, 1.0f, 1.0f, 1.0f }
 	, m_vertexCount{ 0 }

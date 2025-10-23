@@ -5,7 +5,7 @@
 using namespace SceneSettings;
 
 GameScene::GameScene()
-	: m_mapRenderer{ MapRenderer::GetInstance() }
+	: m_mapRenderer{ FieldMap::GetInstance() }
 	, m_unitManager{}
 {
 	// ”wŒiF‚ğİ’è
