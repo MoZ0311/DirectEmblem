@@ -84,50 +84,33 @@ std::vector<Vertex> BaseUnit::createVertices() const
 
 void BaseUnit::update()
 {
-	GridPosition currentPosition{ m_unitPosition };
-	if (InputState::KeyPressed(VK_UP) || InputState::KeyPressed(0x57))
-	{
-		--currentPosition.y;
-	}
-	if (InputState::KeyPressed(VK_DOWN) || InputState::KeyPressed(0x53))
-	{
-		++currentPosition.y;
-	}
-	if (InputState::KeyPressed(VK_LEFT) || InputState::KeyPressed(0x41))
-	{
-		--currentPosition.x;
-	}
-	if (InputState::KeyPressed(VK_RIGHT) || InputState::KeyPressed(0x44))
-	{
-		++currentPosition.x;
-	}
-
-	currentPosition.x = std::clamp(static_cast<int>(currentPosition.x), 0, MapWidth - 1);
-	currentPosition.y = std::clamp(static_cast<int>(currentPosition.y), 0, MapHeight - 1);
-
-	if (m_unitPosition.x != currentPosition.x ||
-		m_unitPosition.y != currentPosition.y)
-	{
-		m_unitPosition = currentPosition;
-		setUnitPosition(m_unitPosition);
-	}
-
 	// マウスのグリッド座標を取得
 	const GridPosition mousePosition{ m_mapRenderer.getMouseGridPosition()};
 	
 	// ユニットの上にマウスがあるか
 	const bool mouseOnUnit{ m_unitPosition.x == mousePosition.x && m_unitPosition.y == mousePosition.y };
 
-	if (InputState::KeyPressed(VK_RBUTTON))
+	// 選択時の座標を格納する変数
+	GridPosition prevPosition{};
+	if (m_hasSelected)
 	{
-		// ユニットが右クリック(キャンセル)された時
-		m_hasSelected = false;
-		m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-		m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
+		if (InputState::KeyPressed(VK_RBUTTON))
+		{
+			// 右クリック(キャンセル)された時
+			m_hasSelected = false;
+			m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+			setUnitPosition(prevPosition);
+		}
+		else if (InputState::KeyPressed(VK_LBUTTON) && m_mapRenderer.getMouseOnMap())
+		{
+			// 目的地が設定された時
+			setUnitPosition(mousePosition);
+		}
 	}
 	else if (InputState::KeyPressed(VK_LBUTTON) && mouseOnUnit)
 	{
 		// 左クリック(選択)された時
+		prevPosition = m_unitPosition;
 		m_hasSelected = true;
 		m_iconColor = { 1.0f, 1.0f, 0.3f, 1.0f };
 		m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());

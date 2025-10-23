@@ -23,6 +23,9 @@ public:
 	// マウスが重なったタイルの算出処理
 	Config::MapSettings::GridPosition getMouseGridPosition() const;
 
+	// マウスがマップ上にあるか
+	bool getMouseOnMap() const;
+
 private:
 
 	// コンストラクタ

@@ -217,3 +217,8 @@ GridPosition MapRenderer::getMouseGridPosition() const
 {
     return m_mouseGridPosition;
 }
+
+bool MapRenderer::getMouseOnMap() const
+{
+    return m_mouseOnMap;
+}
