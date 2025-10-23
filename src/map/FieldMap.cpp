@@ -11,7 +11,7 @@ FieldMap::FieldMap()
     : m_mapData{ CSVReader::ConvertToInteger(CSVReader::readCsvFile("assets/data/map_data.csv")) }
 	, m_direct3D{ Direct3D::GetInstance() }
     , m_mapTexture{ TileSheetPath }
-    , m_highlightTexture{ WhiteTexturePath }
+    , m_highlightTexture{ HighlightTexturePath }
 	, m_vertexCount{ 0 }
     , m_highlightVertexCount{ 0 }
 	, m_vertexBuffer{ nullptr }
@@ -124,7 +124,7 @@ std::vector<Vertex> FieldMap::createHighlightVertices() const
     const float bottom{ top - TileHeight };
 
     const DirectX::XMFLOAT4 color{ 1.0f, 1.0f, 1.0f, 0.6f };    // 色
-    const DirectX::XMFLOAT2 uv{ 0.0f, 0.0f };                   // uv座標
+    const DirectX::XMFLOAT2 uv{ 0.25f, 0.25f };                 // 白対応するuv座標
 
     const std::vector<Vertex> vertices{
         // 頂点1:左下

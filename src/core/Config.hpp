@@ -72,6 +72,15 @@ namespace Config
 			{ TileType::Water,  { 1, 1 } }  // 1列目, 1行目
 		};
 
+		// タイルと侵入可否の対応表
+		static inline const std::map<TileType, bool> TileAccessible
+		{
+			{ TileType::Grass, true },	// 草原, 侵入可
+			{ TileType::Forest, true },	// 　森, 侵入可
+			{ TileType::Fence, false },	// 　柵, 侵入不可
+			{ TileType::Water, false }	// 　水, 侵入不可
+		};
+
 		// グリッド座標上の位置
 		struct GridPosition
 		{
@@ -150,8 +159,8 @@ namespace FilePath
 	// タイトルロゴ画像のファイルパス
 	static inline constexpr WCHAR TitleLogoPath[]{ L"assets/images/logo.png" };
 
-	// 白い画像のファイルパス
-	static inline constexpr WCHAR WhiteTexturePath[]{ L"assets/images/white.png" };
+	// ハイライト用テクスチャのファイルパス
+	static inline constexpr WCHAR HighlightTexturePath[]{ L"assets/images/highlight.png" };
 
 	// タイルマップ画像のファイルパス
 	static inline constexpr WCHAR TileSheetPath[]{ L"assets/images/tile_sheet_pack.png" };
