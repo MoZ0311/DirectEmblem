@@ -6,6 +6,7 @@
 # include <memory>
 # include <vector>
 # include <map>
+# include <queue>
 # include <string>
 # include <directxmath.h>
 # include <algorithm>
@@ -72,13 +73,13 @@ namespace Config
 			{ TileType::Water,  { 1, 1 } }  // 1列目, 1行目
 		};
 
-		// タイルと侵入可否の対応表
-		static inline const std::map<TileType, bool> TileAccessible
+		// タイルと侵入コストの対応表
+		static inline const std::map<TileType, int> TileAccessCost
 		{
-			{ TileType::Grass, true },	// 草原, 侵入可
-			{ TileType::Forest, true },	// 　森, 侵入可
-			{ TileType::Fence, false },	// 　柵, 侵入不可
-			{ TileType::Water, false }	// 　水, 侵入不可
+			{ TileType::Grass, 1 },
+			{ TileType::Forest, 2 },
+			{ TileType::Fence, 99 },
+			{ TileType::Water, 99 },
 		};
 
 		// グリッド座標上の位置
@@ -113,7 +114,7 @@ namespace Config
 			Bow		// 弓使い
 		};
 
-		struct UnitStatus
+		struct UnitParameter
 		{
 			int mobility;		// 移動力
 			int maxHealth;		// 最大HP

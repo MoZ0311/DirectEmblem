@@ -26,6 +26,9 @@ public:
 	// マウスがマップ上にあるか
 	bool getMouseOnMap() const;
 
+	// 二次元配列の取得
+	std::vector<std::vector<int>> getMapData() const;
+
 private:
 
 	// コンストラクタ

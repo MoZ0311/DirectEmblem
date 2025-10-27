@@ -2,7 +2,6 @@
 
 # pragma once
 
-# include <windows.h>
 # include "../core/Config.hpp"
 
 struct InputState

@@ -124,7 +124,7 @@ std::vector<Vertex> FieldMap::createHighlightVertices() const
     const float bottom{ top - TileHeight };
 
     const DirectX::XMFLOAT4 color{ 1.0f, 1.0f, 1.0f, 0.6f };    // 色
-    const DirectX::XMFLOAT2 uv{ 0.25f, 0.25f };                 // 白対応するuv座標
+    const DirectX::XMFLOAT2 uv{ 0.5f, 0.5f };                   // 白対応するuv座標
 
     const std::vector<Vertex> vertices{
         // 頂点1:左下
@@ -221,4 +221,9 @@ GridPosition FieldMap::getMouseGridPosition() const
 bool FieldMap::getMouseOnMap() const
 {
     return m_mouseOnMap;
+}
+
+std::vector<std::vector<int>> FieldMap::getMapData() const
+{
+    return m_mapData;
 }

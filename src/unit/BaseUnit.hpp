@@ -32,6 +32,9 @@ protected:
 	// 各種パラメータ設定
 	virtual void setParameter() = 0;
 
+	// 幅優先探索の計算
+	void calculateDistance();
+
 	// グリッド座標の変更処理
 	void setUnitPosition(const Config::MapSettings::GridPosition& targetPoint);
 
@@ -39,7 +42,7 @@ protected:
 	Direct3D& m_direct3D;
 
 	// FieldMapクラスのインスタンス
-	FieldMap& m_mapRenderer;
+	FieldMap& m_fieldMap;
 
 	// マップ上のアイコンテクスチャ
 	Texture m_unitIconTexture;
@@ -56,11 +59,17 @@ protected:
 	// ユニットのタイプ
 	Config::UnitSettings::UnitType m_unitType;
 
-	// ユニットのステータス
-	Config::UnitSettings::UnitStatus m_unitStatus;
+	// ユニットのパラメータ
+	Config::UnitSettings::UnitParameter m_unitParameter;
 
 	// ユニットの座標(グリッド位置)
 	Config::MapSettings::GridPosition m_unitPosition;
+
+	// 移動前のユニットの座標
+	Config::MapSettings::GridPosition m_prevPosition;
+
+	// 現在値からの距離(侵入コスト込)の二次元配列
+	std::vector<std::vector<int>> m_distanceGrid;
 
 	// 選択中であるか
 	bool m_hasSelected;
