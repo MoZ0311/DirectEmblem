@@ -17,6 +17,9 @@ public:
 
 	// 描画処理
 	void draw() const;
+
+	// アクセス可能配列の取得処理
+	std::vector<std::vector<int>> getAccessibleTileGrid() const;
 	
 protected:
 
@@ -32,11 +35,14 @@ protected:
 	// 各種パラメータ設定
 	virtual void setParameter() = 0;
 
-	// 幅優先探索の計算
-	void calculateDistance();
+	// 移動処理
+	void gridMove();
 
-	// グリッド座標の変更処理
-	void setUnitPosition(const Config::MapSettings::GridPosition& targetPoint);
+	// 幅優先探索による移動範囲の計算
+	void calculateMovementRange();
+
+	// 目的地に向けた経路の作成処理
+	void createMovementPath(const Config::MapSettings::GridPosition& targetPosition);
 
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
@@ -69,7 +75,10 @@ protected:
 	Config::MapSettings::GridPosition m_prevPosition;
 
 	// 現在値からの距離(侵入コスト込)の二次元配列
-	std::vector<std::vector<int>> m_distanceGrid;
+	std::vector<std::vector<int>> m_accessibleTileGrid;
+
+	// 現在地から目的地までの経路を格納する配列
+	std::stack<Config::MapSettings::GridPosition> m_movementPath;
 
 	// 選択中であるか
 	bool m_hasSelected;
@@ -79,4 +88,7 @@ protected:
 
 	// 行動済みであるか
 	bool m_hasActed;
+
+	// グリッド移動アニメーションの間隔
+	float m_gridMoveTimer;
 };

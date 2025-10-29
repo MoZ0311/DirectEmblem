@@ -29,6 +29,9 @@ public:
 	// 二次元配列の取得
 	std::vector<std::vector<int>> getMapData() const;
 
+	// 侵入可能タイルの設定
+	void setAccessibleTileGrid(std::vector<std::vector<int>> val);
+
 private:
 
 	// コンストラクタ
@@ -40,17 +43,26 @@ private:
 	// 初期化処理
 	void initialize();
 
-	// 頂点情報の作成処理
-	std::vector<Util::Vertex> createVertices() const;
+	// マップ用頂点情報の作成処理
+	std::vector<Util::Vertex> createMapVertices() const;
+
+	// 移動範囲用の頂点情報の作成処理
+	std::vector<Util::Vertex> createMoveRangeVertices() const;
 
 	// ハイライト用頂点情報の作成
 	std::vector<Util::Vertex> createHighlightVertices() const;
+
+	// 移動範囲用頂点情報バッファの更新
+	void updateMoveRangeBuffer();
 
 	// ハイライト用頂点バッファの更新
 	void updateHighlightBuffer();
 
 	// マップデータの二次元配列
-	const std::vector<std::vector<int>> m_mapData;
+	const std::vector<std::vector<int>> m_mapGrid;
+
+	// 侵入可能タイルの二次元配列
+	std::vector<std::vector<int>> m_accessibleTileGrid;
 
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
@@ -61,14 +73,20 @@ private:
 	// ハイライト用のテクスチャ
 	Texture m_highlightTexture;
 
-	// 頂点数
-	UINT m_vertexCount;
+	// マップ用の頂点数
+	UINT m_mapVertexCount;
+
+	// 移動範囲用の頂点数
+	UINT m_moveRangeVertexCount;
 
 	// ハイライト描画用の頂点数
 	UINT m_highlightVertexCount;
 
-	// 頂点バッファ
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
+	// マップ用の頂点バッファ
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_mapVertexBuffer;
+
+	// 移動範囲用の頂点バッファ
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_moveRangeBuffer;
 
 	// ハイライト描画用の頂点バッファ
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_highlightBuffer;

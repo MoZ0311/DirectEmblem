@@ -6,7 +6,7 @@ using namespace SceneSettings;
 
 GameScene::GameScene()
 	: m_mapRenderer{ FieldMap::GetInstance() }
-	, m_unitManager{}
+	, m_unitManager{ UnitManager::GetInstance() }
 {
 	// ”wŒiF‚ğİ’è
 	m_backgroundColor = { 0.961f, 0.871f, 0.702f, 1.0f };

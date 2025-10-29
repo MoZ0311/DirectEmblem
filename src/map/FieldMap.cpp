@@ -1,6 +1,7 @@
 // FieldMap class
 
 # include "FieldMap.hpp"
+# include "../unit/UnitManager.hpp"
 
 using namespace Util;
 using namespace FilePath;
@@ -8,14 +9,20 @@ using namespace Config;
 using namespace Config::MapSettings;
 
 FieldMap::FieldMap()
-    : m_mapData{ CSVReader::ConvertToInteger(CSVReader::readCsvFile("assets/data/map_data.csv")) }
+    : m_mapGrid{ CSVReader::ConvertToInteger(CSVReader::readCsvFile("assets/data/map_data.csv")) }
+    , m_accessibleTileGrid{}
 	, m_direct3D{ Direct3D::GetInstance() }
     , m_mapTexture{ TileSheetPath }
     , m_highlightTexture{ HighlightTexturePath }
-	, m_vertexCount{ 0 }
+
+	, m_mapVertexCount{ 0 }
+    , m_moveRangeVertexCount{ 0 }
     , m_highlightVertexCount{ 0 }
-	, m_vertexBuffer{ nullptr }
+
+	, m_mapVertexBuffer{ nullptr }
+    , m_moveRangeBuffer{ nullptr }
     , m_highlightBuffer{ nullptr }
+
     , m_mouseGridPosition{ -1, -1 }
     , m_mouseOnMap{ false }
 {
@@ -31,26 +38,44 @@ FieldMap& FieldMap::GetInstance()
 
 void FieldMap::initialize()
 {
-	// 頂点情報の作成
-	const std::vector<Vertex> vertices{ createVertices() };
+    // 侵入可能配列の初期化
+    m_accessibleTileGrid.assign(MapHeight, std::vector<int>(MapWidth, -1));
 
-	// 頂点数の計算
-	m_vertexCount = static_cast<UINT>(vertices.size());
+    {
+        // 頂点情報の作成
+        const std::vector<Vertex> vertices{ createMapVertices() };
 
-	// バッファの作成
-	m_vertexBuffer = m_direct3D.createVertexBuffer(vertices);
+        // 頂点数の計算
+        m_mapVertexCount = static_cast<UINT>(vertices.size());
 
-    // ハイライト用の頂点情報を作成
-    const std::vector<Vertex> highlightVertices{ createHighlightVertices() };
+        // バッファの作成
+        m_mapVertexBuffer = m_direct3D.createVertexBuffer(vertices);
+    }
 
-    // ハイライト用頂点数の計算
-    m_highlightVertexCount = static_cast<UINT>(highlightVertices.size());
+    {
+        // 移動範囲用の頂点情報を作成
+        const std::vector<Vertex> moveRangeVertices{ createMoveRangeVertices() };
 
-    // ハイライト用のバッファを作成
-    m_highlightBuffer = m_direct3D.createVertexBuffer(highlightVertices);
+        // 移動範囲用頂点数の計算
+        m_moveRangeVertexCount = static_cast<UINT>(moveRangeVertices.size());
+
+        // 移動範囲用のバッファを作成
+        m_moveRangeBuffer = m_direct3D.createVertexBuffer(moveRangeVertices);
+    }
+
+    {
+        // ハイライト用の頂点情報を作成
+        const std::vector<Vertex> highlightVertices{ createHighlightVertices() };
+
+        // ハイライト用頂点数の計算
+        m_highlightVertexCount = static_cast<UINT>(highlightVertices.size());
+
+        // ハイライト用のバッファを作成
+        m_highlightBuffer = m_direct3D.createVertexBuffer(highlightVertices);
+    }
 }
 
-std::vector<Vertex> FieldMap::createVertices() const
+std::vector<Vertex> FieldMap::createMapVertices() const
 {
     // タイルシートの情報定義
     // 2 * 2で四つのタイルマップなので、uvの最大1.0の半分ずつ
@@ -75,7 +100,7 @@ std::vector<Vertex> FieldMap::createVertices() const
             const float bottom{ top - TileHeight };
 
             // 現在のタイルを取得
-            const TileType currentMapTile{ m_mapData[y][x] };
+            const TileType currentMapTile{ m_mapGrid[y][x] };
 
             // タイルとテクスチャの対応表を取得
             const DirectX::XMFLOAT2 uvIndex = TileUVMap.at(currentMapTile);
@@ -113,6 +138,57 @@ std::vector<Vertex> FieldMap::createVertices() const
         }
     }
 	return vertices;
+}
+
+std::vector<Util::Vertex> FieldMap::createMoveRangeVertices() const
+{
+    // 赤色(移動不可)
+    const DirectX::XMFLOAT4 colorRed{ 1.0f, 0.0f, 0.0f, 0.5f };
+
+    // 青色(移動可能)
+    const DirectX::XMFLOAT4 colorBlue{ 0.0f, 0.0f, 1.0f, 0.5f };
+
+    // 空の頂点群を宣言
+    std::vector<Vertex> vertices{};
+
+    // 二重ループで頂点を作成
+    for (int y{ 0 }; y < MapHeight; ++y)
+    {
+        for (int x{ 0 }; x < MapWidth; ++x)
+        {
+            // タイルの各辺の座標を計算
+            const float left{ MapStartX + x * TileWidth };
+            const float right{ left + TileWidth };
+            const float top{ MapStartY - y * TileHeight };
+            const float bottom{ top - TileHeight };
+
+            // テクスチャアトラスのuv座標計算
+            const DirectX::XMFLOAT2 uv{ 0.5f, 0.5f };
+
+            // 移動の可否で色を設定
+            const bool canAccess{ m_accessibleTileGrid[y][x] > -1 };
+            const DirectX::XMFLOAT4 tileColor{ canAccess ? colorBlue : colorRed };
+
+            // 頂点1:左下
+            vertices.push_back({ { left, bottom, 0.0f }, tileColor, uv });
+
+            // 頂点1:左上
+            vertices.push_back({ { left, top, 0.0f }, tileColor, uv });
+
+            // 頂点3:右上
+            vertices.push_back({ { right, top, 0.0f }, tileColor, uv });
+
+            // 頂点4:左下
+            vertices.push_back({ { left, bottom, 0.0f }, tileColor, uv });
+
+            // 頂点5:右上
+            vertices.push_back({ { right, top, 0.0f }, tileColor, uv });
+
+            // 頂点6:右下
+            vertices.push_back({ { right, bottom, 0.0f }, tileColor, uv });
+        }
+    }
+    return vertices;
 }
 
 std::vector<Vertex> FieldMap::createHighlightVertices() const
@@ -158,6 +234,9 @@ std::vector<Vertex> FieldMap::createHighlightVertices() const
 
 void FieldMap::update()
 {
+    // 移動範囲用の頂点バッファを更新
+    updateMoveRangeBuffer();
+
     // マウスの座標を取得
     const Vec2 mousePosition{ InputState::mouseWorldPosition };
 
@@ -185,14 +264,28 @@ void FieldMap::update()
 
 void FieldMap::draw() const
 {
-    // 背景テクスチャのセット
-    m_direct3D.setTexture(m_mapTexture.getShaderResourceView());
+    {
+        // 背景テクスチャのセット
+        m_direct3D.setTexture(m_mapTexture.getShaderResourceView());
 
-    // DirectXにTitleSceneのバッファを転送
-    m_direct3D.setVertexBuffer(m_vertexBuffer);
+        // DirectXにTitleSceneのバッファを転送
+        m_direct3D.setVertexBuffer(m_mapVertexBuffer);
 
-	// 描画コマンド実行
-	m_direct3D.draw(m_vertexCount);
+        // 描画コマンド実行
+        m_direct3D.draw(m_mapVertexCount);
+    }
+    
+    if (UnitManager::GetInstance().isUnitMoving)
+    {
+        // ハイライト用のテクスチャをセット
+        m_direct3D.setTexture(m_highlightTexture.getShaderResourceView());
+
+        // 移動範囲用のバッファを転送
+        m_direct3D.setVertexBuffer(m_moveRangeBuffer);
+
+        // 描画コマンド実行
+        m_direct3D.draw(m_moveRangeVertexCount);
+    }
 
     if (m_mouseOnMap)
     {
@@ -205,6 +298,12 @@ void FieldMap::draw() const
         // 描画コマンド実行
         m_direct3D.draw(m_highlightVertexCount);
     }
+}
+
+void FieldMap::updateMoveRangeBuffer()
+{
+    // Direct3DのupdateVeretexBufferで既存のバッファを更新
+    m_direct3D.updateVeretexBuffer(m_moveRangeBuffer, createMoveRangeVertices());
 }
 
 void FieldMap::updateHighlightBuffer()
@@ -225,5 +324,10 @@ bool FieldMap::getMouseOnMap() const
 
 std::vector<std::vector<int>> FieldMap::getMapData() const
 {
-    return m_mapData;
+    return m_mapGrid;
+}
+
+void FieldMap::setAccessibleTileGrid(std::vector<std::vector<int>> val)
+{
+    m_accessibleTileGrid = val;
 }

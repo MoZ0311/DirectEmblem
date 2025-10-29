@@ -2,7 +2,6 @@
 
 # pragma once
 
-# include <chrono>
 # include "../core/Config.hpp"
 # include "../dx11/Direct3D.hpp"
 # include "../util/InputState.hpp"
@@ -25,9 +24,6 @@ protected:
     // コンストラクタ
     BaseScene();
 
-    // deltaTimeの取得処理
-    float getDeltaTime() const;
-
     // Direct3Dクラスのインスタンス
     Direct3D& m_direct3D;
 
@@ -36,18 +32,9 @@ protected:
 
 private:
 
-    // 前フレームからの経過時間(deltaTime)の算出
-    void calculateDeltaTime();
-
     // 更新処理
     virtual void update() = 0;
 
     // 描画処理
     virtual void draw() const = 0;
-
-    // 直前の時間
-    std::chrono::time_point<std::chrono::high_resolution_clock> m_prevTime;
-
-    // 前フレームからの経過時間
-    float m_deltaTime;
 };

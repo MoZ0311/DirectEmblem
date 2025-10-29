@@ -29,5 +29,5 @@ private:
     FieldMap& m_mapRenderer;
 
     // ユニット管理クラス
-    UnitManager m_unitManager;
+    UnitManager& m_unitManager;
 };

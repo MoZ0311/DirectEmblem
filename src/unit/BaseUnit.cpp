@@ -2,6 +2,7 @@
 
 # include "BaseUnit.hpp"
 
+# include "../unit/UnitManager.hpp"
 # include "../util/InputState.hpp"
 
 using namespace Util;
@@ -21,18 +22,21 @@ BaseUnit::BaseUnit()
 	, m_unitParameter{ 0, 0, 0, 0, 0 }
 	, m_unitPosition{ 0, 0 }
 	, m_prevPosition{ m_unitPosition }
-	, m_distanceGrid{}
+	, m_accessibleTileGrid{}
+	, m_movementPath{}
 	, m_hasSelected{ false }
 	, m_hasMoved{ false }
 	, m_hasActed{ false }
+
+	, m_gridMoveTimer{ GridMoveInterval }
 {
 	initialize();
 }
 
 void BaseUnit::initialize()
 {
-	// 距離配列の初期化
-	m_distanceGrid.assign(MapHeight, std::vector<int>(MapWidth, -1));
+	// 侵入可能配列の初期化
+	m_accessibleTileGrid.assign(MapHeight, std::vector<int>(MapWidth, -1));
 
 	// 頂点情報の作成
 	const std::vector<Vertex> vertices{ createVertices() };
@@ -87,7 +91,113 @@ std::vector<Vertex> BaseUnit::createVertices() const
 	return vertices;
 }
 
-void BaseUnit::calculateDistance()
+void BaseUnit::update()
+{
+	// マウスのグリッド座標を取得
+	const GridPosition mousePosition{ m_fieldMap.getMouseGridPosition()};
+	
+	// ユニットの上にマウスがあるか
+	const bool mouseOnUnit{ m_unitPosition.x == mousePosition.x && m_unitPosition.y == mousePosition.y };
+
+	if (m_hasSelected)
+	{
+		// 選択中は、アイコンを黄色に
+		m_iconColor = { 1.0f, 1.0f, 0.3f, 1.0f };
+
+		if (InputState::KeyPressed(VK_RBUTTON))
+		{
+			// 右クリック(キャンセル)された時
+			UnitManager::GetInstance().isUnitMoving = false;
+			m_hasSelected = false;
+			m_hasMoved = false;
+			m_unitPosition = m_prevPosition;
+		}
+		else if (InputState::KeyPressed(VK_LBUTTON) && 
+				 m_fieldMap.getMouseOnMap() &&
+				 m_accessibleTileGrid[mousePosition.y][mousePosition.x] > -1)
+		{
+			// 有効な移動先が左クリック(選択)された時
+			createMovementPath(mousePosition);
+		}
+	}
+	else
+	{
+		// 非選択中は、アイコンを白色に
+		m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		if (InputState::KeyPressed(VK_LBUTTON) && mouseOnUnit &&
+			!UnitManager::GetInstance().isUnitMoving)
+		{
+			// 左クリック(選択)された時
+			UnitManager::GetInstance().isUnitMoving = true;
+			m_prevPosition = m_unitPosition;
+			m_hasSelected = true;
+			
+			// 移動範囲の算出
+			calculateMovementRange();
+
+			// 移動範囲を渡す
+			m_fieldMap.setAccessibleTileGrid(m_accessibleTileGrid);
+		}
+	}
+
+	// 移動処理
+	gridMove();
+
+	// バッファの更新
+	m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
+}
+
+void BaseUnit::draw() const
+{
+	// 背景テクスチャのセット
+	m_direct3D.setTexture(m_unitIconTexture.getShaderResourceView());
+
+	// DirectXにTitleSceneのバッファを転送
+	m_direct3D.setVertexBuffer(m_vertexBuffer);
+
+	// 描画コマンド実行
+	m_direct3D.draw(m_vertexCount);
+}
+
+void BaseUnit::gridMove()
+{
+	// 経路配列は空であるか
+	if (m_movementPath.empty())
+	{
+		/*
+		if (m_hasMoved)
+		{
+			m_hasSelected = false;
+			UnitManager::GetInstance().isUnitMoving = false;
+		}
+		m_hasMoved = true;
+		*/
+
+		return;
+	}
+	else
+	{
+		// 配列を辿りながら消去
+		m_unitPosition = m_movementPath.top();
+		m_movementPath.pop();
+	}
+
+	/*
+	--m_gridMoveTimer;
+
+	// タイマー0で処理が進む
+	if (m_gridMoveTimer < 0)
+	{
+		
+
+		// タイマーリセット
+		m_gridMoveTimer = GridMoveInterval;
+	}
+	*/
+}
+
+void BaseUnit::calculateMovementRange()
 {
 	// マップデータの取得
 	const std::vector<std::vector<int>> mapData{ m_fieldMap.getMapData() };
@@ -101,29 +211,20 @@ void BaseUnit::calculateDistance()
 		for (int x{ 0 }; x < MapWidth; ++x)
 		{
 			// mapDataのint型をTileTypeに変換
-			const TileType currentTileType{ mapData[y][x]};
+			const TileType currentTileType{ mapData[y][x] };
 
 			// 侵入コストを対応表から取得
 			accessCostGrid[y][x] = TileAccessCost.at(currentTileType);
 		}
 	}
 
-	// 距離配列を計算
-	// グリッド座標における上下左右を定義
-	const GridPosition offset[4]{
-		{ 0, -1 },	// グリッドの上方向
-		{ -1, 0 },	// グリッドの左方向
-		{ 1, 0 },	// グリッドの右方向
-		{ 0, 1 },	// グリッドの下方向
-	};
-
 	// 探索の為のキューを作成
 	std::queue<std::pair<GridPosition, int>> searchQueue{};
 
 	// 現在地に初期移動力を設定
 	const int defaultMobility{ m_unitParameter.mobility };
-	m_distanceGrid[m_unitPosition.y][m_unitPosition.x] = defaultMobility;
-	
+	m_accessibleTileGrid[m_unitPosition.y][m_unitPosition.x] = defaultMobility;
+
 	// 探索キューに初期位置と初期移動力を渡す
 	searchQueue.push({ m_unitPosition, defaultMobility });
 
@@ -141,7 +242,7 @@ void BaseUnit::calculateDistance()
 		const int currentMobility{ current.second };
 
 		// offsetで定義した四方向に範囲for文でアクセス
-		for (const auto& direction : offset)
+		for (const auto& direction : GridOffset)
 		{
 			// アクセス先のグリッド座標を定義
 			const GridPosition nextPosition{
@@ -170,10 +271,10 @@ void BaseUnit::calculateDistance()
 				const int nextMobility{ currentMobility - accessCost };
 
 				// m_distanceGridの更新チェック (既に記録されている値より大きい、つまりより遠くまで行けるか)
-				if (nextMobility > m_distanceGrid[nextPosition.y][nextPosition.x])
+				if (nextMobility > m_accessibleTileGrid[nextPosition.y][nextPosition.x])
 				{
 					// m_distanceGridを更新
-					m_distanceGrid[nextPosition.y][nextPosition.x] = nextMobility;
+					m_accessibleTileGrid[nextPosition.y][nextPosition.x] = nextMobility;
 
 					// 次の探索先をキューに追加
 					searchQueue.push({ nextPosition, nextMobility });
@@ -183,69 +284,50 @@ void BaseUnit::calculateDistance()
 	}
 }
 
-void BaseUnit::update()
+void BaseUnit::createMovementPath(const Config::MapSettings::GridPosition& targetPosition)
 {
-	// マウスのグリッド座標を取得
-	const GridPosition mousePosition{ m_fieldMap.getMouseGridPosition()};
-	
-	// ユニットの上にマウスがあるか
-	const bool mouseOnUnit{ m_unitPosition.x == mousePosition.x && m_unitPosition.y == mousePosition.y };
+	// 空の経路を作成
+	std::stack<GridPosition> emptyPath{};
 
-	// 選択時の座標を格納する変数
-	if (m_hasSelected)
+	// 空の経路とスワップ
+	m_movementPath.swap(emptyPath);
+
+	// 目的地を設定
+	m_movementPath.push(targetPosition);
+
+	// 目的地から現在地まで探索
+	while (!(m_movementPath.top().x == m_unitPosition.x && m_movementPath.top().y == m_unitPosition.y))
 	{
-		// 選択中は、アイコンを黄色に
-		m_iconColor = { 1.0f, 1.0f, 0.3f, 1.0f };
+		// 範囲for文で、隣接4マスの始点からの距離を評価
+		for (const auto& direction : GridOffset)
+		{
+			// 次の探索目標を設定
+			const GridPosition nextPosition{
+				m_movementPath.top().x + direction.x,
+				m_movementPath.top().y + direction.y
+			};
 
-		if (InputState::KeyPressed(VK_RBUTTON))
-		{
-			// 右クリック(キャンセル)された時
-			m_hasSelected = false;
-			m_hasMoved = false;
-			setUnitPosition(m_prevPosition);
-		}
-		else if (InputState::KeyPressed(VK_LBUTTON) && 
-				 m_fieldMap.getMouseOnMap() &&
-				 m_distanceGrid[mousePosition.y][mousePosition.x] > -1)
-		{
-			// 有効な移動先が左クリック(選択)された時
-			setUnitPosition(mousePosition);
-			m_hasMoved = true;
+			// マップの境界チェック
+			if (nextPosition.x < 0 || nextPosition.x >= MapWidth ||
+				nextPosition.y < 0 || nextPosition.y >= MapHeight)
+			{
+				continue;
+			}
+
+			// 隣接するマスの中で、侵入可能かつ最も始点に近いものを格納
+			const int nextAccessTile{ m_accessibleTileGrid[nextPosition.y][nextPosition.x] };
+			const int currentAccessTile{ m_accessibleTileGrid[m_movementPath.top().y][m_movementPath.top().x] };
+
+			if (nextAccessTile > -1 &&
+				nextAccessTile > currentAccessTile)
+			{
+				m_movementPath.push(nextPosition);
+			}
 		}
 	}
-	else
-	{
-		// 非選択中は、アイコンを白色に
-		m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-		if (InputState::KeyPressed(VK_LBUTTON) && mouseOnUnit)
-		{
-			// 左クリック(選択)された時
-			m_prevPosition = m_unitPosition;
-			m_hasSelected = true;
-			
-			// 移動範囲の算出
-			calculateDistance();
-		}
-	}
-
-	m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
 }
 
-void BaseUnit::draw() const
+std::vector<std::vector<int>> BaseUnit::getAccessibleTileGrid() const
 {
-	// 背景テクスチャのセット
-	m_direct3D.setTexture(m_unitIconTexture.getShaderResourceView());
-
-	// DirectXにTitleSceneのバッファを転送
-	m_direct3D.setVertexBuffer(m_vertexBuffer);
-
-	// 描画コマンド実行
-	m_direct3D.draw(m_vertexCount);
-}
-
-void BaseUnit::setUnitPosition(const GridPosition& targetPoint)
-{
-	// 位置変更
-	m_unitPosition = targetPoint;
+	return m_accessibleTileGrid;
 }

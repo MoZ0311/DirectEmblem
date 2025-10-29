@@ -2,11 +2,14 @@
 
 # include "SceneManager.hpp"
 
+using namespace std::chrono;
 using namespace SceneSettings;
 
 SceneManager::SceneManager()
 	: m_currentScene{ nullptr }
 	, m_transitionState{ TransitionState::None }
+	, m_prevTime{ high_resolution_clock::now() }
+	, m_deltaTime{ 0.001f }
 {
 
 }
@@ -43,8 +46,21 @@ bool SceneManager::initialize(const Scene initScene)
 
 void SceneManager::execute()
 {
-	m_currentScene.get()->updateScene();
-	m_currentScene.get()->drawScene();
+	m_currentScene->updateScene();
+	m_currentScene->drawScene();
+}
+
+void SceneManager::calculateDeltaTime()
+{
+	const time_point<high_resolution_clock> currentTime{ high_resolution_clock::now() };
+
+	const duration<float> deltaTime{ currentTime - m_prevTime };
+
+	// 現在の時間を次のループの基準時間に更新
+	m_prevTime = currentTime;
+
+	// deltaTime更新
+	m_deltaTime = deltaTime.count();
 }
 
 void SceneManager::changeScene(const Scene targetScene)
@@ -61,4 +77,9 @@ void SceneManager::changeScene(const Scene targetScene)
 	default:
 		break;
 	}
+}
+
+float SceneManager::getDeltaTime() const
+{
+	return m_deltaTime;
 }

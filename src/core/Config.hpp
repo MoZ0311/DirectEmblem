@@ -7,6 +7,7 @@
 # include <vector>
 # include <map>
 # include <queue>
+# include <stack>
 # include <string>
 # include <directxmath.h>
 # include <algorithm>
@@ -89,6 +90,14 @@ namespace Config
 			int y;
 		};
 
+		// グリッド座標における上下左右
+		static inline constexpr GridPosition GridOffset[4]{
+			{ 0, -1 },	// グリッドの上方向
+			{ -1, 0 },	// グリッドの左方向
+			{ 1, 0 },	// グリッドの右方向
+			{ 0, 1 },	// グリッドの下方向
+		};
+
 		// マップの幅
 		static inline constexpr int MapWidth{ 20 };
 
@@ -122,6 +131,9 @@ namespace Config
 			int attackPower;	// 攻撃力
 			int defence;		// 防御力
 		};
+
+		// グリッド移動の間隔
+		static inline constexpr float GridMoveInterval{ 0.1f };
 	}
 }
 
