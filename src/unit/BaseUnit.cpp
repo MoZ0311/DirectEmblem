@@ -22,7 +22,7 @@ BaseUnit::BaseUnit()
 	, m_unitParameter{ 0, 0, 0, 0, 0 }
 	, m_unitPosition{ 0, 0 }
 	, m_prevPosition{ m_unitPosition }
-	, m_accessibleTileGrid{}
+	, m_distanceGrid{}
 	, m_movementPath{}
 	, m_hasSelected{ false }
 	, m_hasMoved{ false }
@@ -35,9 +35,6 @@ BaseUnit::BaseUnit()
 
 void BaseUnit::initialize()
 {
-	// 侵入可能配列の初期化
-	m_accessibleTileGrid.assign(MapHeight, std::vector<int>(MapWidth, -1));
-
 	// 頂点情報の作成
 	const std::vector<Vertex> vertices{ createVertices() };
 
@@ -114,9 +111,10 @@ void BaseUnit::update()
 		}
 		else if (InputState::KeyPressed(VK_LBUTTON) && 
 				 m_fieldMap.getMouseOnMap() &&
-				 m_accessibleTileGrid[mousePosition.y][mousePosition.x] > -1)
+				 m_fieldMap.getAccessibleTileGrid()[mousePosition.y][mousePosition.x])
 		{
 			// 有効な移動先が左クリック(選択)された時
+			m_hasMoved = true;
 			createMovementPath(mousePosition);
 		}
 	}
@@ -136,8 +134,8 @@ void BaseUnit::update()
 			// 移動範囲の算出
 			calculateMovementRange();
 
-			// 移動範囲を渡す
-			m_fieldMap.setAccessibleTileGrid(m_accessibleTileGrid);
+			// 移動範囲と移動力を渡す
+			m_fieldMap.setAccessibleTileGrid(m_distanceGrid, m_unitParameter.mobility);
 		}
 	}
 
@@ -162,39 +160,27 @@ void BaseUnit::draw() const
 
 void BaseUnit::gridMove()
 {
+	const float timeAmount{ 1.0f / 60.0f };
+	m_gridMoveTimer -= timeAmount;
+
 	// 経路配列は空であるか
 	if (m_movementPath.empty())
 	{
-		/*
 		if (m_hasMoved)
 		{
-			m_hasSelected = false;
+			m_hasMoved = false;
 			UnitManager::GetInstance().isUnitMoving = false;
 		}
-		m_hasMoved = true;
-		*/
-
-		return;
 	}
-	else
+	else if (m_gridMoveTimer < 0)
 	{
 		// 配列を辿りながら消去
-		m_unitPosition = m_movementPath.top();
-		m_movementPath.pop();
-	}
-
-	/*
-	--m_gridMoveTimer;
-
-	// タイマー0で処理が進む
-	if (m_gridMoveTimer < 0)
-	{
-		
+		//m_unitPosition = m_movementPath.top();
+		//m_movementPath.pop();
 
 		// タイマーリセット
 		m_gridMoveTimer = GridMoveInterval;
 	}
-	*/
 }
 
 void BaseUnit::calculateMovementRange()
@@ -202,52 +188,43 @@ void BaseUnit::calculateMovementRange()
 	// マップデータの取得
 	const std::vector<std::vector<int>> mapData{ m_fieldMap.getMapData() };
 
-	// 二重ループで移動力の配列を作成
-	std::vector<std::vector<int>> accessCostGrid{};
-	accessCostGrid.assign(MapHeight, std::vector<int>(MapWidth, -1));
+	// 距離配列を巨大な値で初期化
+	m_distanceGrid.assign(MapHeight, std::vector<int>(MapWidth, INT_MAX));
 
-	for (int y{ 0 }; y < MapHeight; ++y)
-	{
-		for (int x{ 0 }; x < MapWidth; ++x)
-		{
-			// mapDataのint型をTileTypeに変換
-			const TileType currentTileType{ mapData[y][x] };
-
-			// 侵入コストを対応表から取得
-			accessCostGrid[y][x] = TileAccessCost.at(currentTileType);
-		}
-	}
+	// 移動力と座標のペアを定義
+	using Pair = std::pair<int, GridPosition>;
 
 	// 探索の為のキューを作成
-	std::queue<std::pair<GridPosition, int>> searchQueue{};
+	std::priority_queue<Pair, std::vector<Pair>, std::greater<Pair>> searchQueue{};
 
-	// 現在地に初期移動力を設定
-	const int defaultMobility{ m_unitParameter.mobility };
-	m_accessibleTileGrid[m_unitPosition.y][m_unitPosition.x] = defaultMobility;
+	// 現在地の距離を0にする
+	m_distanceGrid[m_unitPosition.y][m_unitPosition.x] = 0;
 
-	// 探索キューに初期位置と初期移動力を渡す
-	searchQueue.push({ m_unitPosition, defaultMobility });
+	// 探索キューに初期位置を渡す
+	searchQueue.emplace(0, m_unitPosition);
 
 	// キューが空になる(これ以上探索できない)まで繰り返す
 	while (!searchQueue.empty())
 	{
 		// キューの先頭を取り出す
-		const auto current{ searchQueue.front() };
+		const int currentDistance{ searchQueue.top().first };
+		const GridPosition searchPosition{ searchQueue.top().second };
 		searchQueue.pop();
 
-		// 現在地を定義
-		const GridPosition currentPositon{ current.first };
-
-		// 現在の移動力を定義
-		const int currentMobility{ current.second };
+		// 最短でなければ、処理しない
+		const int recordedDistance{ m_distanceGrid[searchPosition.y][searchPosition.x] };
+		if (recordedDistance < currentDistance)
+		{
+			continue;
+		}
 
 		// offsetで定義した四方向に範囲for文でアクセス
 		for (const auto& direction : GridOffset)
 		{
 			// アクセス先のグリッド座標を定義
 			const GridPosition nextPosition{
-				currentPositon.x + direction.x,
-				currentPositon.y + direction.y
+				searchPosition.x + direction.x,
+				searchPosition.y + direction.y
 			};
 
 			// マップの境界チェック
@@ -258,39 +235,53 @@ void BaseUnit::calculateMovementRange()
 				continue;
 			}
 
+			// 現在の距離を算出
+			const int currentDistance{ m_distanceGrid[searchPosition.y][searchPosition.x] };
+
 			// mapDataのint型をTileTypeに変換
 			const TileType nextTileType{ static_cast<TileType>(mapData[nextPosition.y][nextPosition.x]) };
 
 			// 侵入コストを対応表から取得
 			const int accessCost{ TileAccessCost.at(nextTileType) };
 
-			// 残移動力が侵入コスト以上なら移動可能
-			if (currentMobility >= accessCost)
+			// 新しい距離を計算
+			const int newDistance{ currentDistance + accessCost };
+
+			if (newDistance < m_distanceGrid[nextPosition.y][nextPosition.x])
 			{
-				// 現在の移動力から、侵入コストを引いて次の残り移動力を算出
-				const int nextMobility{ currentMobility - accessCost };
+				// m_accessibleTileGridを更新
+				m_distanceGrid[nextPosition.y][nextPosition.x] = newDistance;
 
-				// m_distanceGridの更新チェック (既に記録されている値より大きい、つまりより遠くまで行けるか)
-				if (nextMobility > m_accessibleTileGrid[nextPosition.y][nextPosition.x])
-				{
-					// m_distanceGridを更新
-					m_accessibleTileGrid[nextPosition.y][nextPosition.x] = nextMobility;
+				// 次の探索先をキューに追加
+				searchQueue.emplace(newDistance, nextPosition);
+			}			
+		}
+	}
 
-					// 次の探索先をキューに追加
-					searchQueue.push({ nextPosition, nextMobility });
-				}
+	// ユニットが存在するタイルを取得
+	std::vector<std::vector<bool>> unitStandingGrid{ UnitManager::GetInstance().getUnitStandingGrid() };
+
+	// 二重ループでユニットが存在するタイルを侵入不可にする
+	for (int y{ 0 }; y < MapHeight; ++y)
+	{
+		for (int x{ 0 }; x < MapWidth; ++x)
+		{
+			if (unitStandingGrid[y][x])
+			{
+				m_distanceGrid[y][x] = INT_MAX;
 			}
 		}
 	}
+
+	// 自分が立っているタイルは、侵入可能
+	m_distanceGrid[m_unitPosition.y][m_unitPosition.x] = 0;
 }
 
-void BaseUnit::createMovementPath(const Config::MapSettings::GridPosition& targetPosition)
+void BaseUnit::createMovementPath(const GridPosition& targetPosition)
 {
-	// 空の経路を作成
-	std::stack<GridPosition> emptyPath{};
-
+	/*
 	// 空の経路とスワップ
-	m_movementPath.swap(emptyPath);
+	m_movementPath.clear();
 
 	// 目的地を設定
 	m_movementPath.push(targetPosition);
@@ -302,7 +293,7 @@ void BaseUnit::createMovementPath(const Config::MapSettings::GridPosition& targe
 		for (const auto& direction : GridOffset)
 		{
 			// 次の探索目標を設定
-			const GridPosition nextPosition{
+			const DirectX::XMINT2 nextPosition{
 				m_movementPath.top().x + direction.x,
 				m_movementPath.top().y + direction.y
 			};
@@ -315,8 +306,8 @@ void BaseUnit::createMovementPath(const Config::MapSettings::GridPosition& targe
 			}
 
 			// 隣接するマスの中で、侵入可能かつ最も始点に近いものを格納
-			const int nextAccessTile{ m_accessibleTileGrid[nextPosition.y][nextPosition.x] };
-			const int currentAccessTile{ m_accessibleTileGrid[m_movementPath.top().y][m_movementPath.top().x] };
+			const int nextAccessTile{ m_distanceGrid[nextPosition.y][nextPosition.x] };
+			const int currentAccessTile{ m_distanceGrid[m_movementPath.top().y][m_movementPath.top().x] };
 
 			if (nextAccessTile > -1 &&
 				nextAccessTile > currentAccessTile)
@@ -325,9 +316,10 @@ void BaseUnit::createMovementPath(const Config::MapSettings::GridPosition& targe
 			}
 		}
 	}
+	*/
 }
 
-std::vector<std::vector<int>> BaseUnit::getAccessibleTileGrid() const
+Config::MapSettings::GridPosition BaseUnit::getUnitPosition() const
 {
-	return m_accessibleTileGrid;
+	return m_unitPosition;
 }

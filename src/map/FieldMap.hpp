@@ -29,8 +29,11 @@ public:
 	// 二次元配列の取得
 	std::vector<std::vector<int>> getMapData() const;
 
+	// 侵入可能タイルの取得
+	std::vector<std::vector<bool>> getAccessibleTileGrid() const;
+
 	// 侵入可能タイルの設定
-	void setAccessibleTileGrid(std::vector<std::vector<int>> val);
+	void setAccessibleTileGrid(const std::vector<std::vector<int>>& distanceGrid, int mobility);
 
 private:
 
@@ -62,7 +65,7 @@ private:
 	const std::vector<std::vector<int>> m_mapGrid;
 
 	// 侵入可能タイルの二次元配列
-	std::vector<std::vector<int>> m_accessibleTileGrid;
+	std::vector<std::vector<bool>> m_accessibleTileGrid;
 
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;

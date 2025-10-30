@@ -20,7 +20,7 @@ public:
 	// ユニットの存在二次元配列の取得
 	std::vector<std::vector<bool>> getUnitStandingGrid() const;
 
-	// 任意のユニットを選択中であるか
+	// 任意のユニットが移動中であるか
 	bool isUnitMoving;
 
 private:
@@ -36,7 +36,4 @@ private:
 
 	// 敵軍ユニット配列
 	std::vector<std::unique_ptr<BaseUnit>> m_enemyUnitArray;
-
-	// マップ上にユニットがいるかどうかの二次元配列
-	std::vector<std::vector<bool>> m_unitStandingGrid;
 };

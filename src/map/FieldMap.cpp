@@ -39,7 +39,7 @@ FieldMap& FieldMap::GetInstance()
 void FieldMap::initialize()
 {
     // 侵入可能配列の初期化
-    m_accessibleTileGrid.assign(MapHeight, std::vector<int>(MapWidth, -1));
+    m_accessibleTileGrid.assign(MapHeight, std::vector<bool>(MapWidth, false));
 
     {
         // 頂点情報の作成
@@ -165,8 +165,8 @@ std::vector<Util::Vertex> FieldMap::createMoveRangeVertices() const
             // テクスチャアトラスのuv座標計算
             const DirectX::XMFLOAT2 uv{ 0.5f, 0.5f };
 
-            // 移動の可否で色を設定
-            const bool canAccess{ m_accessibleTileGrid[y][x] > -1 };
+            // 移動の可否で色を設定(-1より大きければアクセス可能)
+            const bool canAccess{ m_accessibleTileGrid[y][x] };
             const DirectX::XMFLOAT4 tileColor{ canAccess ? colorBlue : colorRed };
 
             // 頂点1:左下
@@ -327,7 +327,20 @@ std::vector<std::vector<int>> FieldMap::getMapData() const
     return m_mapGrid;
 }
 
-void FieldMap::setAccessibleTileGrid(std::vector<std::vector<int>> val)
+std::vector<std::vector<bool>> FieldMap::getAccessibleTileGrid() const
 {
-    m_accessibleTileGrid = val;
+    return m_accessibleTileGrid;
+}
+
+void FieldMap::setAccessibleTileGrid(const std::vector<std::vector<int>>& distanceGrid, int mobility)
+{
+    // 二重ループで侵入可否の配列を設定
+    for (int y{ 0 }; y < MapHeight; ++y)
+    {
+        for (int x{ 0 }; x < MapWidth; ++x)
+        {
+            const bool canAccess{ distanceGrid[y][x] <= mobility };
+            m_accessibleTileGrid[y][x] = canAccess;
+        }
+    }
 }

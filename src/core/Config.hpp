@@ -7,10 +7,9 @@
 # include <vector>
 # include <map>
 # include <queue>
-# include <stack>
+# include <algorithm>
 # include <string>
 # include <directxmath.h>
-# include <algorithm>
 
 namespace Util
 {
@@ -23,8 +22,11 @@ namespace Util
 
 	struct Vec2
 	{
-		float x;
-		float y;
+		float x;	// x座標(浮動小数点数)
+		float y;	// y座標(浮動小数点数)
+
+		// 演算子オーバーロード
+		auto operator<=>(const Vec2&) const = default;
 	};
 }
 
@@ -86,8 +88,11 @@ namespace Config
 		// グリッド座標上の位置
 		struct GridPosition
 		{
-			int x;
-			int y;
+			int x;	// x座標(整数値)
+			int y;	// y座標(整数値)
+
+			// 演算子オーバーロード
+			auto operator<=>(const GridPosition&) const = default;
 		};
 
 		// グリッド座標における上下左右
