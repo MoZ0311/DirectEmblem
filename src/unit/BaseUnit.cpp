@@ -235,6 +235,16 @@ void BaseUnit::calculateMovementRange()
 				continue;
 			}
 
+			// ユニットが存在するタイルを取得
+			const std::vector<std::vector<bool>> unitStandingGrid{ UnitManager::GetInstance().getUnitStandingGrid() };
+
+			// ユニットがいるマスは、侵入不可としてスキップ
+			if (unitStandingGrid[nextPosition.y][nextPosition.x]) 
+			{
+				// ユニットがいるマスは経路として使わない
+				continue;
+			}
+
 			// 現在の距離を算出
 			const int currentDistance{ m_distanceGrid[searchPosition.y][searchPosition.x] };
 
@@ -256,25 +266,7 @@ void BaseUnit::calculateMovementRange()
 				searchQueue.emplace(newDistance, nextPosition);
 			}			
 		}
-	}
-
-	// ユニットが存在するタイルを取得
-	std::vector<std::vector<bool>> unitStandingGrid{ UnitManager::GetInstance().getUnitStandingGrid() };
-
-	// 二重ループでユニットが存在するタイルを侵入不可にする
-	for (int y{ 0 }; y < MapHeight; ++y)
-	{
-		for (int x{ 0 }; x < MapWidth; ++x)
-		{
-			if (unitStandingGrid[y][x])
-			{
-				m_distanceGrid[y][x] = INT_MAX;
-			}
-		}
-	}
-
-	// 自分が立っているタイルは、侵入可能
-	m_distanceGrid[m_unitPosition.y][m_unitPosition.x] = 0;
+	}	
 }
 
 void BaseUnit::createMovementPath(const GridPosition& targetPosition)

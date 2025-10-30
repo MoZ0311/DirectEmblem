@@ -10,6 +10,7 @@ UnitManager::UnitManager()
 	, m_enemyUnitArray{}
 {
 	m_playerUnitArray.push_back(std::make_unique<SwordUnit>());
+	m_playerUnitArray.push_back(std::make_unique<AxeUnit>());
 }
 
 UnitManager& UnitManager::GetInstance()

@@ -3,6 +3,7 @@
 #pragma once
 
 # include "SwordUnit.hpp"
+# include "AxeUnit.hpp"
 
 class UnitManager
 {
