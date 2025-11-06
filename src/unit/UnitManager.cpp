@@ -9,8 +9,8 @@ UnitManager::UnitManager()
 	, m_playerUnitArray{}
 	, m_enemyUnitArray{}
 {
-	m_playerUnitArray.push_back(std::make_unique<SwordUnit>());
-	m_playerUnitArray.push_back(std::make_unique<AxeUnit>());
+	m_playerUnitArray.push_back(std::make_unique<UnitSword>());
+	m_playerUnitArray.push_back(std::make_unique<UnitAxe>());
 }
 
 UnitManager& UnitManager::GetInstance()

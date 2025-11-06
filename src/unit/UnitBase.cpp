@@ -1,6 +1,6 @@
-// BaseUnit class
+// UnitBase class
 
-# include "BaseUnit.hpp"
+# include "UnitBase.hpp"
 
 # include "../unit/UnitManager.hpp"
 # include "../scene/SceneManager.hpp"
@@ -11,7 +11,7 @@ using namespace FilePath;
 using namespace Config::MapSettings;
 using namespace Config::UnitSettings;
 
-BaseUnit::BaseUnit()
+UnitBase::UnitBase()
 	: m_direct3D{ Direct3D::GetInstance() }
 	, m_fieldMap{ FieldMap::GetInstance() }
 	, m_unitIconTexture{ SlimeIconPath }
@@ -34,7 +34,7 @@ BaseUnit::BaseUnit()
 	initialize();
 }
 
-void BaseUnit::initialize()
+void UnitBase::initialize()
 {
 	// 頂点情報の作成
 	const std::vector<Vertex> vertices{ createVertices() };
@@ -46,7 +46,7 @@ void BaseUnit::initialize()
 	m_vertexBuffer = m_direct3D.createVertexBuffer(vertices);
 }
 
-std::vector<Vertex> BaseUnit::createVertices() const
+std::vector<Vertex> UnitBase::createVertices() const
 {
 	// 各辺の座標を計算
 	const float left{ MapStartX + m_unitPosition.x * TileWidth };
@@ -89,7 +89,7 @@ std::vector<Vertex> BaseUnit::createVertices() const
 	return vertices;
 }
 
-void BaseUnit::update()
+void UnitBase::update()
 {
 	// マウスのグリッド座標を取得
 	const GridPosition mousePosition{ m_fieldMap.getMouseGridPosition()};
@@ -150,7 +150,7 @@ void BaseUnit::update()
 	gridMove();
 }
 
-void BaseUnit::draw() const
+void UnitBase::draw() const
 {
 	// 背景テクスチャのセット
 	m_direct3D.setTexture(m_unitIconTexture.getShaderResourceView());
@@ -162,7 +162,7 @@ void BaseUnit::draw() const
 	m_direct3D.draw(m_vertexCount);
 }
 
-void BaseUnit::setPosition(const Config::MapSettings::GridPosition& targetPosition)
+void UnitBase::setPosition(const Config::MapSettings::GridPosition& targetPosition)
 {
 	// 指定座標に移動
 	m_unitPosition = targetPosition;
@@ -171,7 +171,7 @@ void BaseUnit::setPosition(const Config::MapSettings::GridPosition& targetPositi
 	m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
 }
 
-void BaseUnit::gridMove()
+void UnitBase::gridMove()
 {
 	const float deltaTime{ SceneManager::GetInstance().getDeltaTime() };
 	m_gridMoveTimer -= deltaTime;
@@ -200,7 +200,7 @@ void BaseUnit::gridMove()
 	}
 }
 
-void BaseUnit::calculateMovementRange()
+void UnitBase::calculateMovementRange()
 {
 	// 距離配列を巨大な値で初期化
 	m_distanceGrid.assign(MapHeight, std::vector<int>(MapWidth, INT_MAX));
@@ -288,7 +288,7 @@ void BaseUnit::calculateMovementRange()
 	}	
 }
 
-void BaseUnit::createMovementPath(const GridPosition& targetPosition)
+void UnitBase::createMovementPath(const GridPosition& targetPosition)
 {
 	if (targetPosition == m_unitPosition)
 	{
@@ -363,7 +363,7 @@ void BaseUnit::createMovementPath(const GridPosition& targetPosition)
 	m_movementPath = path;
 }
 
-Config::MapSettings::GridPosition BaseUnit::getUnitPosition() const
+Config::MapSettings::GridPosition UnitBase::getUnitPosition() const
 {
 	return m_unitPosition;
 }

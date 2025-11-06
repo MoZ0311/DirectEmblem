@@ -1,15 +1,15 @@
-// SwordUnit class
+// UnitSword class
 
 #pragma once
 
-# include "BaseUnit.hpp"
+# include "UnitBase.hpp"
 
-class SwordUnit : public BaseUnit
+class UnitSword : public UnitBase
 {
 public:
 
 	// コンストラクタ
-	SwordUnit();
+	UnitSword();
 
 private:
 	void setParameter() override;

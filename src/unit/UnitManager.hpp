@@ -2,8 +2,8 @@
 
 #pragma once
 
-# include "SwordUnit.hpp"
-# include "AxeUnit.hpp"
+# include "UnitSword.hpp"
+# include "UnitAxe.hpp"
 
 class UnitManager
 {
@@ -33,8 +33,8 @@ private:
 	UnitManager(const UnitManager&) = delete;
 
 	// 自軍ユニット配列
-	std::vector<std::unique_ptr<BaseUnit>> m_playerUnitArray;
+	std::vector<std::unique_ptr<UnitBase>> m_playerUnitArray;
 
 	// 敵軍ユニット配列
-	std::vector<std::unique_ptr<BaseUnit>> m_enemyUnitArray;
+	std::vector<std::unique_ptr<UnitBase>> m_enemyUnitArray;
 };

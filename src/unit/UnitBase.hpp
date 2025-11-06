@@ -1,16 +1,16 @@
-// BaseUnit class
+// UnitBase class
 
 #pragma once
 
 # include "../dx11/DirectX.hpp"
 # include "../map/FieldMap.hpp"
 
-class BaseUnit
+class UnitBase
 {
 public:
 
 	// デストラクタ
-	~BaseUnit() = default;
+	~UnitBase() = default;
 
 	// 更新処理
 	void update();
@@ -24,7 +24,7 @@ public:
 protected:
 
 	// コンストラクタ
-	BaseUnit();
+	UnitBase();
 
 	// 初期化処理
 	void initialize();

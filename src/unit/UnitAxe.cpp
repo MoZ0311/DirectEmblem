@@ -1,15 +1,15 @@
-// AxeUnit class
+// UnitAxe class
 
-# include "AxeUnit.hpp"
+# include "UnitAxe.hpp"
 
 using namespace Config::UnitSettings;
 
-AxeUnit::AxeUnit()
+UnitAxe::UnitAxe()
 {
 	setParameter();
 }
 
-void AxeUnit::setParameter()
+void UnitAxe::setParameter()
 {
 	setPosition({ 12, 8 });
 	m_unitType = UnitType::Axe;

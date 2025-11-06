@@ -1,15 +1,15 @@
-// SwordUnit class
+// UnitSword class
 
-# include "SwordUnit.hpp"
+# include "UnitSword.hpp"
 
 using namespace Config::UnitSettings;
 
-SwordUnit::SwordUnit()
+UnitSword::UnitSword()
 {
 	setParameter();
 }
 
-void SwordUnit::setParameter()
+void UnitSword::setParameter()
 {
 	setPosition({ 10, 8 });
 	m_unitType = UnitType::Sword;

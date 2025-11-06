@@ -1,21 +1,21 @@
-// GameScene class
+// SceneGame class
 
 # pragma once
 
-# include "BaseScene.hpp"
+# include "SceneBase.hpp"
 # include "SceneManager.hpp"
 # include "../map/FieldMap.hpp"
 # include "../unit/UnitManager.hpp"
 
-class GameScene : public BaseScene
+class SceneGame : public SceneBase
 {
 public:
 
     // コンストラクタ
-    GameScene();
+    SceneGame();
 
     // デストラクタ
-    ~GameScene();
+    ~SceneGame();
 
 private:
 

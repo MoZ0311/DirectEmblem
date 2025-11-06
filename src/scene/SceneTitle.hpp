@@ -1,20 +1,20 @@
-// TitleScene class
+// SceneTitle class
 
 # pragma once
 
-# include "BaseScene.hpp"
+# include "SceneBase.hpp"
 # include "SceneManager.hpp"
 # include "BackgroundRenderer.hpp"
 
-class TitleScene : public BaseScene
+class SceneTitle : public SceneBase
 {
 public:
 
     // コンストラクタ
-    TitleScene();
+    SceneTitle();
 
     // デストラクタ
-    ~TitleScene();
+    ~SceneTitle();
 
 private:
 

@@ -1,15 +1,15 @@
-// AxeUnit class
+// UnitAxe class
 
 #pragma once
 
-# include "BaseUnit.hpp"
+# include "UnitBase.hpp"
 
-class AxeUnit : public BaseUnit
+class UnitAxe : public UnitBase
 {
 public:
 
 	// コンストラクタ
-	AxeUnit();
+	UnitAxe();
 
 private:
 	void setParameter() override;

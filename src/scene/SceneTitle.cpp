@@ -1,21 +1,21 @@
-// TitleScene class
+// SceneTitle class
 
-# include "TitleScene.hpp"
+# include "SceneTitle.hpp"
 
 using namespace SceneSettings;
 
-TitleScene::TitleScene()
+SceneTitle::SceneTitle()
 	: backgroundRenderer{}
 {
 
 }
 
-TitleScene::~TitleScene()
+SceneTitle::~SceneTitle()
 {
 
 }
 
-void TitleScene::update()
+void SceneTitle::update()
 {
 	if (InputState::KeyPressed(VK_LBUTTON))
 	{
@@ -23,7 +23,7 @@ void TitleScene::update()
 	}
 }
 
-void TitleScene::draw() const
+void SceneTitle::draw() const
 {
 	backgroundRenderer.draw();
 }

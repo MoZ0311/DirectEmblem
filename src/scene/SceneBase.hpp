@@ -1,4 +1,4 @@
-// BaseScene class
+// SceneBase class
 
 # pragma once
 
@@ -6,12 +6,12 @@
 # include "../dx11/Direct3D.hpp"
 # include "../util/InputState.hpp"
 
-class BaseScene
+class SceneBase
 {
 public:
 
     // デストラクタ
-    virtual ~BaseScene() = default;
+    virtual ~SceneBase() = default;
 
     // シーンの更新処理
     void updateScene();
@@ -22,7 +22,7 @@ public:
 protected:
 
     // コンストラクタ
-    BaseScene();
+    SceneBase();
 
     // Direct3Dクラスのインスタンス
     Direct3D& m_direct3D;

@@ -27,12 +27,12 @@ bool SceneManager::initialize(const Scene& initScene)
 	{
 	case SceneSettings::Scene::Title:
 		// タイトルシーンのインスタンスを作成
-		m_currentScene = std::make_unique<TitleScene>();
+		m_currentScene = std::make_unique<SceneTitle>();
 		break;
 
 	case SceneSettings::Scene::Game:
 		// ゲームシーンのインスタンスを作成
-		m_currentScene = std::make_unique<GameScene>();
+		m_currentScene = std::make_unique<SceneGame>();
 		break;
 
 	default:
@@ -72,10 +72,10 @@ void SceneManager::changeScene(const Scene& targetScene)
 	switch (targetScene)
 	{
 	case Scene::Title:
-		m_currentScene = std::make_unique<TitleScene>();
+		m_currentScene = std::make_unique<SceneTitle>();
 		break;
 	case Scene::Game:
-		m_currentScene = std::make_unique<GameScene>();
+		m_currentScene = std::make_unique<SceneGame>();
 		break;
 	default:
 		break;

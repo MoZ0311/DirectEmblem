@@ -27,13 +27,13 @@
     <ClInclude Include="src\scene\SceneManager.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="src\scene\BaseScene.hpp">
+    <ClInclude Include="src\scene\SceneBase.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="src\scene\TitleScene.hpp">
+    <ClInclude Include="src\scene\SceneTitle.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="src\scene\GameScene.hpp">
+    <ClInclude Include="src\scene\SceneGame.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="src\map\FieldMap.hpp">
@@ -54,16 +54,16 @@
     <ClInclude Include="src\util\CSVReader.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="src\unit\BaseUnit.hpp">
+    <ClInclude Include="src\unit\UnitBase.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="src\unit\UnitManager.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="src\unit\SwordUnit.hpp">
+    <ClInclude Include="src\unit\UnitSword.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="src\unit\AxeUnit.hpp">
+    <ClInclude Include="src\unit\UnitAxe.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="src\ui\UIManager.hpp">
@@ -83,13 +83,13 @@
     <ClCompile Include="src\scene\SceneManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="src\scene\BaseScene.cpp">
+    <ClCompile Include="src\scene\SceneBase.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="src\scene\TitleScene.cpp">
+    <ClCompile Include="src\scene\SceneTitle.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="src\scene\GameScene.cpp">
+    <ClCompile Include="src\scene\SceneGame.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="src\map\FieldMap.cpp">
@@ -101,16 +101,16 @@
     <ClCompile Include="src\dx11\Texture.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="src\unit\BaseUnit.cpp">
+    <ClCompile Include="src\unit\UnitBase.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="src\unit\UnitManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="src\unit\SwordUnit.cpp">
+    <ClCompile Include="src\unit\UnitSword.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="src\unit\AxeUnit.cpp">
+    <ClCompile Include="src\unit\UnitAxe.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="src\ui\UIManager.cpp">

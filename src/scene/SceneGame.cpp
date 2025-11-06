@@ -1,10 +1,10 @@
-// GameScene class
+// SceneGame class
 
-# include "GameScene.hpp"
+# include "SceneGame.hpp"
 
 using namespace SceneSettings;
 
-GameScene::GameScene()
+SceneGame::SceneGame()
 	: m_mapRenderer{ FieldMap::GetInstance() }
 	, m_unitManager{ UnitManager::GetInstance() }
 {
@@ -12,12 +12,12 @@ GameScene::GameScene()
 	m_backgroundColor = { 0.961f, 0.871f, 0.702f, 1.0f };
 }
 
-GameScene::~GameScene()
+SceneGame::~SceneGame()
 {
 
 }
 
-void GameScene::update()
+void SceneGame::update()
 {
 	m_mapRenderer.update();
 	m_unitManager.update();
@@ -29,7 +29,7 @@ void GameScene::update()
 	}
 }
 
-void GameScene::draw() const
+void SceneGame::draw() const
 {
 	m_mapRenderer.draw();
 	m_unitManager.draw();

@@ -166,14 +166,14 @@
     <ClInclude Include="src\dx11\Texture.hpp" />
     <ClInclude Include="src\map\FieldMap.hpp" />
     <ClInclude Include="src\scene\BackgroundRenderer.hpp" />
-    <ClInclude Include="src\scene\BaseScene.hpp" />
-    <ClInclude Include="src\scene\GameScene.hpp" />
+    <ClInclude Include="src\scene\SceneBase.hpp" />
+    <ClInclude Include="src\scene\SceneGame.hpp" />
     <ClInclude Include="src\scene\SceneManager.hpp" />
-    <ClInclude Include="src\scene\TitleScene.hpp" />
+    <ClInclude Include="src\scene\SceneTitle.hpp" />
     <ClInclude Include="src\ui\UIManager.hpp" />
-    <ClInclude Include="src\unit\AxeUnit.hpp" />
-    <ClInclude Include="src\unit\BaseUnit.hpp" />
-    <ClInclude Include="src\unit\SwordUnit.hpp" />
+    <ClInclude Include="src\unit\UnitAxe.hpp" />
+    <ClInclude Include="src\unit\UnitBase.hpp" />
+    <ClInclude Include="src\unit\UnitSword.hpp" />
     <ClInclude Include="src\unit\UnitManager.hpp" />
     <ClInclude Include="src\util\CSVReader.hpp" />
     <ClInclude Include="src\util\InputState.hpp" />
@@ -185,14 +185,14 @@
     <ClCompile Include="src\dx11\Texture.cpp" />
     <ClCompile Include="src\map\FieldMap.cpp" />
     <ClCompile Include="src\scene\BackgroundRenderer.cpp" />
-    <ClCompile Include="src\scene\BaseScene.cpp" />
-    <ClCompile Include="src\scene\GameScene.cpp" />
+    <ClCompile Include="src\scene\SceneBase.cpp" />
+    <ClCompile Include="src\scene\SceneGame.cpp" />
     <ClCompile Include="src\scene\SceneManager.cpp" />
-    <ClCompile Include="src\scene\TitleScene.cpp" />
+    <ClCompile Include="src\scene\SceneTitle.cpp" />
     <ClCompile Include="src\ui\UIManager.cpp" />
-    <ClCompile Include="src\unit\AxeUnit.cpp" />
-    <ClCompile Include="src\unit\BaseUnit.cpp" />
-    <ClCompile Include="src\unit\SwordUnit.cpp" />
+    <ClCompile Include="src\unit\UnitAxe.cpp" />
+    <ClCompile Include="src\unit\UnitBase.cpp" />
+    <ClCompile Include="src\unit\UnitSword.cpp" />
     <ClCompile Include="src\unit\UnitManager.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -3,8 +3,8 @@
 # pragma once
 
 # include <chrono>
-# include "TitleScene.hpp"
-# include "GameScene.hpp"
+# include "SceneTitle.hpp"
+# include "SceneGame.hpp"
 
 class SceneManager
 {
@@ -34,7 +34,7 @@ private:
 	void calculateDeltaTime();
 
 	// 現在のシーン
-	std::unique_ptr<BaseScene> m_currentScene;
+	std::unique_ptr<SceneBase> m_currentScene;
 
 	// シーンの切替状態
 	SceneSettings::TransitionState m_transitionState;
