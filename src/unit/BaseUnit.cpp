@@ -3,6 +3,7 @@
 # include "BaseUnit.hpp"
 
 # include "../unit/UnitManager.hpp"
+# include "../scene/SceneManager.hpp"
 # include "../util/InputState.hpp"
 
 using namespace Util;
@@ -160,8 +161,8 @@ void BaseUnit::draw() const
 
 void BaseUnit::gridMove()
 {
-	const float timeAmount{ 1.0f / 60.0f };
-	m_gridMoveTimer -= timeAmount;
+	const float deltaTime{ SceneManager::GetInstance().getDeltaTime() };
+	m_gridMoveTimer -= deltaTime;
 
 	// 経路配列は空であるか
 	if (m_movementPath.empty())
@@ -175,8 +176,8 @@ void BaseUnit::gridMove()
 	else if (m_gridMoveTimer < 0)
 	{
 		// 配列を辿りながら消去
-		//m_unitPosition = m_movementPath.top();
-		//m_movementPath.pop();
+		m_unitPosition = m_movementPath.front();
+		m_movementPath.pop_front();
 
 		// タイマーリセット
 		m_gridMoveTimer = GridMoveInterval;
@@ -185,9 +186,6 @@ void BaseUnit::gridMove()
 
 void BaseUnit::calculateMovementRange()
 {
-	// マップデータの取得
-	const std::vector<std::vector<int>> mapData{ m_fieldMap.getMapData() };
-
 	// 距離配列を巨大な値で初期化
 	m_distanceGrid.assign(MapHeight, std::vector<int>(MapWidth, INT_MAX));
 
@@ -207,13 +205,15 @@ void BaseUnit::calculateMovementRange()
 	while (!searchQueue.empty())
 	{
 		// キューの先頭を取り出す
-		const int currentDistance{ searchQueue.top().first };
-		const GridPosition searchPosition{ searchQueue.top().second };
+		const Pair searchPair{ searchQueue.top() };
 		searchQueue.pop();
+
+		const int searchDistance{ searchPair.first };
+		const GridPosition searchPosition{ searchPair.second };
 
 		// 最短でなければ、処理しない
 		const int recordedDistance{ m_distanceGrid[searchPosition.y][searchPosition.x] };
-		if (recordedDistance < currentDistance)
+		if (recordedDistance < searchDistance)
 		{
 			continue;
 		}
@@ -248,6 +248,9 @@ void BaseUnit::calculateMovementRange()
 			// 現在の距離を算出
 			const int currentDistance{ m_distanceGrid[searchPosition.y][searchPosition.x] };
 
+			// マップデータの取得
+			const std::vector<std::vector<int>> mapData{ m_fieldMap.getMapData() };
+
 			// mapDataのint型をTileTypeに変換
 			const TileType nextTileType{ static_cast<TileType>(mapData[nextPosition.y][nextPosition.x]) };
 
@@ -259,7 +262,7 @@ void BaseUnit::calculateMovementRange()
 
 			if (newDistance < m_distanceGrid[nextPosition.y][nextPosition.x])
 			{
-				// m_accessibleTileGridを更新
+				// m_distanceGridを更新
 				m_distanceGrid[nextPosition.y][nextPosition.x] = newDistance;
 
 				// 次の探索先をキューに追加
@@ -271,23 +274,34 @@ void BaseUnit::calculateMovementRange()
 
 void BaseUnit::createMovementPath(const GridPosition& targetPosition)
 {
-	/*
-	// 空の経路とスワップ
-	m_movementPath.clear();
+	if (targetPosition == m_unitPosition)
+	{
+		// 現在地が指定された時、移動しない
+		return;
+	}
+	
+	// 仮の移動経路を作成
+	std::deque<GridPosition> path{};
 
-	// 目的地を設定
-	m_movementPath.push(targetPosition);
+	// 目的地から探索を始める
+	GridPosition currentPosition{ targetPosition };
 
 	// 目的地から現在地まで探索
-	while (!(m_movementPath.top().x == m_unitPosition.x && m_movementPath.top().y == m_unitPosition.y))
+	while (currentPosition != m_unitPosition)
 	{
+		// 仮のパスに現在地を格納
+		path.push_front(currentPosition);
+
+		// 現在地までの距離(移動コストを考慮)を取得
+		const int currentDistance{ m_distanceGrid[currentPosition.y][currentPosition.x] };
+
 		// 範囲for文で、隣接4マスの始点からの距離を評価
 		for (const auto& direction : GridOffset)
 		{
 			// 次の探索目標を設定
-			const DirectX::XMINT2 nextPosition{
-				m_movementPath.top().x + direction.x,
-				m_movementPath.top().y + direction.y
+			const GridPosition nextPosition{
+				currentPosition.x + direction.x,
+				currentPosition.y + direction.y
 			};
 
 			// マップの境界チェック
@@ -297,18 +311,40 @@ void BaseUnit::createMovementPath(const GridPosition& targetPosition)
 				continue;
 			}
 
-			// 隣接するマスの中で、侵入可能かつ最も始点に近いものを格納
-			const int nextAccessTile{ m_distanceGrid[nextPosition.y][nextPosition.x] };
-			const int currentAccessTile{ m_distanceGrid[m_movementPath.top().y][m_movementPath.top().x] };
+			// 次のマスへの距離を算出
+			const int nextDistance{ m_distanceGrid[nextPosition.y][nextPosition.x] };
 
-			if (nextAccessTile > -1 &&
-				nextAccessTile > currentAccessTile)
+			// 現在地より遠くへは行かない
+			if (currentDistance < nextDistance)
 			{
-				m_movementPath.push(nextPosition);
+				continue;
+			}
+
+			// マップデータの取得
+			const std::vector<std::vector<int>> mapData{ m_fieldMap.getMapData() };
+
+			// mapDataのint型をTileTypeに変換
+			const TileType nextTileType{ static_cast<TileType>(mapData[currentPosition.y][currentPosition.x]) };
+
+			// 侵入コストを対応表から取得
+			const int accessCost{ TileAccessCost.at(nextTileType) };
+
+			// 新しい距離を計算
+			const int newDistance{ nextDistance + accessCost };
+
+			if (newDistance == currentDistance)
+			{
+				currentPosition = nextPosition;
+				break;
 			}
 		}
 	}
-	*/
+
+	// 最後にスタート地点を追加
+	path.push_front(m_unitPosition);
+
+	// 完成した経路をメンバ変数に渡す
+	m_movementPath = path;
 }
 
 Config::MapSettings::GridPosition BaseUnit::getUnitPosition() const

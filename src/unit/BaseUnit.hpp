@@ -74,11 +74,11 @@ protected:
 	// 移動前のユニットの座標
 	Config::MapSettings::GridPosition m_prevPosition;
 
-	// 始点空の距離の二次元配列
+	// 始点からの距離の二次元配列
 	std::vector<std::vector<int>> m_distanceGrid;
 
 	// 現在地から目的地までの経路を格納する配列
-	std::vector<Config::MapSettings::GridPosition> m_movementPath;
+	std::deque<Config::MapSettings::GridPosition> m_movementPath;
 
 	// 選択中であるか
 	bool m_hasSelected;

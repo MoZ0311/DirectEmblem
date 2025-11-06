@@ -14,13 +14,13 @@ public:
 	static SceneManager& GetInstance();
 
 	// 初期化処理
-	bool initialize(const SceneSettings::Scene initScene);
+	bool initialize(const SceneSettings::Scene& initScene);
 
 	// ゲーム処理の更新/実行
 	void execute();
 
 	// シーンチェンジ
-	void changeScene(const SceneSettings::Scene targetScene);
+	void changeScene(const SceneSettings::Scene& targetScene);
 
 	// deltaTimeの取得処理
 	float getDeltaTime() const;

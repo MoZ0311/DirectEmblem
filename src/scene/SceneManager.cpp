@@ -21,7 +21,7 @@ SceneManager& SceneManager::GetInstance()
 	return instance;
 }
 
-bool SceneManager::initialize(const Scene initScene)
+bool SceneManager::initialize(const Scene& initScene)
 {
 	switch (initScene)
 	{
@@ -46,6 +46,9 @@ bool SceneManager::initialize(const Scene initScene)
 
 void SceneManager::execute()
 {
+	// deltaTime‚ÌŽZo
+	calculateDeltaTime();
+
 	m_currentScene->updateScene();
 	m_currentScene->drawScene();
 }
@@ -63,7 +66,7 @@ void SceneManager::calculateDeltaTime()
 	m_deltaTime = deltaTime.count();
 }
 
-void SceneManager::changeScene(const Scene targetScene)
+void SceneManager::changeScene(const Scene& targetScene)
 {
 	m_currentScene.reset();
 	switch (targetScene)

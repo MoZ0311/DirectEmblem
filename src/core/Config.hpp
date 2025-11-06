@@ -138,7 +138,7 @@ namespace Config
 		};
 
 		// ƒOƒŠƒbƒhˆÚ“®‚ÌŠÔŠu
-		static inline constexpr float GridMoveInterval{ 0.1f };
+		static inline constexpr float GridMoveInterval{ 0.05f };
 	}
 }
 
