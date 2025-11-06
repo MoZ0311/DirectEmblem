@@ -2,6 +2,11 @@
 
 # include "Application.hpp"
 
+# include "Config.hpp"
+# include "../util/InputState.hpp"
+# include "../dx11/Direct3D.hpp"
+# include "../scene/SceneManager.hpp"
+
 using namespace Config;
 
 Application::Application(const HINSTANCE& hInstance, const int nCmdShow)

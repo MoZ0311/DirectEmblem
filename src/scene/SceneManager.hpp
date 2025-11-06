@@ -3,8 +3,9 @@
 # pragma once
 
 # include <chrono>
-# include "SceneTitle.hpp"
-# include "SceneGame.hpp"
+# include "../core/Config.hpp"
+
+class SceneBase;
 
 class SceneManager
 {

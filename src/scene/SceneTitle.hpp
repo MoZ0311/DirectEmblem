@@ -3,7 +3,6 @@
 # pragma once
 
 # include "SceneBase.hpp"
-# include "SceneManager.hpp"
 # include "BackgroundRenderer.hpp"
 
 class SceneTitle : public SceneBase

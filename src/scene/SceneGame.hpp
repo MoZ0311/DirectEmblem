@@ -3,9 +3,9 @@
 # pragma once
 
 # include "SceneBase.hpp"
-# include "SceneManager.hpp"
-# include "../map/FieldMap.hpp"
-# include "../unit/UnitManager.hpp"
+
+class FieldMap;
+class UnitManager;
 
 class SceneGame : public SceneBase
 {

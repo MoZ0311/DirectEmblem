@@ -2,6 +2,9 @@
 
 # include "Texture.hpp"
 
+# include <memory>
+# include "Direct3D.hpp"
+
 Texture::Texture(const WCHAR* filePath)
 	: shaderResourceView{ nullptr }
 	, textureData{}

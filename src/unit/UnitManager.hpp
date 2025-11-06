@@ -2,8 +2,10 @@
 
 #pragma once
 
-# include "UnitSword.hpp"
-# include "UnitAxe.hpp"
+# include <memory>
+# include <vector>
+
+class UnitBase;
 
 class UnitManager
 {

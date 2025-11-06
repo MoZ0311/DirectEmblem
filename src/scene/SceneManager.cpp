@@ -2,6 +2,9 @@
 
 # include "SceneManager.hpp"
 
+# include "SceneTitle.hpp"
+# include "SceneGame.hpp"
+
 using namespace std::chrono;
 using namespace SceneSettings;
 

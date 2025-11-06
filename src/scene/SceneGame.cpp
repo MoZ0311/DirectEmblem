@@ -2,6 +2,10 @@
 
 # include "SceneGame.hpp"
 
+# include "../map/FieldMap.hpp"
+# include "../unit/UnitManager.hpp"
+# include "../util/InputState.hpp"
+
 using namespace SceneSettings;
 
 SceneGame::SceneGame()

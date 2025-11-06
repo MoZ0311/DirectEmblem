@@ -19,7 +19,3 @@
 
 // ComPtrを使用できるようにする
 # include <wrl/client.h>
-
-// 自作クラスのヘッダも纏める
-# include "Direct3D.hpp"
-# include "Texture.hpp"

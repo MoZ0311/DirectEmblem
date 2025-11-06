@@ -2,8 +2,13 @@
 
 #pragma once
 
+# include <queue>
 # include "../dx11/DirectX.hpp"
-# include "../map/FieldMap.hpp"
+# include "../dx11/Texture.hpp"
+# include "../core/Config.hpp"
+
+class Direct3D;
+class FieldMap;
 
 class UnitBase
 {

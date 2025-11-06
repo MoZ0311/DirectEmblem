@@ -2,6 +2,9 @@
 
 # include "BackgroundRenderer.hpp"
 
+# include "../dx11/Direct3D.hpp"
+# include "../dx11/Texture.hpp"
+
 using namespace Util;
 using namespace FilePath;
 

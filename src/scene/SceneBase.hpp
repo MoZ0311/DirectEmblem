@@ -2,9 +2,9 @@
 
 # pragma once
 
-# include "../core/Config.hpp"
-# include "../dx11/Direct3D.hpp"
-# include "../util/InputState.hpp"
+# include <directxmath.h>
+
+class Direct3D;
 
 class SceneBase
 {

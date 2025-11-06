@@ -3,12 +3,7 @@
 # pragma once
 
 # include <windows.h>
-# include <memory>
-# include <vector>
 # include <map>
-# include <queue>
-# include <algorithm>
-# include <string>
 # include <directxmath.h>
 
 namespace Util

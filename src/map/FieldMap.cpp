@@ -1,7 +1,11 @@
 // FieldMap class
 
 # include "FieldMap.hpp"
+
 # include "../unit/UnitManager.hpp"
+# include "../dx11/Direct3D.hpp"
+# include "../util/InputState.hpp"
+# include "../util/CSVReader.hpp"
 
 using namespace Util;
 using namespace FilePath;

@@ -1,6 +1,9 @@
 // SceneTitle class
 
 # include "SceneTitle.hpp"
+# include "SceneManager.hpp"
+# include "../core/Config.hpp"
+# include "../util/InputState.hpp"
 
 using namespace SceneSettings;
 

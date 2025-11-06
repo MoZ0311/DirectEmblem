@@ -2,10 +2,11 @@
 
 # pragma once
 
-# include "../core/Config.hpp"
 # include "../dx11/DirectX.hpp"
-# include "../util/CSVReader.hpp"
-# include "../util/InputState.hpp"
+# include "../dx11/Texture.hpp"
+# include "../core/Config.hpp"
+
+class Direct3D;
 
 class FieldMap
 {

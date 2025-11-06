@@ -4,6 +4,8 @@
 
 # include "../unit/UnitManager.hpp"
 # include "../scene/SceneManager.hpp"
+# include "../dx11/Direct3D.hpp"
+# include "../map/FieldMap.hpp"
 # include "../util/InputState.hpp"
 
 using namespace Util;

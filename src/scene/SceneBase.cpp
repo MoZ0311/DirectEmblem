@@ -2,6 +2,8 @@
 
 # include "SceneBase.hpp"
 
+# include "../dx11/Direct3D.hpp"
+
 SceneBase::SceneBase()
 	: m_direct3D{ Direct3D::GetInstance() }
 	, m_backgroundColor{ 0.0f, 0.0f, 0.0f, 0.0f }

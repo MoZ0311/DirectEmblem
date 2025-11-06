@@ -2,7 +2,11 @@
 
 # pragma once
 
+# include <vector>
 # include "../dx11/DirectX.hpp"
+# include "../core/Config.hpp"
+
+class Direct3D;
 
 class BackgroundRenderer
 {

@@ -2,6 +2,10 @@
 
 # include "UnitManager.hpp"
 
+# include "../core/Config.hpp"
+# include "../unit/UnitSword.hpp"
+# include "../unit/UnitAxe.hpp"
+
 using namespace Config::MapSettings;
 
 UnitManager::UnitManager()
