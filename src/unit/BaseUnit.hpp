@@ -35,6 +35,9 @@ protected:
 	// 各種パラメータ設定
 	virtual void setParameter() = 0;
 
+	// 指定座標に瞬間移動する処理
+	void setPosition(const Config::MapSettings::GridPosition& targetPosition);
+
 	// 移動処理
 	void gridMove();
 

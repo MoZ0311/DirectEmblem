@@ -55,12 +55,6 @@ private:
 	// ハイライト用頂点情報の作成
 	std::vector<Util::Vertex> createHighlightVertices() const;
 
-	// 移動範囲用頂点情報バッファの更新
-	void updateMoveRangeBuffer();
-
-	// ハイライト用頂点バッファの更新
-	void updateHighlightBuffer();
-
 	// マップデータの二次元配列
 	const std::vector<std::vector<int>> m_mapGrid;
 

@@ -165,7 +165,7 @@ std::vector<Util::Vertex> FieldMap::createMoveRangeVertices() const
             // テクスチャアトラスのuv座標計算
             const DirectX::XMFLOAT2 uv{ 0.5f, 0.5f };
 
-            // 移動の可否で色を設定(-1より大きければアクセス可能)
+            // 移動の可否で色を設定
             const bool canAccess{ m_accessibleTileGrid[y][x] };
             const DirectX::XMFLOAT4 tileColor{ canAccess ? colorBlue : colorRed };
 
@@ -234,9 +234,6 @@ std::vector<Vertex> FieldMap::createHighlightVertices() const
 
 void FieldMap::update()
 {
-    // 移動範囲用の頂点バッファを更新
-    updateMoveRangeBuffer();
-
     // マウスの座標を取得
     const Vec2 mousePosition{ InputState::mouseWorldPosition };
 
@@ -244,16 +241,23 @@ void FieldMap::update()
     const int gridX{ static_cast<int>(std::floor((mousePosition.x - MapStartX) / TileWidth)) };
     const int gridY{ static_cast<int>(std::floor((MapStartY - mousePosition.y) / TileHeight)) };
 
+    const GridPosition currentMouseGridPosition{ gridX, gridY };
+
     // グリッドの境界チェック
-    m_mouseOnMap = gridX >= 0 && gridX < MapWidth && gridY >= 0 && gridY < MapHeight;
+    m_mouseOnMap = (
+        currentMouseGridPosition.x >= 0 && currentMouseGridPosition.x < MapWidth &&
+        currentMouseGridPosition.y >= 0 && currentMouseGridPosition.y < MapHeight);
 
     if (m_mouseOnMap)
     {
         // 範囲内の場合
-        m_mouseGridPosition = { gridX, gridY };
+        if (m_mouseGridPosition != currentMouseGridPosition)
+        {
+            m_mouseGridPosition = currentMouseGridPosition;
 
-        // ハイライト用の頂点バッファを更新
-        updateHighlightBuffer();
+            // ハイライト用の頂点バッファを更新
+            m_direct3D.updateVeretexBuffer(m_highlightBuffer, createHighlightVertices());
+        }
     }
     else
     {
@@ -300,18 +304,6 @@ void FieldMap::draw() const
     }
 }
 
-void FieldMap::updateMoveRangeBuffer()
-{
-    // Direct3DのupdateVeretexBufferで既存のバッファを更新
-    m_direct3D.updateVeretexBuffer(m_moveRangeBuffer, createMoveRangeVertices());
-}
-
-void FieldMap::updateHighlightBuffer()
-{
-    // Direct3DのupdateVeretexBufferで既存のバッファを更新
-    m_direct3D.updateVeretexBuffer(m_highlightBuffer, createHighlightVertices());
-}
-
 GridPosition FieldMap::getMouseGridPosition() const
 {
     return m_mouseGridPosition;
@@ -343,4 +335,7 @@ void FieldMap::setAccessibleTileGrid(const std::vector<std::vector<int>>& distan
             m_accessibleTileGrid[y][x] = canAccess;
         }
     }
+
+    // 移動範囲用の頂点バッファを更新
+    m_direct3D.updateVeretexBuffer(m_moveRangeBuffer, createMoveRangeVertices());
 }

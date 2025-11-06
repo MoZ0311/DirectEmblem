@@ -11,7 +11,7 @@ AxeUnit::AxeUnit()
 
 void AxeUnit::setParameter()
 {
-	m_unitPosition = { 12, 8 };
+	setPosition({ 12, 8 });
 	m_unitType = UnitType::Axe;
 	m_unitIconTexture = Texture{ L"assets/images/icon_sample.png" };
 

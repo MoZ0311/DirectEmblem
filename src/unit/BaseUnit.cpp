@@ -99,9 +99,6 @@ void BaseUnit::update()
 
 	if (m_hasSelected)
 	{
-		// 選択中は、アイコンを黄色に
-		m_iconColor = { 1.0f, 1.0f, 0.3f, 1.0f };
-
 		if (InputState::KeyPressed(VK_RBUTTON))
 		{
 			// 右クリック(キャンセル)された時
@@ -109,6 +106,12 @@ void BaseUnit::update()
 			m_hasSelected = false;
 			m_hasMoved = false;
 			m_unitPosition = m_prevPosition;
+
+			// 非選択中は、アイコンを白色に
+			m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+			// バッファの更新
+			m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
 		}
 		else if (InputState::KeyPressed(VK_LBUTTON) && 
 				 m_fieldMap.getMouseOnMap() &&
@@ -121,9 +124,6 @@ void BaseUnit::update()
 	}
 	else
 	{
-		// 非選択中は、アイコンを白色に
-		m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-
 		if (InputState::KeyPressed(VK_LBUTTON) && mouseOnUnit &&
 			!UnitManager::GetInstance().isUnitMoving)
 		{
@@ -131,20 +131,23 @@ void BaseUnit::update()
 			UnitManager::GetInstance().isUnitMoving = true;
 			m_prevPosition = m_unitPosition;
 			m_hasSelected = true;
+
+			// 選択中は、アイコンを黄色に
+			m_iconColor = { 1.0f, 1.0f, 0.3f, 1.0f };
 			
 			// 移動範囲の算出
 			calculateMovementRange();
 
 			// 移動範囲と移動力を渡す
 			m_fieldMap.setAccessibleTileGrid(m_distanceGrid, m_unitParameter.mobility);
+
+			// バッファの更新
+			m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
 		}
 	}
 
 	// 移動処理
 	gridMove();
-
-	// バッファの更新
-	m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
 }
 
 void BaseUnit::draw() const
@@ -159,25 +162,38 @@ void BaseUnit::draw() const
 	m_direct3D.draw(m_vertexCount);
 }
 
+void BaseUnit::setPosition(const Config::MapSettings::GridPosition& targetPosition)
+{
+	// 指定座標に移動
+	m_unitPosition = targetPosition;
+
+	// バッファの更新
+	m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
+}
+
 void BaseUnit::gridMove()
 {
 	const float deltaTime{ SceneManager::GetInstance().getDeltaTime() };
 	m_gridMoveTimer -= deltaTime;
 
-	// 経路配列は空であるか
-	if (m_movementPath.empty())
+	// タイマーが0より小さくなったとき、処理を実行
+	if (m_gridMoveTimer < 0)
 	{
-		if (m_hasMoved)
+		// 経路配列は空であるか
+		if (m_movementPath.empty())
 		{
-			m_hasMoved = false;
-			UnitManager::GetInstance().isUnitMoving = false;
+			if (m_hasMoved)
+			{
+				m_hasMoved = false;
+				UnitManager::GetInstance().isUnitMoving = false;
+			}
 		}
-	}
-	else if (m_gridMoveTimer < 0)
-	{
-		// 配列を辿りながら消去
-		m_unitPosition = m_movementPath.front();
-		m_movementPath.pop_front();
+		else
+		{
+			// 配列を辿りながら消去
+			setPosition(m_movementPath.front());
+			m_movementPath.pop_front();
+		}
 
 		// タイマーリセット
 		m_gridMoveTimer = GridMoveInterval;

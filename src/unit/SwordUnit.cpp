@@ -11,7 +11,7 @@ SwordUnit::SwordUnit()
 
 void SwordUnit::setParameter()
 {
-	m_unitPosition = { 10, 8 };
+	setPosition({ 10, 8 });
 	m_unitType = UnitType::Sword;
 	m_unitIconTexture = Texture{ L"assets/images/icon_sample.png" };
 
