@@ -6,6 +6,7 @@
 # include <vector>
 
 class UnitBase;
+class UIManager;
 
 class UnitManager
 {
@@ -39,4 +40,7 @@ private:
 
 	// 敵軍ユニット配列
 	std::vector<std::unique_ptr<UnitBase>> m_enemyUnitArray;
+
+	// UI管理クラスのインスタンス
+	UIManager& m_uiManager;
 };

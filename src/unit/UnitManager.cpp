@@ -5,6 +5,7 @@
 # include "../core/Config.hpp"
 # include "../unit/UnitSword.hpp"
 # include "../unit/UnitAxe.hpp"
+# include "../ui/UIManager.hpp"
 
 using namespace Config::MapSettings;
 
@@ -12,6 +13,7 @@ UnitManager::UnitManager()
 	: isUnitMoving{ false }
 	, m_playerUnitArray{}
 	, m_enemyUnitArray{}
+	, m_uiManager{ UIManager::GetInstance() }
 {
 	m_playerUnitArray.push_back(std::make_unique<UnitSword>());
 	m_playerUnitArray.push_back(std::make_unique<UnitAxe>());
@@ -30,6 +32,15 @@ void UnitManager::update()
 	{
 		// 自軍ユニットの更新
 		playerUnit->update();
+
+		// 移動後のユニットを取得
+		if (playerUnit->getIsActing())
+		{
+			m_uiManager.isDrawingCommandUI = true;
+			break;
+		}
+
+		m_uiManager.isDrawingCommandUI = false;
 	}
 
 	for (const auto& enemyUnit : m_enemyUnitArray)

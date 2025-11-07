@@ -27,9 +27,9 @@ UnitBase::UnitBase()
 	, m_prevPosition{ m_unitPosition }
 	, m_distanceGrid{}
 	, m_movementPath{}
-	, m_hasSelected{ false }
-	, m_hasMoved{ false }
-	, m_hasActed{ false }
+	, m_isSelecting{ false }
+	, m_isMoving{ false }
+	, m_isActing{ false }
 
 	, m_gridMoveTimer{ GridMoveInterval }
 {
@@ -99,14 +99,15 @@ void UnitBase::update()
 	// ユニットの上にマウスがあるか
 	const bool mouseOnUnit{ m_unitPosition.x == mousePosition.x && m_unitPosition.y == mousePosition.y };
 
-	if (m_hasSelected)
+	if (m_isSelecting)
 	{
 		if (InputState::KeyPressed(VK_RBUTTON))
 		{
 			// 右クリック(キャンセル)された時
 			UnitManager::GetInstance().isUnitMoving = false;
-			m_hasSelected = false;
-			m_hasMoved = false;
+			m_isSelecting = false;
+			m_isMoving = false;
+			m_isActing = false;
 			m_unitPosition = m_prevPosition;
 
 			// 非選択中は、アイコンを白色に
@@ -120,7 +121,7 @@ void UnitBase::update()
 				 m_fieldMap.getAccessibleTileGrid()[mousePosition.y][mousePosition.x])
 		{
 			// 有効な移動先が左クリック(選択)された時
-			m_hasMoved = true;
+			m_isMoving = true;
 			createMovementPath(mousePosition);
 		}
 	}
@@ -132,7 +133,7 @@ void UnitBase::update()
 			// 左クリック(選択)された時
 			UnitManager::GetInstance().isUnitMoving = true;
 			m_prevPosition = m_unitPosition;
-			m_hasSelected = true;
+			m_isSelecting = true;
 
 			// 選択中は、アイコンを黄色に
 			m_iconColor = { 1.0f, 1.0f, 0.3f, 1.0f };
@@ -184,10 +185,11 @@ void UnitBase::gridMove()
 		// 経路配列は空であるか
 		if (m_movementPath.empty())
 		{
-			if (m_hasMoved)
+			if (m_isMoving)
 			{
-				m_hasMoved = false;
+				m_isMoving = false;
 				UnitManager::GetInstance().isUnitMoving = false;
+				m_isActing = true;
 			}
 		}
 		else
@@ -368,4 +370,9 @@ void UnitBase::createMovementPath(const GridPosition& targetPosition)
 Config::MapSettings::GridPosition UnitBase::getUnitPosition() const
 {
 	return m_unitPosition;
+}
+
+bool UnitBase::getIsActing() const
+{
+	return m_isActing;
 }

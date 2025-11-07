@@ -25,6 +25,9 @@ public:
 
 	// 位置情報の取得
 	Config::MapSettings::GridPosition getUnitPosition() const;
+
+	// 行動中フラグの取得
+	bool getIsActing() const;
 	
 protected:
 
@@ -89,13 +92,13 @@ protected:
 	std::deque<Config::MapSettings::GridPosition> m_movementPath;
 
 	// 選択中であるか
-	bool m_hasSelected;
+	bool m_isSelecting;
 
-	// 移動済みであるか
-	bool m_hasMoved;
+	// 移動中であるか
+	bool m_isMoving;
 
-	// 行動済みであるか
-	bool m_hasActed;
+	// 行動中であるか
+	bool m_isActing;
 
 	// グリッド移動アニメーションの間隔
 	float m_gridMoveTimer;

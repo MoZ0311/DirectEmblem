@@ -183,4 +183,7 @@ namespace FilePath
 
 	// キャラのスプライトシートのファイルパス
 	static inline constexpr WCHAR CharacterSheetPath[]{ L"assets/images/character_sheet.png" };
+
+	// コマンドUI画像のファイルパス
+	static inline constexpr WCHAR CommandUIPath[]{ L"assets/images/command.png" };
 }

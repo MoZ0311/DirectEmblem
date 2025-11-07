@@ -4,6 +4,7 @@
 
 # include "../map/FieldMap.hpp"
 # include "../unit/UnitManager.hpp"
+# include "../ui/UIManager.hpp"
 # include "../util/InputState.hpp"
 
 using namespace SceneSettings;
@@ -11,6 +12,7 @@ using namespace SceneSettings;
 SceneGame::SceneGame()
 	: m_mapRenderer{ FieldMap::GetInstance() }
 	, m_unitManager{ UnitManager::GetInstance() }
+	, m_uiManager{ UIManager::GetInstance() }
 {
 	// ”wŒiF‚ğİ’è
 	m_backgroundColor = { 0.961f, 0.871f, 0.702f, 1.0f };
@@ -37,4 +39,5 @@ void SceneGame::draw() const
 {
 	m_mapRenderer.draw();
 	m_unitManager.draw();
+	m_uiManager.draw();
 }
