@@ -8,12 +8,15 @@
 # include "../ui/UIManager.hpp"
 
 using namespace Config::MapSettings;
+using namespace Config::UISettings;
+using namespace Config::UnitSettings;
 
 UnitManager::UnitManager()
 	: isUnitMoving{ false }
 	, m_playerUnitArray{}
 	, m_enemyUnitArray{}
 	, m_uiManager{ UIManager::GetInstance() }
+	, m_selectedCommand{ Command::None }
 {
 	m_playerUnitArray.push_back(std::make_unique<UnitSword>());
 	m_playerUnitArray.push_back(std::make_unique<UnitAxe>());
@@ -34,10 +37,20 @@ void UnitManager::update()
 		playerUnit->update();
 
 		// 移動後のユニットを取得
-		if (playerUnit->getIsActing())
+		if (playerUnit->getUnitState() == UnitState::Acting)
 		{
-			m_uiManager.isDrawingCommandUI = true;
-			break;
+			if (m_selectedCommand == Command::None)
+			{
+				// 移動後、行動前: UI描画フラグを立ててbreak
+				m_uiManager.isDrawingCommandUI = true;
+				break;
+			}
+			else
+			{
+				// 移動後、行動後: ユニット行動後の処理を呼び出し
+				playerUnit->onFinishActed(m_selectedCommand);
+			}
+			
 		}
 
 		m_uiManager.isDrawingCommandUI = false;
@@ -63,6 +76,11 @@ void UnitManager::draw() const
 		// 敵軍ユニットの描画
 		enemyUnit->draw();
 	}
+}
+
+void UnitManager::onCommandSelected(const Command& selectedCommand)
+{
+	m_selectedCommand = selectedCommand;
 }
 
 std::vector<std::vector<bool>> UnitManager::getUnitStandingGrid() const

@@ -4,6 +4,7 @@
 
 # include <memory>
 # include <vector>
+# include "../core/Config.hpp"
 
 class UnitBase;
 class UIManager;
@@ -20,6 +21,9 @@ public:
 
 	// 描画処理
 	void draw() const;
+
+	// コマンド選択時のユニットに対する操作
+	void onCommandSelected(const Config::UISettings::Command& selectedCommand);
 
 	// ユニットの存在二次元配列の取得
 	std::vector<std::vector<bool>> getUnitStandingGrid() const;
@@ -43,4 +47,7 @@ private:
 
 	// UI管理クラスのインスタンス
 	UIManager& m_uiManager;
+
+	// 選択されたコマンド
+	Config::UISettings::Command m_selectedCommand;
 };

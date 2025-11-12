@@ -23,6 +23,21 @@ namespace Util
 		// 演算子オーバーロード
 		auto operator<=>(const Vec2&) const = default;
 	};
+
+	struct ObjectConstants
+	{
+		// ワールド行列
+		DirectX::XMFLOAT4X4 worldMatrix;
+
+		// ビュー行列
+		DirectX::XMFLOAT4X4 viewMatrix;
+
+		// プロジェクション行列
+		DirectX::XMFLOAT4X4 projectionMatrix;
+
+		// 色データ
+		DirectX::XMFLOAT4 color;
+	};
 }
 
 namespace Config
@@ -44,6 +59,31 @@ namespace Config
 
 	// リフレッシュレート
 	static inline constexpr UINT RefreshRate{ 60 };
+
+	namespace UISettings
+	{
+		// 頂点座標定義
+		static inline constexpr float CommandUILeft{ 0.7f };
+		static inline constexpr float CommandUIRight{ 0.98f };
+
+		static inline constexpr float UIWidth{ CommandUIRight - CommandUILeft };
+		static inline constexpr float CommandUIHeight{ (UIWidth * AspectRatio) };
+
+		static inline constexpr float CommandUIBottom{ -0.967f };
+		static inline constexpr float CommandUITop{ CommandUIBottom + CommandUIHeight };
+
+		static inline constexpr float UIHighlightHeight{ CommandUIHeight / 4 };
+
+		enum class Command
+		{
+			Attack,	// 攻撃
+			Skill,	// 戦技
+			Item,	// 持ち物
+			Wait,	// 待機
+
+			None	// 未選択
+		};
+	}
 
 	namespace MapSettings
 	{
@@ -132,8 +172,17 @@ namespace Config
 			int defence;		// 防御力
 		};
 
+		enum class UnitState
+		{
+			None,				// 選択前、何もしていない
+			StandBy,			// 選択後、移動待ち
+			Moving,				// 移動中
+			Acting,				// 行動中
+			Waiting,			// 行動終了
+		};
+
 		// グリッド移動の間隔
-		static inline constexpr float GridMoveInterval{ 0.05f };
+		static inline constexpr float GridMoveInterval{ 0.2f };
 	}
 }
 

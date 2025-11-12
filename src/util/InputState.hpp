@@ -48,7 +48,7 @@ struct InputState
     }
 
     // キーが押された瞬間
-    static inline bool KeyPressed(int keyCode)
+    static inline bool KeyDown(int keyCode)
     {
         return keyState[keyCode] && !prevKeyState[keyCode];
     }
@@ -60,7 +60,7 @@ struct InputState
     }
 
     // キーが押下されている
-    static inline bool KeyDown(int keyCode)
+    static inline bool KeyPressed(int keyCode)
     {
         return keyState[keyCode];
     }

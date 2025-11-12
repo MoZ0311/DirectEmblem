@@ -27,9 +27,10 @@ void SceneGame::update()
 {
 	m_mapRenderer.update();
 	m_unitManager.update();
+	m_uiManager.update();
 
 	// 他の全ての更新処理の後、シーン遷移の判定
-	if (InputState::KeyPressed(VK_RBUTTON))
+	if (InputState::KeyDown(VK_RBUTTON))
 	{
 		// SceneManager::GetInstance().changeScene(Scene::Title);
 	}

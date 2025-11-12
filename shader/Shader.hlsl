@@ -9,14 +9,14 @@ struct VS_INPUT
 {
     float3 pos : POSITION;              // 頂点の位置 (x, y, z)
     float4 color : COLOR;               // 頂点の色 (r, g, b, a)
-    float2 uv : TEXCOORD;              // uv座標(u, v)
+    float2 uv : TEXCOORD;               // uv座標(u, v)
 };
 
 struct PS_INPUT
 {
     float4 pos : SV_POSITION;           // 出力位置 (システム予約セマンティクス)
     float4 color : COLOR;               // ピクセルシェーダーに渡す色
-    float2 uv : TEXCOORD;              // uv座標(u, v)
+    float2 uv : TEXCOORD;               // uv座標(u, v)
 };
 
 PS_INPUT VSMain(VS_INPUT input)

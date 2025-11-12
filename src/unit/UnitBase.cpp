@@ -12,6 +12,7 @@ using namespace Util;
 using namespace FilePath;
 using namespace Config::MapSettings;
 using namespace Config::UnitSettings;
+using namespace Config::UISettings;
 
 UnitBase::UnitBase()
 	: m_direct3D{ Direct3D::GetInstance() }
@@ -27,9 +28,7 @@ UnitBase::UnitBase()
 	, m_prevPosition{ m_unitPosition }
 	, m_distanceGrid{}
 	, m_movementPath{}
-	, m_isSelecting{ false }
-	, m_isMoving{ false }
-	, m_isActing{ false }
+	, m_unitState{ UnitState::None }
 
 	, m_gridMoveTimer{ GridMoveInterval }
 {
@@ -44,7 +43,7 @@ void UnitBase::initialize()
 	// 頂点数の計算
 	m_vertexCount = static_cast<UINT>(vertices.size());
 
-	// バッファの作成
+	// 頂点バッファの作成
 	m_vertexBuffer = m_direct3D.createVertexBuffer(vertices);
 }
 
@@ -97,47 +96,22 @@ void UnitBase::update()
 	const GridPosition mousePosition{ m_fieldMap.getMouseGridPosition()};
 	
 	// ユニットの上にマウスがあるか
-	const bool mouseOnUnit{ m_unitPosition.x == mousePosition.x && m_unitPosition.y == mousePosition.y };
+	const bool mouseOnUnit{ m_unitPosition == mousePosition };
 
-	if (m_isSelecting)
+	switch (m_unitState)
 	{
-		if (InputState::KeyPressed(VK_RBUTTON))
-		{
-			// 右クリック(キャンセル)された時
-			UnitManager::GetInstance().isUnitMoving = false;
-			m_isSelecting = false;
-			m_isMoving = false;
-			m_isActing = false;
-			m_unitPosition = m_prevPosition;
+	case UnitState::None:		// 選択前
 
-			// 非選択中は、アイコンを白色に
-			m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-			// バッファの更新
-			m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
-		}
-		else if (InputState::KeyPressed(VK_LBUTTON) && 
-				 m_fieldMap.getMouseOnMap() &&
-				 m_fieldMap.getAccessibleTileGrid()[mousePosition.y][mousePosition.x])
-		{
-			// 有効な移動先が左クリック(選択)された時
-			m_isMoving = true;
-			createMovementPath(mousePosition);
-		}
-	}
-	else
-	{
-		if (InputState::KeyPressed(VK_LBUTTON) && mouseOnUnit &&
+		// 左クリック(選択)された時
+		if (InputState::KeyDown(VK_LBUTTON) && mouseOnUnit &&
 			!UnitManager::GetInstance().isUnitMoving)
 		{
-			// 左クリック(選択)された時
 			UnitManager::GetInstance().isUnitMoving = true;
 			m_prevPosition = m_unitPosition;
-			m_isSelecting = true;
 
 			// 選択中は、アイコンを黄色に
 			m_iconColor = { 1.0f, 1.0f, 0.3f, 1.0f };
-			
+
 			// 移動範囲の算出
 			calculateMovementRange();
 
@@ -146,11 +120,81 @@ void UnitBase::update()
 
 			// バッファの更新
 			m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
-		}
-	}
 
-	// 移動処理
-	gridMove();
+			// 選択後のステートに移動
+			m_unitState = UnitState::StandBy;
+		}
+		break;
+
+	case UnitState::StandBy:	// 選択後
+
+		// 右クリック(キャンセル)された時
+		if (InputState::KeyDown(VK_RBUTTON))
+		{
+			UnitManager::GetInstance().isUnitMoving = false;
+			m_unitPosition = m_prevPosition;
+
+			// 非選択中は、アイコンを白色に
+			m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+			// バッファの更新
+			m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
+
+			// 選択前のステートに戻る
+			m_unitState = UnitState::None;
+		}
+		// 有効な移動先が左クリック(選択)された時
+		else if (InputState::KeyDown(VK_LBUTTON) &&
+			m_fieldMap.getMouseOnMap() &&
+			m_fieldMap.getAccessibleTileGrid()[mousePosition.y][mousePosition.x])
+		{
+			// 移動経路を作成
+			createMovementPath(mousePosition);
+
+			// 移動中ステートに移動
+			m_unitState = UnitState::Moving;
+		}
+		break;
+
+	case UnitState::Moving:		// 移動中
+
+		// 経路は空であるか
+		if (m_movementPath.empty())
+		{
+			// 経路が空であれば、コマンド選択ステートに移動
+			m_unitState = UnitState::Acting;
+		}
+		else
+		{
+			// 経路が空でなければ、移動処理
+			gridMove();
+		}
+		
+		break;
+	case UnitState::Acting:		// 行動中
+
+		// 右クリック(キャンセル)された時
+		if (InputState::KeyDown(VK_RBUTTON))
+		{
+			UnitManager::GetInstance().isUnitMoving = false;
+			m_unitPosition = m_prevPosition;
+
+			// 非選択中は、アイコンを白色に
+			m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+			// バッファの更新
+			m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
+
+			// 選択前のステートに戻る
+			m_unitState = UnitState::None;
+		}
+		break;
+
+	case UnitState::Waiting:	// 行動終了
+		break;
+	default:
+		break;
+	}
 }
 
 void UnitBase::draw() const
@@ -163,6 +207,28 @@ void UnitBase::draw() const
 
 	// 描画コマンド実行
 	m_direct3D.draw(m_vertexCount);
+}
+
+void UnitBase::onFinishActed(const Config::UISettings::Command& selectedCommand)
+{
+	switch (selectedCommand)
+	{
+	case Command::Attack:
+	case Command::Skill:
+	case Command::Item:
+
+	case Command::Wait:	// 待機
+
+		UnitManager::GetInstance().isUnitMoving = false;
+
+		// アイコンを灰色に
+		m_iconColor = { 0.6f, 0.6f, 0.6f, 1.0f };
+
+		// バッファの更新
+		m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
+	default:
+		break;
+	}
 }
 
 void UnitBase::setPosition(const Config::MapSettings::GridPosition& targetPosition)
@@ -182,22 +248,9 @@ void UnitBase::gridMove()
 	// タイマーが0より小さくなったとき、処理を実行
 	if (m_gridMoveTimer < 0)
 	{
-		// 経路配列は空であるか
-		if (m_movementPath.empty())
-		{
-			if (m_isMoving)
-			{
-				m_isMoving = false;
-				UnitManager::GetInstance().isUnitMoving = false;
-				m_isActing = true;
-			}
-		}
-		else
-		{
-			// 配列を辿りながら消去
-			setPosition(m_movementPath.front());
-			m_movementPath.pop_front();
-		}
+		// 配列を辿りながら消去
+		setPosition(m_movementPath.front());
+		m_movementPath.pop_front();
 
 		// タイマーリセット
 		m_gridMoveTimer = GridMoveInterval;
@@ -372,7 +425,7 @@ Config::MapSettings::GridPosition UnitBase::getUnitPosition() const
 	return m_unitPosition;
 }
 
-bool UnitBase::getIsActing() const
+UnitState UnitBase::getUnitState() const
 {
-	return m_isActing;
+	return m_unitState;
 }

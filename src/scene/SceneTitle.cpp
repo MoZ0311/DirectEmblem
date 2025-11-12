@@ -20,7 +20,7 @@ SceneTitle::~SceneTitle()
 
 void SceneTitle::update()
 {
-	if (InputState::KeyPressed(VK_LBUTTON))
+	if (InputState::KeyDown(VK_LBUTTON))
 	{
 		SceneManager::GetInstance().changeScene(Scene::Game);
 	}

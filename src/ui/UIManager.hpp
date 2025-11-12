@@ -39,6 +39,9 @@ private:
 	// UI用頂点情報の作成処理
 	std::vector<Util::Vertex> createCommandUIVertices() const;
 
+	// ハイライト用の頂点情報の作成処理
+	std::vector<Util::Vertex> createHighlightVertices() const;
+
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
 
@@ -51,5 +54,18 @@ private:
 	// コマンドUIの頂点バッファ
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_commandUIBuffer;
 
-	
+	// ハイライト用のテクスチャ
+	Texture m_highlightTexture;
+
+	// ハイライトの頂点数
+	UINT m_highlightVertexCount;
+
+	// ハイライトの頂点バッファ
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_highlightBuffer;
+
+	// マウスがUI上にあるか
+	bool m_mouseOnUI;
+
+	// マウスオーバー中のコマンドのインデックス
+	Config::UISettings::Command m_selectingCommand;
 };

@@ -23,11 +23,14 @@ public:
 	// 描画処理
 	void draw() const;
 
+	// 行動終了時の処理
+	void onFinishActed(const Config::UISettings::Command& selectedCommand);
+
 	// 位置情報の取得
 	Config::MapSettings::GridPosition getUnitPosition() const;
 
-	// 行動中フラグの取得
-	bool getIsActing() const;
+	// ユニット状態の取得
+	Config::UnitSettings::UnitState getUnitState() const;
 	
 protected:
 
@@ -91,14 +94,8 @@ protected:
 	// 現在地から目的地までの経路を格納する配列
 	std::deque<Config::MapSettings::GridPosition> m_movementPath;
 
-	// 選択中であるか
-	bool m_isSelecting;
-
-	// 移動中であるか
-	bool m_isMoving;
-
-	// 行動中であるか
-	bool m_isActing;
+	// 現在のユニットの状態
+	Config::UnitSettings::UnitState m_unitState;
 
 	// グリッド移動アニメーションの間隔
 	float m_gridMoveTimer;
