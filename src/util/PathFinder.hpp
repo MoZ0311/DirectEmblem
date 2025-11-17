@@ -13,7 +13,7 @@ struct PathFinder
 	// 始点から全てのマスに対しての距離を算出する処理
 	static inline std::vector<std::vector<int>> CalculateDistanceGrid(const Config::MapSettings::GridPosition& startPos, const int mobility)
 	{
-		// 距離配列を巨大な値で初期化
+		// 距離の二次元配列を巨大な値で初期化
 		std::vector<std::vector<int>> distanceGrid{ Config::MapSettings::MapHeight, std::vector<int>(Config::MapSettings::MapWidth, Util::INF) };
 
 		// 移動コストと座標のペアを定義
@@ -43,7 +43,7 @@ struct PathFinder
 			const Config::MapSettings::GridPosition searchPosition{ searchPair.second };
 
 			// 最短でなければ、処理しない
-			if (searchDistance > distanceGrid[searchPosition.y][searchPosition.x])
+			if (distanceGrid[searchPosition.y][searchPosition.x] < searchDistance)
 			{
 				continue;
 			}
@@ -104,39 +104,32 @@ struct PathFinder
 		std::deque<Config::MapSettings::GridPosition> path{};
 
 		// 目的地から探索を始める
-		Config::MapSettings::GridPosition currentPosition{ targetPos };
-		int currentDistance{};
+		Config::MapSettings::GridPosition searchPosition{ targetPos };
+		int searchDistance{ distanceGrid[searchPosition.y][searchPosition.x] };
 
-		// 事前にマップデータを取得 (コスト計算に必要)
-		// FieldMap::GetInstance().getMapData() の戻り値が正しい前提
+		// 距離が0(目的地と現在地が等しい)とき
+		if (searchDistance == 0)
+		{
+			// 空のパスを返す
+			return path;
+		}
+
+		// 事前にマップデータを取得
 		const std::vector<std::vector<int>>& mapData{ FieldMap::GetInstance().getMapData() };
 
 		// 目的地から始点（距離 0）まで探索
-		while (true)
+		while (searchDistance != 0)
 		{
-			// 現在地の距離を取得
-			currentDistance = distanceGrid[currentPosition.y][currentPosition.x];
-
 			// 現在地をパスに格納
-			path.push_back(currentPosition);
-
-			// 始点（距離 0）に到達したら終了
-			if (currentDistance == 0)
-			{
-				break;
-			}
-
-			// 次のノードを見つけるためのフラグと変数
-			bool foundNext = false;
-			Config::MapSettings::GridPosition nextStepPosition = currentPosition;
+			path.push_back(searchPosition);
 
 			// 範囲for文で、隣接4マスの始点からの距離を評価
 			for (const auto& offset : Config::MapSettings::GridOffset)
 			{
 				// 次の探索目標を設定
 				const Config::MapSettings::GridPosition nextPosition{
-					currentPosition.x + offset.x,
-					currentPosition.y + offset.y
+					searchPosition.x + offset.x,
+					searchPosition.y + offset.y
 				};
 
 				// マップの境界チェック
@@ -146,46 +139,29 @@ struct PathFinder
 					continue;
 				}
 
-				// 次のマスへの距離を算出
+				// 次のマスの距離を参照
 				const int nextDistance{ distanceGrid[nextPosition.y][nextPosition.x] };
 
-				// 次のマスが到達不能（距離無限大など）の場合はスキップ
-				// ただし、ダイクストラの結果として nextDistance >= currentDistance はありえないはず
-				// nextDistance >= currentDistance は、現在のノードが最短経路上のノードではないことを示唆します。
-				if (currentDistance < nextDistance)
+				// 現在地より遠くへは行かない
+				if (searchDistance < nextDistance)
 				{
 					continue;
 				}
 
-				// nextDistance が -1 など無効な値の場合のチェックも考慮すべきですが、ここでは省略します。
-
 				// mapDataのint型をTileTypeに変換
-				const Config::MapSettings::TileType nextTileType{ static_cast<Config::MapSettings::TileType>(mapData[nextPosition.y][nextPosition.x]) };
+				const Config::MapSettings::TileType searchTileType{ static_cast<Config::MapSettings::TileType>(mapData[searchPosition.y][searchPosition.x]) };
 
 				// 侵入コストを対応表から取得
-				const int accessCost{ Config::MapSettings::TileAccessCost.at(nextTileType) };
+				const int accessCost{ Config::MapSettings::TileAccessCost.at(searchTileType) };
 
-				// 現在の距離が、隣接ノードの距離 + 移動コストと一致するかチェック
-				if (nextDistance + accessCost == currentDistance)
+				// 隣接するマスの距離を計算し、現在地から侵入コスト分小さければ、そこを通過したことにする
+				if (nextDistance == searchDistance - accessCost)
 				{
-					// 条件を満たす隣接ノードを見つけた
-					nextStepPosition = nextPosition;
-					foundNext = true;
-					// 最初に条件を満たしたノードを次のステップとする (これで OK)
+					searchPosition = nextPosition;
+					searchDistance = nextDistance;
 					break;
 				}
 			}
-
-			// 次のステップが見つからなかった場合の処理 (ロジック破綻)
-			if (!foundNext && currentDistance != 0) {
-				// 始点以外で次のステップが見つからないのは、distanceGridの計算が不正か、
-				// 到達不能なグリッドにターゲットが設定されたことを意味します。
-				// エラー処理を考慮すべきですが、ここではそのまま break します。
-				break;
-			}
-
-			// 次のステップを現在の位置にする
-			currentPosition = nextStepPosition;
 		}
 
 		// パスは目的地から始点になっているため、反転して始点から目的地にする

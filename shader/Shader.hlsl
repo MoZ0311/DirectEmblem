@@ -4,11 +4,10 @@
 cbuffer ObjectConstants : register(b0)
 {
     // C++の Util::ObjectConstants 構造体と対応させる
-    matrix WorldMatrix;
-    matrix ViewMatrix;
-    matrix ProjectionMatrix;
-    
-    float4 Color; // ユニットの色情報 (ハイライト/行動済の色)
+    matrix worldMatrix;         // ワールド行列
+    matrix viewMatrix;          // ビュー行列
+    matrix projectionMatrix;    // プロジェクション行列
+    float4 color;               // 色
 }
 
 struct VS_INPUT
@@ -30,13 +29,13 @@ PS_INPUT VSMain(VS_INPUT input)
     PS_INPUT output;
     
     // WVP行列の計算
-    matrix WVP = mul(WorldMatrix, mul(ViewMatrix, ProjectionMatrix));
+    matrix WVP = mul(worldMatrix, mul(viewMatrix, projectionMatrix));
     
     // 頂点のローカル位置をWVP行列で変換し、クリップ空間に出力
     output.pos = mul(float4(input.pos, 1.0f), WVP);
     
     // 頂点バッファの色と定数バッファの色を乗算して、最終色を決定
-    output.color = input.color * Color;
+    output.color = input.color * color;
     
     // テクスチャ座標をピクセルシェーダーに渡す
     output.uv = input.uv;

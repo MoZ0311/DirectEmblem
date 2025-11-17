@@ -82,6 +82,9 @@ protected:
 	// 移動前のユニットの座標
 	Config::MapSettings::GridPosition m_prevPosition;
 
+	// 現在地から他のすべてのマスへの距離を格納する二次元配列
+	std::vector<std::vector<int>> m_distanceGrid;
+
 	// 現在地から目的地までの経路を格納する配列
 	std::deque<Config::MapSettings::GridPosition> m_movementPath;
 

@@ -28,6 +28,7 @@ UnitBase::UnitBase()
 	, m_unitParameter{ 0, 0, 0, 0, 0 }
 	, m_unitPosition{ 0, 0 }
 	, m_prevPosition{ m_unitPosition }
+	, m_distanceGrid{}
 	, m_movementPath{}
 	, m_unitState{ UnitState::None }
 
@@ -115,11 +116,11 @@ void UnitBase::update()
 			// 選択中は、アイコンを黄色に
 			m_iconColor = { 1.0f, 1.0f, 0.3f, 1.0f };
 
-			// 移動範囲の算出
-			const std::vector<std::vector<int>> distanceGrid{ PathFinder::CalculateDistanceGrid(m_unitPosition, m_unitParameter.mobility) };
+			// 現在地からの距離の算出
+			m_distanceGrid = PathFinder::CalculateDistanceGrid(m_unitPosition, m_unitParameter.mobility);
 
-			// 移動範囲と移動力を渡す
-			m_fieldMap.setAccessibleTileGrid(distanceGrid, m_unitParameter.mobility);
+			// 距離と移動力を渡す
+			m_fieldMap.setAccessibleTileGrid(m_distanceGrid, m_unitParameter.mobility);
 
 			// 選択後のステートに移動
 			m_unitState = UnitState::StandBy;
@@ -145,11 +146,8 @@ void UnitBase::update()
 			m_fieldMap.getMouseOnMap() &&
 			m_fieldMap.getAccessibleTileGrid()[mousePosition.y][mousePosition.x])
 		{
-			// 移動範囲を算出
-			const std::vector<std::vector<int>> distanceGrid{ PathFinder::CalculateDistanceGrid(m_unitPosition, m_unitParameter.mobility) };
-
 			// 移動経路を作成
-			m_movementPath = PathFinder::CreateMovementPath(distanceGrid, mousePosition);
+			m_movementPath = PathFinder::CreateMovementPath(m_distanceGrid, mousePosition);
 
 			// 移動中ステートに移動
 			m_unitState = UnitState::Moving;
