@@ -34,7 +34,7 @@ void BackgroundRenderer::initialize()
     m_direct3D.setTexture(m_texture.getShaderResourceView());
 
     // 定数バッファを設定
-    Util::ObjectConstants constants{};
+    ObjectConstants constants{};
 
     // ワールド・ビュー・プロジェクションすべてに単位行列を設定
     XMStoreFloat4x4(&constants.worldMatrix, DirectX::XMMatrixIdentity());

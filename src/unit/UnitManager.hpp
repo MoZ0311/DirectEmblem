@@ -23,13 +23,13 @@ public:
 	void draw() const;
 
 	// コマンド選択時のユニットに対する操作
-	void onCommandSelected(const Config::UISettings::Command& selectedCommand);
+	void setSelectedCommand(const Config::UISettings::Command& selectedCommand);
 
 	// ユニットの存在二次元配列の取得
 	std::vector<std::vector<bool>> getUnitStandingGrid() const;
 
-	// 任意のユニットが移動中であるか
-	bool isUnitMoving;
+	// 任意に選択したユニットの状態
+	Config::UnitSettings::UnitState currentUnitState;
 
 private:
 

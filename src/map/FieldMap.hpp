@@ -36,6 +36,9 @@ public:
 	// 侵入可能タイルの取得
 	std::vector<std::vector<bool>> getAccessibleTileGrid() const;
 
+	// マウスが重なったタイルの取得
+	Config::MapSettings::TileType getMouseOveredTile() const;
+
 	// 侵入可能タイルの設定
 	void setAccessibleTileGrid(const std::vector<std::vector<int>>& distanceGrid, int mobility);
 
@@ -97,4 +100,7 @@ private:
 
 	// マウスがマップ上にあるか
 	bool m_mouseOnMap;
+
+	// 最後にマウスが重なったタイル
+	Config::MapSettings::TileType m_mouseOveredTile;
 };

@@ -108,9 +108,9 @@ void UnitBase::update()
 
 		// 左クリック(選択)された時
 		if (InputState::KeyDown(VK_LBUTTON) && mouseOnUnit &&
-			!UnitManager::GetInstance().isUnitMoving)
+			UnitManager::GetInstance().currentUnitState == UnitState::None)
 		{
-			UnitManager::GetInstance().isUnitMoving = true;
+			// 過去の座標を更新
 			m_prevPosition = m_unitPosition;
 
 			// 選択中は、アイコンを黄色に
@@ -122,8 +122,12 @@ void UnitBase::update()
 			// 距離と移動力を渡す
 			m_fieldMap.setAccessibleTileGrid(m_distanceGrid, m_unitParameter.mobility);
 
+			// UnitManagerのコマンド選択状態を初期化
+			UnitManager::GetInstance().setSelectedCommand(Command::None);
+
 			// 選択後のステートに移動
 			m_unitState = UnitState::StandBy;
+			UnitManager::GetInstance().currentUnitState = m_unitState;
 		}
 		break;
 
@@ -132,7 +136,6 @@ void UnitBase::update()
 		// 右クリック(キャンセル)された時
 		if (InputState::KeyDown(VK_RBUTTON))
 		{
-			UnitManager::GetInstance().isUnitMoving = false;
 			m_unitPosition = m_prevPosition;
 
 			// 非選択中は、アイコンを白色に
@@ -140,6 +143,7 @@ void UnitBase::update()
 
 			// 選択前のステートに戻る
 			m_unitState = UnitState::None;
+			UnitManager::GetInstance().currentUnitState = m_unitState;
 		}
 		// 有効な移動先が左クリック(選択)された時
 		else if (InputState::KeyDown(VK_LBUTTON) &&
@@ -151,6 +155,7 @@ void UnitBase::update()
 
 			// 移動中ステートに移動
 			m_unitState = UnitState::Moving;
+			UnitManager::GetInstance().currentUnitState = m_unitState;
 		}
 		break;
 
@@ -161,6 +166,7 @@ void UnitBase::update()
 		{
 			// 経路が空であれば、コマンド選択ステートに移動
 			m_unitState = UnitState::Acting;
+			UnitManager::GetInstance().currentUnitState = m_unitState;
 		}
 		else
 		{
@@ -174,7 +180,6 @@ void UnitBase::update()
 		// 右クリック(キャンセル)された時
 		if (InputState::KeyDown(VK_RBUTTON))
 		{
-			UnitManager::GetInstance().isUnitMoving = false;
 			m_unitPosition = m_prevPosition;
 
 			// 非選択中は、アイコンを白色に
@@ -182,6 +187,7 @@ void UnitBase::update()
 
 			// 選択前のステートに戻る
 			m_unitState = UnitState::None;
+			UnitManager::GetInstance().currentUnitState = m_unitState;
 		}
 		break;
 
@@ -201,7 +207,7 @@ void UnitBase::draw() const
 	DirectX::XMMATRIX worldMatrix{ DirectX::XMMatrixTranslation(screenUnitPosition.x, screenUnitPosition.y, 0.0f) };
 
 	// 定数バッファの設定
-	Util::ObjectConstants constants{};
+	ObjectConstants constants{};
 	DirectX::XMStoreFloat4x4(&constants.worldMatrix, DirectX::XMMatrixTranspose(worldMatrix));
 	
 	// ビュー行列とプロジェクション行列の設定
@@ -224,26 +230,30 @@ void UnitBase::draw() const
 	m_direct3D.draw(m_vertexCount);
 }
 
-void UnitBase::onFinishActed(const Config::UISettings::Command& selectedCommand)
+void UnitBase::onFinishActed(const Command& selectedCommand)
 {
 	switch (selectedCommand)
 	{
 	case Command::Attack:
 	case Command::Skill:
 	case Command::Item:
+		break;
 
 	case Command::Wait:	// 待機
 
-		UnitManager::GetInstance().isUnitMoving = false;
+		m_unitState = UnitState::Waiting;
 
 		// アイコンを灰色に
 		m_iconColor = { 0.6f, 0.6f, 0.6f, 1.0f };
 	default:
 		break;
 	}
+
+	// UnitManager側を待機状態にする
+	UnitManager::GetInstance().currentUnitState = UnitState::None;
 }
 
-void UnitBase::setPosition(const Config::MapSettings::GridPosition& targetPosition)
+void UnitBase::setPosition(const GridPosition& targetPosition)
 {
 	// 指定座標に移動
 	m_unitPosition = targetPosition;
@@ -268,7 +278,7 @@ void UnitBase::gridMove()
 	}
 }
 
-Config::MapSettings::GridPosition UnitBase::getUnitPosition() const
+GridPosition UnitBase::getUnitPosition() const
 {
 	return m_unitPosition;
 }

@@ -7,7 +7,7 @@
 # include "../core/Config.hpp"
 
 class Direct3D;
-class UnitBase;
+class FieldMap;
 
 class UIManager
 {
@@ -36,7 +36,10 @@ private:
 	// 初期化処理
 	void initialize();
 
-	// UI用頂点情報の作成処理
+	// タイル情報UI用頂点情報の作成処理
+	std::vector<Util::Vertex> createTileUIVertices() const;
+
+	// コマンドUI用頂点情報の作成処理
 	std::vector<Util::Vertex> createCommandUIVertices() const;
 
 	// ハイライト用の頂点情報の作成処理
@@ -44,6 +47,21 @@ private:
 
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
+
+	// マップ管理クラスのインスタンス
+	FieldMap& m_fieldMap;
+
+	// タイルUIのテクスチャ
+	Texture m_grassUITexture;	// 草原
+	Texture m_forestUITexture;	// 森
+	Texture m_fenceUITexture;	// 柵
+	Texture m_waterUITexture;	// 水
+
+	// タイルUIの頂点数
+	UINT m_tileUIVertexCount;
+
+	// タイルUIの頂点バッファ
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_tileUIBuffer;
 
 	// コマンドUIのテクスチャ
 	Texture m_commandUITexture;

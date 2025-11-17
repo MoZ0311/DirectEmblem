@@ -11,10 +11,11 @@ using namespace Util;
 using namespace FilePath;
 using namespace Config;
 using namespace Config::MapSettings;
+using namespace Config::UnitSettings;
 
 FieldMap::FieldMap()
     : m_mapGrid{ CSVReader::ConvertToInteger(CSVReader::readCsvFile("assets/data/map_data.csv")) }
-    , m_accessibleTileGrid{}
+    , m_accessibleTileGrid{ MapHeight, std::vector<bool>(MapWidth, false) }
 	, m_direct3D{ Direct3D::GetInstance() }
     , m_mapTexture{ TileSheetPath }
     , m_highlightTexture{ HighlightTexturePath }
@@ -29,6 +30,7 @@ FieldMap::FieldMap()
 
     , m_mouseGridPosition{ -1, -1 }
     , m_mouseOnMap{ false }
+    , m_mouseOveredTile{ TileType::Grass }
 {
 	initialize();
 }
@@ -42,9 +44,6 @@ FieldMap& FieldMap::GetInstance()
 
 void FieldMap::initialize()
 {
-    // 侵入可能配列の初期化
-    m_accessibleTileGrid.assign(MapHeight, std::vector<bool>(MapWidth, false));
-
     // マップの頂点バッファを設定
     {
         // 頂点情報の作成
@@ -259,6 +258,9 @@ void FieldMap::update()
         if (m_mouseGridPosition != currentMouseGridPosition)
         {
             m_mouseGridPosition = currentMouseGridPosition;
+
+            // 重なったタイルの更新
+            m_mouseOveredTile = static_cast<TileType>(m_mapGrid[m_mouseGridPosition.y][m_mouseGridPosition.x]);
         }
     }
     else
@@ -273,7 +275,7 @@ void FieldMap::draw() const
     // マップ全体の描画
     {
         // マップの定数バッファ情報
-        Util::ObjectConstants mapConstants{};
+        ObjectConstants mapConstants{};
 
         // ワールド行列を設定
         DirectX::XMStoreFloat4x4(&mapConstants.worldMatrix, DirectX::XMMatrixIdentity());
@@ -297,10 +299,12 @@ void FieldMap::draw() const
     }
     
     // 移動可能範囲を描画
-    if (UnitManager::GetInstance().isUnitMoving)
+    const UnitState currentUnitState{ UnitManager::GetInstance().currentUnitState };
+    if (currentUnitState == UnitState::StandBy ||
+        currentUnitState == UnitState::Moving)
     {
         // 移動範囲の定数バッファ情報
-        Util::ObjectConstants moveRangeConstants{};
+        ObjectConstants moveRangeConstants{};
 
         // ワールド行列を設定
         DirectX::XMStoreFloat4x4(&moveRangeConstants.worldMatrix, DirectX::XMMatrixIdentity());
@@ -336,7 +340,7 @@ void FieldMap::draw() const
         ) };
 
         // 定数バッファの設定
-        Util::ObjectConstants highlightConstants{};
+        ObjectConstants highlightConstants{};
 
         // 行列の設定
         DirectX::XMStoreFloat4x4(&highlightConstants.worldMatrix, DirectX::XMMatrixTranspose(heighlightWorld));
@@ -392,6 +396,11 @@ DirectX::XMFLOAT2 FieldMap::gridToScreen(const GridPosition& gridPosition) const
 std::vector<std::vector<bool>> FieldMap::getAccessibleTileGrid() const
 {
     return m_accessibleTileGrid;
+}
+
+TileType FieldMap::getMouseOveredTile() const
+{
+    return m_mouseOveredTile;
 }
 
 void FieldMap::setAccessibleTileGrid(const std::vector<std::vector<int>>& distanceGrid, int mobility)

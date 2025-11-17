@@ -77,6 +77,8 @@ namespace Config
 
 		static inline constexpr float UIHighlightHeight{ CommandUIHeight / 4.0f };
 
+		static inline constexpr float TileUIHeight{ 1.4f };
+
 		enum class Command
 		{
 			Attack,	// 攻撃
@@ -238,4 +240,16 @@ namespace FilePath
 
 	// コマンドUI画像のファイルパス
 	static inline constexpr WCHAR CommandUIPath[]{ L"assets/images/command.png" };
+
+	// 草原のタイルUI画像のファイルパス
+	static inline constexpr WCHAR GrassUIPath[]{ L"assets/images/ui_grass.png" };
+
+	// 森のタイルUI画像のファイルパス
+	static inline constexpr WCHAR ForestUIPath[]{ L"assets/images/ui_forest.png" };
+
+	// 柵のタイルUI画像のファイルパス
+	static inline constexpr WCHAR FenceUIPath[]{ L"assets/images/ui_fence.png" };
+
+	// 水のタイルUI画像のファイルパス
+	static inline constexpr WCHAR WaterUIPath[]{ L"assets/images/ui_water.png" };
 }

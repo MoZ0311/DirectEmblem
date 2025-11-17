@@ -28,12 +28,12 @@ bool SceneManager::initialize(const Scene& initScene)
 {
 	switch (initScene)
 	{
-	case SceneSettings::Scene::Title:
+	case Scene::Title:
 		// タイトルシーンのインスタンスを作成
 		m_currentScene = std::make_unique<SceneTitle>();
 		break;
 
-	case SceneSettings::Scene::Game:
+	case Scene::Game:
 		// ゲームシーンのインスタンスを作成
 		m_currentScene = std::make_unique<SceneGame>();
 		break;

@@ -144,7 +144,7 @@ HRESULT Direct3D::createConstantBuffer()
     // 定数バッファの仕様を設定する
     D3D11_BUFFER_DESC bufferDesc{};
     bufferDesc.Usage = D3D11_USAGE_DYNAMIC;					// 頻繁に更新されるためDYNAMIC
-    bufferDesc.ByteWidth = sizeof(Util::ObjectConstants);	// サイズは ObjectConstants 構造体のサイズ
+    bufferDesc.ByteWidth = sizeof(ObjectConstants);	// サイズは ObjectConstants 構造体のサイズ
     bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;		// 定数バッファとしてバインド
     bufferDesc.MiscFlags = 0;
     bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;		// CPUからの書き込みを許可
@@ -177,13 +177,13 @@ void Direct3D::updateVeretexBuffer(const ComPtr<ID3D11Buffer>& vertexBuffer, con
     }
 
     // データをコピー
-    std::memcpy(mappedSubResource.pData, vertices.data(), sizeof(Util::Vertex) * vertices.size());
+    std::memcpy(mappedSubResource.pData, vertices.data(), sizeof(Vertex) * vertices.size());
 
     // バッファへのアクセスを終了
     m_deviceContext->Unmap(vertexBuffer.Get(), 0);
 }
 
-void Direct3D::updateConstantBuffer(const Util::ObjectConstants& constants) const
+void Direct3D::updateConstantBuffer(const ObjectConstants& constants) const
 {
     // データをGPUメモリにマッピング (書き換え)
     D3D11_MAPPED_SUBRESOURCE mappedResource{};
@@ -192,7 +192,7 @@ void Direct3D::updateConstantBuffer(const Util::ObjectConstants& constants) cons
     if (SUCCEEDED(mapResult))
     {
         // 構造体の内容をメモリにコピー
-        std::memcpy(mappedResource.pData, &constants, sizeof(Util::ObjectConstants));
+        std::memcpy(mappedResource.pData, &constants, sizeof(ObjectConstants));
 
         // マッピングを解除し、GPUにデータを公開
         m_deviceContext->Unmap(m_constantBuffer.Get(), 0);
@@ -263,9 +263,9 @@ DXGI_SWAP_CHAIN_DESC Direct3D::registerSwapChain() const
 
 HRESULT Direct3D::createDeviceAndSwapChain(const DXGI_SWAP_CHAIN_DESC& scDesc)
 {
-    const D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_1 };   // 使用するのはDirectX11.1
-    const UINT numFeatureLevels = ARRAYSIZE(featureLevels);                 // 要求するバージョンの要素数
-    const UINT createDeviceFlags = 0;                                       // デバイス作成における特殊なオプションは使用しない
+    const D3D_FEATURE_LEVEL featureLevels[]{ D3D_FEATURE_LEVEL_11_1 };      // 使用するのはDirectX11.1
+    const UINT numFeatureLevels{ ARRAYSIZE(featureLevels) };                // 要求するバージョンの要素数
+    const UINT createDeviceFlags{ 0 };                                      // デバイス作成における特殊なオプションは使用しない
 
     // デバイス作成呼び出し
     const HRESULT hResult{ D3D11CreateDeviceAndSwapChain(
@@ -289,7 +289,7 @@ HRESULT Direct3D::createDeviceAndSwapChain(const DXGI_SWAP_CHAIN_DESC& scDesc)
 HRESULT Direct3D::createRenderTargetView(const DXGI_SWAP_CHAIN_DESC& scDesc)
 {
     // スワップチェーンからバックバッファのポインターを取得
-    ComPtr<ID3D11Texture2D> pBackBuffer;
+    ComPtr<ID3D11Texture2D> pBackBuffer{};
 
     // バックバッファのリソース取得
     const HRESULT backBufferResult{ m_swapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer)) };

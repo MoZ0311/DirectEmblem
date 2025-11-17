@@ -12,7 +12,7 @@ using namespace Config::UISettings;
 using namespace Config::UnitSettings;
 
 UnitManager::UnitManager()
-	: isUnitMoving{ false }
+	: currentUnitState{ UnitState::None }
 	, m_playerUnitArray{}
 	, m_enemyUnitArray{}
 	, m_uiManager{ UIManager::GetInstance() }
@@ -78,7 +78,7 @@ void UnitManager::draw() const
 	}
 }
 
-void UnitManager::onCommandSelected(const Command& selectedCommand)
+void UnitManager::setSelectedCommand(const Command& selectedCommand)
 {
 	m_selectedCommand = selectedCommand;
 }
