@@ -30,6 +30,9 @@ public:
 	// 二次元配列の取得
 	std::vector<std::vector<int>> getMapData() const;
 
+	// グリッド座標をスクリーン座標に変換
+	DirectX::XMFLOAT2 gridToScreen(const Config::MapSettings::GridPosition& gridPosition) const;
+
 	// 侵入可能タイルの取得
 	std::vector<std::vector<bool>> getAccessibleTileGrid() const;
 

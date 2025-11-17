@@ -62,15 +62,22 @@ bool Application::initialize()
 MSG Application::run() const
 {
 	MSG msg{};
-	while (GetMessage(&msg, NULL, 0, 0))
+	while (true)
 	{
-		TranslateMessage(&msg); // キーボード入力を処理
-		DispatchMessage(&msg);  // WndProcへメッセージを送信
-
-		if (msg.wParam == VK_ESCAPE)
+		// メッセージをチェック
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
-			// Escキーで終了処理
-			PostQuitMessage(0);
+			// WM_QUITメッセージが来たらループを抜ける（終了）
+			if (msg.message == WM_QUIT)
+			{
+				break;
+			}
+
+			// キーボード入力を処理
+			TranslateMessage(&msg);
+
+			// WndProcへメッセージを送信
+			DispatchMessage(&msg);
 		}
 
 		// マウス情報の更新
@@ -87,7 +94,7 @@ MSG Application::run() const
 
 LRESULT CALLBACK Application::wndProc(const HWND hWnd, const UINT message, const WPARAM wParam, const LPARAM lParam)
 {
-	if (message == WM_DESTROY)
+	if (message == WM_DESTROY || (wParam == VK_ESCAPE && message == WM_KEYDOWN))
 	{
 		// ウィンドウが閉じられた時、終了
 		PostQuitMessage(0);

@@ -3,7 +3,6 @@
 # include "BackgroundRenderer.hpp"
 
 # include "../dx11/Direct3D.hpp"
-# include "../dx11/Texture.hpp"
 
 using namespace Util;
 using namespace FilePath;
@@ -12,18 +11,13 @@ BackgroundRenderer::BackgroundRenderer()
 	: m_direct3D{ Direct3D::GetInstance() }
 	, m_vertexCount{ 0 }
 	, m_vertexBuffer{ nullptr }
+    , m_texture{ TitleImagePath }
 {
 	initialize();
 }
 
 void BackgroundRenderer::initialize()
 {
-	// 背景テクスチャのロード
-    Texture texture{ TitleImagePath };
-
-    // 背景テクスチャのセット
-    m_direct3D.setTexture(texture.getShaderResourceView());
-
 	// 頂点情報の作成
 	const std::vector<Vertex> vertices{ createVertices() };
 
@@ -33,8 +27,25 @@ void BackgroundRenderer::initialize()
 	// バッファの作成
 	m_vertexBuffer = m_direct3D.createVertexBuffer(vertices);
 
-    // DirectXにTitleSceneのバッファを転送
+    // 頂点バッファを送る
     m_direct3D.setVertexBuffer(m_vertexBuffer);
+
+    // テクスチャの設定
+    m_direct3D.setTexture(m_texture.getShaderResourceView());
+
+    // 定数バッファを設定
+    Util::ObjectConstants constants{};
+
+    // ワールド・ビュー・プロジェクションすべてに単位行列を設定
+    XMStoreFloat4x4(&constants.worldMatrix, DirectX::XMMatrixIdentity());
+    XMStoreFloat4x4(&constants.viewMatrix, DirectX::XMMatrixIdentity());
+    XMStoreFloat4x4(&constants.projectionMatrix, DirectX::XMMatrixIdentity());
+
+    // 色を設定
+    constants.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+    // バッファの更新
+    m_direct3D.updateConstantBuffer(constants);
 }
 
 std::vector<Vertex> BackgroundRenderer::createVertices() const

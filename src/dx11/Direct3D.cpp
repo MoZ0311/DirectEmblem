@@ -19,6 +19,7 @@ Direct3D::Direct3D()
     , m_compiledVertexShader{ nullptr }
     , m_samplerState{ nullptr }
     , m_blendState{ nullptr }
+    , m_constantBuffer{ nullptr }
 {
 
 }
@@ -93,6 +94,15 @@ bool Direct3D::initialize(const HWND& hWnd)
         return false;
     }
 
+    // 定数バッファ作成
+    const HRESULT bufferResult{ createConstantBuffer() };
+    if (FAILED(bufferResult))
+    {
+        // 失敗時、return
+        MessageBox(m_hWnd, L"Direct3D: 定数バッファの作成に失敗しました。", L"DirectX エラー", MB_ICONERROR);
+        return false;
+    }
+
     // パイプライン設定
     setRenderPipeline();
 
@@ -104,11 +114,11 @@ ComPtr<ID3D11Buffer> Direct3D::createVertexBuffer(const std::vector<Vertex>& ver
 {
     // バッファの仕様を設定する
     D3D11_BUFFER_DESC bufferDesc{};
-    bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+    bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
     bufferDesc.ByteWidth = sizeof(Vertex) * static_cast<UINT>(vertices.size()); // バイトサイズを計算(構造体のバイト数 * 要素数)
     bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     bufferDesc.MiscFlags = 0;
-    bufferDesc.CPUAccessFlags = 0;
+    bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
     // 頂点バッファ
     ComPtr<ID3D11Buffer> vertexBuffer;
@@ -129,17 +139,67 @@ ComPtr<ID3D11Buffer> Direct3D::createVertexBuffer(const std::vector<Vertex>& ver
     return vertexBuffer;
 }
 
+HRESULT Direct3D::createConstantBuffer()
+{
+    // 定数バッファの仕様を設定する
+    D3D11_BUFFER_DESC bufferDesc{};
+    bufferDesc.Usage = D3D11_USAGE_DYNAMIC;					// 頻繁に更新されるためDYNAMIC
+    bufferDesc.ByteWidth = sizeof(Util::ObjectConstants);	// サイズは ObjectConstants 構造体のサイズ
+    bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;		// 定数バッファとしてバインド
+    bufferDesc.MiscFlags = 0;
+    bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;		// CPUからの書き込みを許可
+
+    // 定数バッファ作成
+    // 初期データは不要なので pInitData は nullptr
+    return m_device->CreateBuffer(&bufferDesc, nullptr, m_constantBuffer.GetAddressOf());
+}
+
 void Direct3D::updateVeretexBuffer(const ComPtr<ID3D11Buffer>& vertexBuffer, const std::vector<Vertex>& vertices)
 {
-    // UpdateSubresourceを使ってGPU上のバッファの内容を更新
-    m_deviceContext->UpdateSubresource(
-        vertexBuffer.Get(),
-        0,                  // Subresource
-        nullptr,            // pBox (全体を更新するのでnullptr)
-        vertices.data(),    // pSrcData (ソースデータ)
-        0,                  // SrcRowPitch (未使用なので0)
-        0                   // SrcDepthPitch (未使用なので0)
-    );
+    D3D11_MAPPED_SUBRESOURCE mappedSubResource{};
+
+    // Mapを使ってGPU上のバッファにアクセス
+    const HRESULT mapResult{
+        m_deviceContext->Map(
+            vertexBuffer.Get(),
+            0,
+            D3D11_MAP_WRITE_DISCARD,
+            0,
+            &mappedSubResource
+            )
+    };
+
+    if (FAILED(mapResult))
+    {
+        // 失敗時、処理を中断
+        MessageBox(m_hWnd, L"Direct3D: Mapに失敗しました。", L"DirectX エラー", MB_ICONERROR);
+        return;
+    }
+
+    // データをコピー
+    std::memcpy(mappedSubResource.pData, vertices.data(), sizeof(Util::Vertex) * vertices.size());
+
+    // バッファへのアクセスを終了
+    m_deviceContext->Unmap(vertexBuffer.Get(), 0);
+}
+
+void Direct3D::updateConstantBuffer(const Util::ObjectConstants& constants) const
+{
+    // データをGPUメモリにマッピング (書き換え)
+    D3D11_MAPPED_SUBRESOURCE mappedResource{};
+    const HRESULT mapResult{ m_deviceContext->Map(m_constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource) };
+
+    if (SUCCEEDED(mapResult))
+    {
+        // 構造体の内容をメモリにコピー
+        std::memcpy(mappedResource.pData, &constants, sizeof(Util::ObjectConstants));
+
+        // マッピングを解除し、GPUにデータを公開
+        m_deviceContext->Unmap(m_constantBuffer.Get(), 0);
+    }
+
+    // 定数バッファをバーテックスシェーダーのcb0スロットに設定
+    m_deviceContext->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
 }
 
 void Direct3D::setVertexBuffer(const ComPtr<ID3D11Buffer>& vertexBuffer)

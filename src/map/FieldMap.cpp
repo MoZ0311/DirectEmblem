@@ -45,6 +45,7 @@ void FieldMap::initialize()
     // 侵入可能配列の初期化
     m_accessibleTileGrid.assign(MapHeight, std::vector<bool>(MapWidth, false));
 
+    // マップの頂点バッファを設定
     {
         // 頂点情報の作成
         const std::vector<Vertex> vertices{ createMapVertices() };
@@ -56,6 +57,7 @@ void FieldMap::initialize()
         m_mapVertexBuffer = m_direct3D.createVertexBuffer(vertices);
     }
 
+    // 移動範囲の頂点バッファを設定
     {
         // 移動範囲用の頂点情報を作成
         const std::vector<Vertex> moveRangeVertices{ createMoveRangeVertices() };
@@ -67,6 +69,7 @@ void FieldMap::initialize()
         m_moveRangeBuffer = m_direct3D.createVertexBuffer(moveRangeVertices);
     }
 
+    // マップタイルのハイライト用頂点バッファの設定
     {
         // ハイライト用の頂点情報を作成
         const std::vector<Vertex> highlightVertices{ createHighlightVertices() };
@@ -144,7 +147,7 @@ std::vector<Vertex> FieldMap::createMapVertices() const
 	return vertices;
 }
 
-std::vector<Util::Vertex> FieldMap::createMoveRangeVertices() const
+std::vector<Vertex> FieldMap::createMoveRangeVertices() const
 {
     // 赤色(移動不可)
     const DirectX::XMFLOAT4 colorRed{ 1.0f, 0.0f, 0.0f, 0.5f };
@@ -197,39 +200,37 @@ std::vector<Util::Vertex> FieldMap::createMoveRangeVertices() const
 
 std::vector<Vertex> FieldMap::createHighlightVertices() const
 {
-    // グリッド位置に応じて各辺の座標を計算
-    const float left{ MapStartX + m_mouseGridPosition.x * TileWidth };
-    const float right{ left + TileWidth };
-    const float top{ MapStartY - m_mouseGridPosition.y * TileHeight };
-    const float bottom{ top - TileHeight };
+    // 形状は常に TileWidth * TileHeight の四角形
+    const float halfWidth{ TileWidth / 2.0f };
+    const float halfHeight{ TileHeight / 2.0f };
 
-    const DirectX::XMFLOAT4 color{ 1.0f, 1.0f, 1.0f, 0.6f };    // 色
-    const DirectX::XMFLOAT2 uv{ 0.5f, 0.5f };                   // 白対応するuv座標
+    const DirectX::XMFLOAT4 color{ 1.0f, 1.0f, 1.0f, 1.0f };    // 色はデフォルト
+    const DirectX::XMFLOAT2 uv{ 0.5f, 0.5f };                   // 白いテクスチャの中央をとる
 
     const std::vector<Vertex> vertices{
         // 頂点1:左下
         {
-            { left, bottom, 0.0f }, color, uv
+            { -halfWidth, -halfHeight, 0.0f }, color, uv
         },
         // 頂点2:左上
         {
-            { left, top, 0.0f }, color, uv
+            { -halfWidth, halfHeight, 0.0f }, color, uv
         },
         // 頂点3:右上
         {
-            { right, top, 0.0f }, color, uv
+            { halfWidth, halfHeight, 0.0f }, color, uv
         },
         // 頂点4:左下
         {
-            { left, bottom, 0.0f }, color, uv
+            { -halfWidth, -halfHeight, 0.0f }, color, uv
         },
         // 頂点5:右上
         {
-            { right, top, 0.0f }, color, uv
+            { halfWidth, halfHeight, 0.0f }, color, uv
         },
         // 頂点6:右下
         {
-            { right, bottom, 0.0f }, color, uv
+            { halfWidth, -halfHeight, 0.0f }, color, uv
         }
     };
 
@@ -258,9 +259,6 @@ void FieldMap::update()
         if (m_mouseGridPosition != currentMouseGridPosition)
         {
             m_mouseGridPosition = currentMouseGridPosition;
-
-            // ハイライト用の頂点バッファを更新
-            m_direct3D.updateVeretexBuffer(m_highlightBuffer, createHighlightVertices());
         }
     }
     else
@@ -272,20 +270,50 @@ void FieldMap::update()
 
 void FieldMap::draw() const
 {
+    // マップ全体の描画
     {
-        // 背景テクスチャのセット
+        // マップの定数バッファ情報
+        Util::ObjectConstants mapConstants{};
+
+        // ワールド行列を設定
+        DirectX::XMStoreFloat4x4(&mapConstants.worldMatrix, DirectX::XMMatrixIdentity());
+        DirectX::XMStoreFloat4x4(&mapConstants.viewMatrix, DirectX::XMMatrixIdentity());
+        DirectX::XMStoreFloat4x4(&mapConstants.projectionMatrix, DirectX::XMMatrixIdentity());
+
+        // マップの色はフルカラー (テクスチャの色をそのまま使用)
+        mapConstants.color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+
+        // バッファの更新
+        m_direct3D.updateConstantBuffer(mapConstants);
+
+        // マップテクスチャのセット
         m_direct3D.setTexture(m_mapTexture.getShaderResourceView());
 
-        // DirectXにTitleSceneのバッファを転送
+        // DirectXにバッファを転送
         m_direct3D.setVertexBuffer(m_mapVertexBuffer);
 
         // 描画コマンド実行
         m_direct3D.draw(m_mapVertexCount);
     }
     
+    // 移動可能範囲を描画
     if (UnitManager::GetInstance().isUnitMoving)
     {
-        // ハイライト用のテクスチャをセット
+        // 移動範囲の定数バッファ情報
+        Util::ObjectConstants moveRangeConstants{};
+
+        // ワールド行列を設定
+        DirectX::XMStoreFloat4x4(&moveRangeConstants.worldMatrix, DirectX::XMMatrixIdentity());
+        DirectX::XMStoreFloat4x4(&moveRangeConstants.viewMatrix, DirectX::XMMatrixIdentity());
+        DirectX::XMStoreFloat4x4(&moveRangeConstants.projectionMatrix, DirectX::XMMatrixIdentity());
+
+        // 移動範囲の色(頂点情報を使う為、デフォルト)
+        moveRangeConstants.color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+
+        // バッファの更新
+        m_direct3D.updateConstantBuffer(moveRangeConstants);
+
+        // 移動範囲用(ハイライトと共通)のテクスチャをセット
         m_direct3D.setTexture(m_highlightTexture.getShaderResourceView());
 
         // 移動範囲用のバッファを転送
@@ -294,9 +322,33 @@ void FieldMap::draw() const
         // 描画コマンド実行
         m_direct3D.draw(m_moveRangeVertexCount);
     }
-
+    
+    // ハイライトの描画
     if (m_mouseOnMap)
     {
+        // タイルの中心座標を取得
+        const DirectX::XMFLOAT2 highlightCenter{ gridToScreen(m_mouseGridPosition) };
+
+        DirectX::XMMATRIX heighlightWorld{ DirectX::XMMatrixTranslation(
+            highlightCenter.x,
+            highlightCenter.y,
+            0.0f // Z座標は描画順序を調整するために使用
+        ) };
+
+        // 定数バッファの設定
+        Util::ObjectConstants highlightConstants{};
+
+        // 行列の設定
+        DirectX::XMStoreFloat4x4(&highlightConstants.worldMatrix, DirectX::XMMatrixTranspose(heighlightWorld));
+        DirectX::XMStoreFloat4x4(&highlightConstants.viewMatrix, DirectX::XMMatrixIdentity());
+        DirectX::XMStoreFloat4x4(&highlightConstants.projectionMatrix, DirectX::XMMatrixIdentity());
+
+        // ハイライトの色（半透明）
+        highlightConstants.color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 0.6f);
+        
+        // バッファの更新
+        m_direct3D.updateConstantBuffer(highlightConstants);
+
         // ハイライト用のテクスチャをセット
         m_direct3D.setTexture(m_highlightTexture.getShaderResourceView());
 
@@ -321,6 +373,20 @@ bool FieldMap::getMouseOnMap() const
 std::vector<std::vector<int>> FieldMap::getMapData() const
 {
     return m_mapGrid;
+}
+
+DirectX::XMFLOAT2 FieldMap::gridToScreen(const GridPosition& gridPosition) const
+{
+    // グリッド座標をスクリーン座標に変換
+    const float tileLeft{ MapStartX + (gridPosition.x * TileWidth) };
+    const float tileTop{ MapStartY - (gridPosition.y * TileHeight) };
+
+    // タイルの中心座標を計算
+    const float centerX{ tileLeft + (TileWidth / 2.0f) };
+    const float centerY{ tileTop - (TileHeight / 2.0f) };
+
+    // X と Y の値を含む XMFLOAT2 を返す
+    return DirectX::XMFLOAT2(centerX, centerY);
 }
 
 std::vector<std::vector<bool>> FieldMap::getAccessibleTileGrid() const

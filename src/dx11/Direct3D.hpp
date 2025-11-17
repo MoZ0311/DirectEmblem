@@ -21,6 +21,9 @@ public:
 	// 頂点バッファの更新処理
 	void updateVeretexBuffer(const Microsoft::WRL::ComPtr<ID3D11Buffer>& vertexBuffer, const std::vector<Util::Vertex>& vertices);
 
+	// 定数バッファの更新処理
+	void updateConstantBuffer(const Util::ObjectConstants& constants) const;
+
 	// 頂点バッファのステージング処理
 	void setVertexBuffer(const Microsoft::WRL::ComPtr<ID3D11Buffer>& vertexBuffer);
 
@@ -71,6 +74,9 @@ private:
 	// ブレンドステート作成
 	HRESULT createBlendState();
 
+	// 定数バッファの作成処理
+	HRESULT createConstantBuffer();
+
 	// 頂点バッファをパイプラインに流す処理
 	void setRenderPipeline() const;
 
@@ -106,4 +112,7 @@ private:
 
 	// ブレンドステート
 	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendState;
+
+	// 定数バッファ
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_constantBuffer;
 };

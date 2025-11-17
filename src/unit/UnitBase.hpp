@@ -52,12 +52,6 @@ protected:
 	// 移動処理
 	void gridMove();
 
-	// 幅優先探索による移動範囲の計算
-	void calculateMovementRange();
-
-	// 目的地に向けた経路の作成処理
-	void createMovementPath(const Config::MapSettings::GridPosition& targetPosition);
-
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
 
@@ -87,9 +81,6 @@ protected:
 
 	// 移動前のユニットの座標
 	Config::MapSettings::GridPosition m_prevPosition;
-
-	// 始点からの距離の二次元配列
-	std::vector<std::vector<int>> m_distanceGrid;
 
 	// 現在地から目的地までの経路を格納する配列
 	std::deque<Config::MapSettings::GridPosition> m_movementPath;

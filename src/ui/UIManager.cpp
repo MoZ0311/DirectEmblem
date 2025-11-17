@@ -36,6 +36,7 @@ UIManager& UIManager::GetInstance()
 
 void UIManager::initialize()
 {
+    // コマンドUIの頂点バッファの設定
     {
         // 頂点情報の作成
         const std::vector<Vertex> vertices{ createCommandUIVertices() };
@@ -114,58 +115,40 @@ std::vector<Util::Vertex> UIManager::createCommandUIVertices() const
 
 std::vector<Util::Vertex> UIManager::createHighlightVertices() const
 {
-    // グリッド位置に応じて各辺の座標を計算
-    const float top{ CommandUITop - static_cast<int>(m_selectingCommand) * UIHighlightHeight };
-    const float bottom{ top - UIHighlightHeight };
+    // 形状は常に UIWidth * UIHighlightHeight
+    const float halfWidth{ UIWidth / 2.0f };
+    const float halfHeight{ UIHighlightHeight / 2.0f };
 
-    // uv座標定義
-    const DirectX::XMFLOAT2 uvTopLeft{ 0, 0 };		// 左上
-    const DirectX::XMFLOAT2 uvBottomLeft{ 0, 1 };	// 左下
-    const DirectX::XMFLOAT2 uvTopRight{ 1, 0 };		// 右上
-    const DirectX::XMFLOAT2 uvBottomRight{ 1, 1 };	// 右下
-
-    // 色は半透明の白
-    const DirectX::XMFLOAT4 defaultColor{ 1.0f, 1.0f, 1.0f, 0.6f };
+    const DirectX::XMFLOAT4 color{ 1.0f, 1.0f, 1.0f, 1.0f };    // 色はデフォルト
+    const DirectX::XMFLOAT2 uv{ 0.5f, 0.5f };                   // 白いテクスチャの中央をとる
 
     const std::vector<Vertex> vertices{
         // 頂点1:左下
         {
-            { CommandUILeft, bottom, 0.0f },
-            defaultColor,
-            uvBottomLeft
+            { -halfWidth, -halfHeight, 0.0f }, color, uv
         },
         // 頂点2:左上
         {
-            { CommandUILeft, top, 0.0f },
-            defaultColor,
-            uvTopLeft
+            { -halfWidth, halfHeight, 0.0f }, color, uv
         },
         // 頂点3:右上
         {
-            { CommandUIRight, top, 0.0f },
-            defaultColor,
-            uvTopRight
+            { halfWidth, halfHeight, 0.0f }, color, uv
         },
-
         // 頂点4:左下
         {
-            { CommandUILeft, bottom, 0.0f },
-            defaultColor,
-            uvBottomLeft
+            { -halfWidth, -halfHeight, 0.0f }, color, uv
         },
         // 頂点5:右上
         {
-            { CommandUIRight, top, 0.0f },
-            defaultColor,
-            uvTopRight
+            { halfWidth, halfHeight, 0.0f }, color, uv
         },
         // 頂点6:右下
         {
-            { CommandUIRight, bottom, 0.0f },
-            defaultColor,
-            uvBottomRight
-        },
+            { halfWidth, -halfHeight, 0.0f }, color, uv
+        }
     };
+
     return vertices;
 }
 
@@ -188,9 +171,6 @@ void UIManager::update()
         if (m_selectingCommand != currentSelectingCommandIndex)
         {
             m_selectingCommand = currentSelectingCommandIndex;
-
-            // バッファ更新
-            m_direct3D.updateVeretexBuffer(m_highlightBuffer, createHighlightVertices());
         }
 
         // UIがクリックされた時
@@ -206,23 +186,63 @@ void UIManager::draw() const
 {
     if (isDrawingCommandUI)
     {
+        // コマンドUIの描画
         {
-            // 背景テクスチャのセット
+            // マップの定数バッファ情報
+            Util::ObjectConstants commandUIConstants{};
+
+            // ワールド行列を設定
+            DirectX::XMStoreFloat4x4(&commandUIConstants.worldMatrix, DirectX::XMMatrixIdentity());
+            DirectX::XMStoreFloat4x4(&commandUIConstants.viewMatrix, DirectX::XMMatrixIdentity());
+            DirectX::XMStoreFloat4x4(&commandUIConstants.projectionMatrix, DirectX::XMMatrixIdentity());
+
+            // テクスチャの色をそのまま使用
+            commandUIConstants.color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+
+            // バッファの更新
+            m_direct3D.updateConstantBuffer(commandUIConstants);
+
+            // UIテクスチャのセット
             m_direct3D.setTexture(m_commandUITexture.getShaderResourceView());
 
-            // DirectXにTitleSceneのバッファを転送
+            // DirectXにバッファを転送
             m_direct3D.setVertexBuffer(m_commandUIBuffer);
 
             // 描画コマンド実行
             m_direct3D.draw(m_commandUIVertexCount);
         }
 
+        // UIハイライトの描画
         if (m_mouseOnUI)
         {
-            // 背景テクスチャのセット
+            // マップの定数バッファ情報
+            Util::ObjectConstants highlightConstants{};
+
+            // ハイライトの描画座標を算出
+            const float highlightCenterX{ (CommandUILeft + CommandUIRight) / 2 };
+            const float highlightCenterY{ (CommandUITop - UIHighlightHeight / 2) - UIHighlightHeight * static_cast<int>(m_selectingCommand) };
+
+            DirectX::XMMATRIX heighlightWorld{ DirectX::XMMatrixTranslation(
+                highlightCenterX,
+                highlightCenterY,
+                0.0f // Z座標は描画順序を調整するために使用
+            ) };
+
+            // ワールド行列を設定
+            DirectX::XMStoreFloat4x4(&highlightConstants.worldMatrix, DirectX::XMMatrixTranspose(heighlightWorld));
+            DirectX::XMStoreFloat4x4(&highlightConstants.viewMatrix, DirectX::XMMatrixIdentity());
+            DirectX::XMStoreFloat4x4(&highlightConstants.projectionMatrix, DirectX::XMMatrixIdentity());
+
+            // テクスチャを半透明にする
+            highlightConstants.color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 0.6f);
+
+            // バッファの更新
+            m_direct3D.updateConstantBuffer(highlightConstants);
+
+            // ハイライトテクスチャのセット
             m_direct3D.setTexture(m_highlightTexture.getShaderResourceView());
 
-            // DirectXにTitleSceneのバッファを転送
+            // DirectXにバッファを転送
             m_direct3D.setVertexBuffer(m_highlightBuffer);
 
             // 描画コマンド実行

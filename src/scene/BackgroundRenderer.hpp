@@ -3,7 +3,7 @@
 # pragma once
 
 # include <vector>
-# include "../dx11/DirectX.hpp"
+# include "../dx11/Texture.hpp"
 # include "../core/Config.hpp"
 
 class Direct3D;
@@ -28,6 +28,9 @@ private:
 
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
+
+	// テクスチャ情報
+	Texture m_texture;
 
 	// 頂点数
 	UINT m_vertexCount;

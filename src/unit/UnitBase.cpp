@@ -7,6 +7,7 @@
 # include "../dx11/Direct3D.hpp"
 # include "../map/FieldMap.hpp"
 # include "../util/InputState.hpp"
+# include "../util/PathFinder.hpp"
 
 using namespace Util;
 using namespace FilePath;
@@ -17,6 +18,7 @@ using namespace Config::UISettings;
 UnitBase::UnitBase()
 	: m_direct3D{ Direct3D::GetInstance() }
 	, m_fieldMap{ FieldMap::GetInstance() }
+
 	, m_unitIconTexture{ SlimeIconPath }
 	, m_iconColor{ 1.0f, 1.0f, 1.0f, 1.0f }
 	, m_vertexCount{ 0 }
@@ -26,7 +28,6 @@ UnitBase::UnitBase()
 	, m_unitParameter{ 0, 0, 0, 0, 0 }
 	, m_unitPosition{ 0, 0 }
 	, m_prevPosition{ m_unitPosition }
-	, m_distanceGrid{}
 	, m_movementPath{}
 	, m_unitState{ UnitState::None }
 
@@ -49,11 +50,12 @@ void UnitBase::initialize()
 
 std::vector<Vertex> UnitBase::createVertices() const
 {
-	// 各辺の座標を計算
-	const float left{ MapStartX + m_unitPosition.x * TileWidth };
-	const float right{ left + TileWidth };
-	const float top{ MapStartY - m_unitPosition.y * TileHeight };
-	const float bottom{ top - TileHeight };
+	// 形状は常に TileWidth x TileHeight の四角形（ローカル座標）
+	// 中心を (0, 0) とし、draw()でワールド行列により位置を設定する。
+	const float halfWidth{ TileWidth / 2.0f };
+	const float halfHeight{ TileHeight / 2.0f };
+
+	const DirectX::XMFLOAT4 color{ 1.0f, 1.0f, 1.0f, 1.0f };    // 色はデフォルト
 
 	// uv座標定義
 	const DirectX::XMFLOAT2 uvTopLeft{ 0, 0 };		// 左上
@@ -64,29 +66,30 @@ std::vector<Vertex> UnitBase::createVertices() const
 	const std::vector<Vertex> vertices{
 		// 頂点1:左下
 		{
-			{ left, bottom, 0.0f }, m_iconColor, uvBottomLeft
+			{ -halfWidth, -halfHeight, 0.0f }, color, uvBottomLeft
 		},
 		// 頂点2:左上
 		{
-			{ left, top, 0.0f }, m_iconColor, uvTopLeft
+			{ -halfWidth, halfHeight, 0.0f }, color, uvTopLeft
 		},
 		// 頂点3:右上
 		{
-			{ right, top, 0.0f }, m_iconColor, uvTopRight
+			{ halfWidth, halfHeight, 0.0f }, color, uvTopRight
 		},
 		// 頂点4:左下
 		{
-			{ left, bottom, 0.0f }, m_iconColor, uvBottomLeft
+			{ -halfWidth, -halfHeight, 0.0f }, color, uvBottomLeft
 		},
 		// 頂点5:右上
 		{
-			{ right, top, 0.0f }, m_iconColor, uvTopRight
+			{ halfWidth, halfHeight, 0.0f }, color, uvTopRight
 		},
 		// 頂点6:右下
 		{
-			{ right, bottom, 0.0f }, m_iconColor, uvBottomRight
+			{ halfWidth, -halfHeight, 0.0f }, color, uvBottomRight
 		}
 	};
+
 	return vertices;
 }
 
@@ -113,13 +116,10 @@ void UnitBase::update()
 			m_iconColor = { 1.0f, 1.0f, 0.3f, 1.0f };
 
 			// 移動範囲の算出
-			calculateMovementRange();
+			const std::vector<std::vector<int>> distanceGrid{ PathFinder::CalculateDistanceGrid(m_unitPosition, m_unitParameter.mobility) };
 
 			// 移動範囲と移動力を渡す
-			m_fieldMap.setAccessibleTileGrid(m_distanceGrid, m_unitParameter.mobility);
-
-			// バッファの更新
-			m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
+			m_fieldMap.setAccessibleTileGrid(distanceGrid, m_unitParameter.mobility);
 
 			// 選択後のステートに移動
 			m_unitState = UnitState::StandBy;
@@ -137,9 +137,6 @@ void UnitBase::update()
 			// 非選択中は、アイコンを白色に
 			m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-			// バッファの更新
-			m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
-
 			// 選択前のステートに戻る
 			m_unitState = UnitState::None;
 		}
@@ -148,8 +145,11 @@ void UnitBase::update()
 			m_fieldMap.getMouseOnMap() &&
 			m_fieldMap.getAccessibleTileGrid()[mousePosition.y][mousePosition.x])
 		{
+			// 移動範囲を算出
+			const std::vector<std::vector<int>> distanceGrid{ PathFinder::CalculateDistanceGrid(m_unitPosition, m_unitParameter.mobility) };
+
 			// 移動経路を作成
-			createMovementPath(mousePosition);
+			m_movementPath = PathFinder::CreateMovementPath(distanceGrid, mousePosition);
 
 			// 移動中ステートに移動
 			m_unitState = UnitState::Moving;
@@ -182,9 +182,6 @@ void UnitBase::update()
 			// 非選択中は、アイコンを白色に
 			m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-			// バッファの更新
-			m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
-
 			// 選択前のステートに戻る
 			m_unitState = UnitState::None;
 		}
@@ -199,10 +196,30 @@ void UnitBase::update()
 
 void UnitBase::draw() const
 {
-	// 背景テクスチャのセット
+	// 画面上の座標を設定
+	DirectX::XMFLOAT2 screenUnitPosition{ m_fieldMap.gridToScreen(m_unitPosition) };
+
+	// 計算した位置をワールド行列に変換
+	DirectX::XMMATRIX worldMatrix{ DirectX::XMMatrixTranslation(screenUnitPosition.x, screenUnitPosition.y, 0.0f) };
+
+	// 定数バッファの設定
+	Util::ObjectConstants constants{};
+	DirectX::XMStoreFloat4x4(&constants.worldMatrix, DirectX::XMMatrixTranspose(worldMatrix));
+	
+	// ビュー行列とプロジェクション行列の設定
+	DirectX::XMStoreFloat4x4(&constants.viewMatrix, DirectX::XMMatrixIdentity());
+	DirectX::XMStoreFloat4x4(&constants.projectionMatrix, DirectX::XMMatrixIdentity());
+
+	// 色の設定
+	constants.color = m_iconColor;
+
+	// 定数バッファを更新
+	m_direct3D.updateConstantBuffer(constants);
+
+	// テクスチャのセット
 	m_direct3D.setTexture(m_unitIconTexture.getShaderResourceView());
 
-	// DirectXにTitleSceneのバッファを転送
+	// DirectXにバッファを転送
 	m_direct3D.setVertexBuffer(m_vertexBuffer);
 
 	// 描画コマンド実行
@@ -223,9 +240,6 @@ void UnitBase::onFinishActed(const Config::UISettings::Command& selectedCommand)
 
 		// アイコンを灰色に
 		m_iconColor = { 0.6f, 0.6f, 0.6f, 1.0f };
-
-		// バッファの更新
-		m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
 	default:
 		break;
 	}
@@ -235,9 +249,6 @@ void UnitBase::setPosition(const Config::MapSettings::GridPosition& targetPositi
 {
 	// 指定座標に移動
 	m_unitPosition = targetPosition;
-
-	// バッファの更新
-	m_direct3D.updateVeretexBuffer(m_vertexBuffer, createVertices());
 }
 
 void UnitBase::gridMove()
@@ -249,175 +260,14 @@ void UnitBase::gridMove()
 	if (m_gridMoveTimer < 0)
 	{
 		// 配列を辿りながら消去
-		setPosition(m_movementPath.front());
+		const GridPosition nextPosition{ m_movementPath.front() };
 		m_movementPath.pop_front();
+
+		setPosition(nextPosition);
 
 		// タイマーリセット
 		m_gridMoveTimer = GridMoveInterval;
 	}
-}
-
-void UnitBase::calculateMovementRange()
-{
-	// 距離配列を巨大な値で初期化
-	m_distanceGrid.assign(MapHeight, std::vector<int>(MapWidth, INT_MAX));
-
-	// 移動力と座標のペアを定義
-	using Pair = std::pair<int, GridPosition>;
-
-	// 探索の為のキューを作成
-	std::priority_queue<Pair, std::vector<Pair>, std::greater<Pair>> searchQueue{};
-
-	// 現在地の距離を0にする
-	m_distanceGrid[m_unitPosition.y][m_unitPosition.x] = 0;
-
-	// 探索キューに初期位置を渡す
-	searchQueue.emplace(0, m_unitPosition);
-
-	// キューが空になる(これ以上探索できない)まで繰り返す
-	while (!searchQueue.empty())
-	{
-		// キューの先頭を取り出す
-		const Pair searchPair{ searchQueue.top() };
-		searchQueue.pop();
-
-		const int searchDistance{ searchPair.first };
-		const GridPosition searchPosition{ searchPair.second };
-
-		// 最短でなければ、処理しない
-		const int recordedDistance{ m_distanceGrid[searchPosition.y][searchPosition.x] };
-		if (recordedDistance < searchDistance)
-		{
-			continue;
-		}
-
-		// offsetで定義した四方向に範囲for文でアクセス
-		for (const auto& direction : GridOffset)
-		{
-			// アクセス先のグリッド座標を定義
-			const GridPosition nextPosition{
-				searchPosition.x + direction.x,
-				searchPosition.y + direction.y
-			};
-
-			// マップの境界チェック
-			if (nextPosition.x < 0 || nextPosition.x >= MapWidth ||
-				nextPosition.y < 0 || nextPosition.y >= MapHeight)
-			{
-				// 範囲外アクセス時に、continue
-				continue;
-			}
-
-			// ユニットが存在するタイルを取得
-			const std::vector<std::vector<bool>> unitStandingGrid{ UnitManager::GetInstance().getUnitStandingGrid() };
-
-			// ユニットがいるマスは、侵入不可としてスキップ
-			if (unitStandingGrid[nextPosition.y][nextPosition.x]) 
-			{
-				// ユニットがいるマスは経路として使わない
-				continue;
-			}
-
-			// 現在の距離を算出
-			const int currentDistance{ m_distanceGrid[searchPosition.y][searchPosition.x] };
-
-			// マップデータの取得
-			const std::vector<std::vector<int>> mapData{ m_fieldMap.getMapData() };
-
-			// mapDataのint型をTileTypeに変換
-			const TileType nextTileType{ static_cast<TileType>(mapData[nextPosition.y][nextPosition.x]) };
-
-			// 侵入コストを対応表から取得
-			const int accessCost{ TileAccessCost.at(nextTileType) };
-
-			// 新しい距離を計算
-			const int newDistance{ currentDistance + accessCost };
-
-			if (newDistance < m_distanceGrid[nextPosition.y][nextPosition.x])
-			{
-				// m_distanceGridを更新
-				m_distanceGrid[nextPosition.y][nextPosition.x] = newDistance;
-
-				// 次の探索先をキューに追加
-				searchQueue.emplace(newDistance, nextPosition);
-			}			
-		}
-	}	
-}
-
-void UnitBase::createMovementPath(const GridPosition& targetPosition)
-{
-	if (targetPosition == m_unitPosition)
-	{
-		// 現在地が指定された時、移動しない
-		return;
-	}
-	
-	// 仮の移動経路を作成
-	std::deque<GridPosition> path{};
-
-	// 目的地から探索を始める
-	GridPosition currentPosition{ targetPosition };
-
-	// 目的地から現在地まで探索
-	while (currentPosition != m_unitPosition)
-	{
-		// 仮のパスに現在地を格納
-		path.push_front(currentPosition);
-
-		// 現在地までの距離(移動コストを考慮)を取得
-		const int currentDistance{ m_distanceGrid[currentPosition.y][currentPosition.x] };
-
-		// 範囲for文で、隣接4マスの始点からの距離を評価
-		for (const auto& direction : GridOffset)
-		{
-			// 次の探索目標を設定
-			const GridPosition nextPosition{
-				currentPosition.x + direction.x,
-				currentPosition.y + direction.y
-			};
-
-			// マップの境界チェック
-			if (nextPosition.x < 0 || nextPosition.x >= MapWidth ||
-				nextPosition.y < 0 || nextPosition.y >= MapHeight)
-			{
-				continue;
-			}
-
-			// 次のマスへの距離を算出
-			const int nextDistance{ m_distanceGrid[nextPosition.y][nextPosition.x] };
-
-			// 現在地より遠くへは行かない
-			if (currentDistance < nextDistance)
-			{
-				continue;
-			}
-
-			// マップデータの取得
-			const std::vector<std::vector<int>> mapData{ m_fieldMap.getMapData() };
-
-			// mapDataのint型をTileTypeに変換
-			const TileType nextTileType{ static_cast<TileType>(mapData[currentPosition.y][currentPosition.x]) };
-
-			// 侵入コストを対応表から取得
-			const int accessCost{ TileAccessCost.at(nextTileType) };
-
-			// 新しい距離を計算
-			const int newDistance{ nextDistance + accessCost };
-
-			if (newDistance == currentDistance)
-			{
-				currentPosition = nextPosition;
-				break;
-			}
-		}
-	}
-
-	// 最後にスタート地点を追加
-	path.push_front(m_unitPosition);
-
-	// 完成した経路をメンバ変数に渡す
-	m_movementPath = path;
 }
 
 Config::MapSettings::GridPosition UnitBase::getUnitPosition() const

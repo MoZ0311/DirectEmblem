@@ -8,6 +8,9 @@
 
 namespace Util
 {
+	// 十分に巨大な数
+	static inline constexpr int INF{ 999 };
+
 	struct Vertex
 	{
 		DirectX::XMFLOAT3 position;
@@ -72,7 +75,7 @@ namespace Config
 		static inline constexpr float CommandUIBottom{ -0.967f };
 		static inline constexpr float CommandUITop{ CommandUIBottom + CommandUIHeight };
 
-		static inline constexpr float UIHighlightHeight{ CommandUIHeight / 4 };
+		static inline constexpr float UIHighlightHeight{ CommandUIHeight / 4.0f };
 
 		enum class Command
 		{
@@ -145,10 +148,10 @@ namespace Config
 		static inline constexpr int MapHeight{ 16 };
 
 		// マップの開始x座標
-		static inline constexpr float MapStartX{ -TileWidth * MapWidth / 2 };
+		static inline constexpr float MapStartX{ -TileWidth * MapWidth / 2.0f };
 
 		// マップの開始y座標
-		static inline constexpr float MapStartY{ TileHeight * MapHeight / 2 };
+		static inline constexpr float MapStartY{ TileHeight * MapHeight / 2.0f };
 	}
 
 	namespace UnitSettings
@@ -182,7 +185,7 @@ namespace Config
 		};
 
 		// グリッド移動の間隔
-		static inline constexpr float GridMoveInterval{ 0.2f };
+		static inline constexpr float GridMoveInterval{ 0.1f };
 	}
 }
 

@@ -177,6 +177,7 @@
     <ClInclude Include="src\unit\UnitManager.hpp" />
     <ClInclude Include="src\util\CSVReader.hpp" />
     <ClInclude Include="src\util\InputState.hpp" />
+    <ClInclude Include="src\util\PathFinder.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
