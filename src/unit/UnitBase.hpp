@@ -9,6 +9,7 @@
 
 class Direct3D;
 class FieldMap;
+class UnitManager;
 
 class UnitBase
 {
@@ -54,9 +55,6 @@ protected:
 
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
-
-	// FieldMapクラスのインスタンス
-	FieldMap& m_fieldMap;
 
 	// マップ上のアイコンテクスチャ
 	Texture m_unitIconTexture;

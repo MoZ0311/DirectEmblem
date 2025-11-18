@@ -258,6 +258,8 @@ DXGI_SWAP_CHAIN_DESC Direct3D::registerSwapChain() const
 	swapChainDesc.Windowed = TRUE;                                  // ウィンドウモード
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;            // バックバッファ転送後、バックバッファをクリア
 
+    swapChainDesc.Flags = 0;                                        // Alt + Enterを許可しない
+
     return swapChainDesc;
 }
 

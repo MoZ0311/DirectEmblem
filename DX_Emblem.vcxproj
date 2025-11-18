@@ -159,6 +159,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\battle\BattleManager.hpp" />
     <ClInclude Include="src\core\Application.hpp" />
     <ClInclude Include="src\core\Config.hpp" />
     <ClInclude Include="src\dx11\Direct3D.hpp" />

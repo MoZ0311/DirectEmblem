@@ -10,7 +10,7 @@
 using namespace SceneSettings;
 
 SceneGame::SceneGame()
-	: m_mapRenderer{ FieldMap::GetInstance() }
+	: m_fieldMap{ FieldMap::GetInstance() }
 	, m_unitManager{ UnitManager::GetInstance() }
 	, m_uiManager{ UIManager::GetInstance() }
 {
@@ -25,7 +25,7 @@ SceneGame::~SceneGame()
 
 void SceneGame::update()
 {
-	m_mapRenderer.update();
+	m_fieldMap.update();
 	m_unitManager.update();
 	m_uiManager.update();
 
@@ -38,7 +38,7 @@ void SceneGame::update()
 
 void SceneGame::draw() const
 {
-	m_mapRenderer.draw();
+	m_fieldMap.draw();
 	m_unitManager.draw();
 	m_uiManager.draw();
 }

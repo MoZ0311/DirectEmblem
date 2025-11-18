@@ -15,8 +15,12 @@ UnitManager::UnitManager()
 	: currentUnitState{ UnitState::None }
 	, m_playerUnitArray{}
 	, m_enemyUnitArray{}
-	, m_uiManager{ UIManager::GetInstance() }
 	, m_selectedCommand{ Command::None }
+{
+	initialize();
+}
+
+void UnitManager::initialize()
 {
 	m_playerUnitArray.push_back(std::make_unique<UnitSword>());
 	m_playerUnitArray.push_back(std::make_unique<UnitAxe>());
@@ -42,7 +46,7 @@ void UnitManager::update()
 			if (m_selectedCommand == Command::None)
 			{
 				// 移動後、行動前: UI描画フラグを立ててbreak
-				m_uiManager.isDrawingCommandUI = true;
+				UIManager::GetInstance().isDrawingCommandUI = true;
 				break;
 			}
 			else
@@ -50,10 +54,8 @@ void UnitManager::update()
 				// 移動後、行動後: ユニット行動後の処理を呼び出し
 				playerUnit->onFinishActed(m_selectedCommand);
 			}
-			
 		}
-
-		m_uiManager.isDrawingCommandUI = false;
+		UIManager::GetInstance().isDrawingCommandUI = false;
 	}
 
 	for (const auto& enemyUnit : m_enemyUnitArray)

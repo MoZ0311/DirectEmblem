@@ -31,6 +31,9 @@ private:
 	// コンストラクタ
 	SceneManager();
 
+	// コピーコンストラクタを削除
+	SceneManager(const SceneManager&) = delete;
+
 	// deltaTimeの計算処理
 	void calculateDeltaTime();
 

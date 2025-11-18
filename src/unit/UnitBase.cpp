@@ -17,7 +17,6 @@ using namespace Config::UISettings;
 
 UnitBase::UnitBase()
 	: m_direct3D{ Direct3D::GetInstance() }
-	, m_fieldMap{ FieldMap::GetInstance() }
 
 	, m_unitIconTexture{ SlimeIconPath }
 	, m_iconColor{ 1.0f, 1.0f, 1.0f, 1.0f }
@@ -97,7 +96,7 @@ std::vector<Vertex> UnitBase::createVertices() const
 void UnitBase::update()
 {
 	// マウスのグリッド座標を取得
-	const GridPosition mousePosition{ m_fieldMap.getMouseGridPosition()};
+	const GridPosition mousePosition{ FieldMap::GetInstance().getMouseGridPosition()};
 	
 	// ユニットの上にマウスがあるか
 	const bool mouseOnUnit{ m_unitPosition == mousePosition };
@@ -120,7 +119,7 @@ void UnitBase::update()
 			m_distanceGrid = PathFinder::CalculateDistanceGrid(m_unitPosition, m_unitParameter.mobility);
 
 			// 距離と移動力を渡す
-			m_fieldMap.setAccessibleTileGrid(m_distanceGrid, m_unitParameter.mobility);
+			FieldMap::GetInstance().setAccessibleTileGrid(m_distanceGrid, m_unitParameter.mobility);
 
 			// UnitManagerのコマンド選択状態を初期化
 			UnitManager::GetInstance().setSelectedCommand(Command::None);
@@ -147,8 +146,8 @@ void UnitBase::update()
 		}
 		// 有効な移動先が左クリック(選択)された時
 		else if (InputState::KeyDown(VK_LBUTTON) &&
-			m_fieldMap.getMouseOnMap() &&
-			m_fieldMap.getAccessibleTileGrid()[mousePosition.y][mousePosition.x])
+			FieldMap::GetInstance().getMouseOnMap() &&
+			FieldMap::GetInstance().getAccessibleTileGrid()[mousePosition.y][mousePosition.x])
 		{
 			// 移動経路を作成
 			m_movementPath = PathFinder::CreateMovementPath(m_distanceGrid, mousePosition);
@@ -201,7 +200,7 @@ void UnitBase::update()
 void UnitBase::draw() const
 {
 	// 画面上の座標を設定
-	DirectX::XMFLOAT2 screenUnitPosition{ m_fieldMap.gridToScreen(m_unitPosition) };
+	DirectX::XMFLOAT2 screenUnitPosition{ FieldMap::GetInstance().gridToScreen(m_unitPosition) };
 
 	// 計算した位置をワールド行列に変換
 	DirectX::XMMATRIX worldMatrix{ DirectX::XMMatrixTranslation(screenUnitPosition.x, screenUnitPosition.y, 0.0f) };

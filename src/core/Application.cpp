@@ -3,11 +3,12 @@
 # include "Application.hpp"
 
 # include "Config.hpp"
-# include "../util/InputState.hpp"
 # include "../dx11/Direct3D.hpp"
 # include "../scene/SceneManager.hpp"
+# include "../util/InputState.hpp"
 
 using namespace Config;
+using namespace SceneSettings;
 
 Application::Application(const HINSTANCE& hInstance, const int nCmdShow)
 	: m_hInstance{ hInstance }
@@ -48,7 +49,7 @@ bool Application::initialize()
 	}
 
 	// SceneManagerの初期化(ついでに初期シーンの設定)
-	if (!SceneManager::GetInstance().initialize(SceneSettings::Scene::Title))
+	if (!SceneManager::GetInstance().initialize(Scene::Title))
 	{
 		// 失敗時、エラーメッセージとともにreturn
 		MessageBox(NULL, L"Application: SceneManagerクラスの初期化に失敗しました", L"エラー", MB_ICONERROR);
@@ -85,7 +86,7 @@ MSG Application::run() const
 
 		// キー情報の更新
 		InputState::UpdateKeyState();
-
+		
 		// ループ処理
 		SceneManager::GetInstance().execute();
 	}
@@ -96,7 +97,7 @@ LRESULT CALLBACK Application::wndProc(const HWND hWnd, const UINT message, const
 {
 	if (message == WM_DESTROY || (wParam == VK_ESCAPE && message == WM_KEYDOWN))
 	{
-		// ウィンドウが閉じられた時、終了
+		// ウィンドウが閉じられた時、またはescキー押下で終了
 		PostQuitMessage(0);
 		return 0;
 	}

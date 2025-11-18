@@ -7,7 +7,6 @@
 # include "../core/Config.hpp"
 
 class Direct3D;
-class FieldMap;
 
 class UIManager
 {
@@ -47,9 +46,6 @@ private:
 
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
-
-	// マップ管理クラスのインスタンス
-	FieldMap& m_fieldMap;
 
 	// タイルUIのテクスチャ
 	Texture m_grassUITexture;	// 草原

@@ -27,7 +27,7 @@ private:
     void draw() const override;
 
     // FieldMapクラスのインスタンス
-    FieldMap& m_mapRenderer;
+    FieldMap& m_fieldMap;
 
     // ユニット管理クラス
     UnitManager& m_unitManager;

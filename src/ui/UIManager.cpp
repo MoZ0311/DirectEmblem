@@ -13,7 +13,6 @@ using namespace Config::UISettings;
 
 UIManager::UIManager()
 	: m_direct3D{ Direct3D::GetInstance() }
-    , m_fieldMap{ FieldMap::GetInstance() }
 
     , m_grassUITexture{ GrassUIPath }
     , m_forestUITexture{ ForestUIPath }
@@ -283,7 +282,7 @@ void UIManager::draw() const
         m_direct3D.updateConstantBuffer(tileUIConstants);
 
         // テクスチャのセット
-        TileType currentTileType{ m_fieldMap.getMouseOveredTile() };
+        TileType currentTileType{ FieldMap::GetInstance().getMouseOveredTile()};
         switch (currentTileType)
         {
         case TileType::Grass:
