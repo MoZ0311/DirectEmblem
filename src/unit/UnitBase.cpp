@@ -2,10 +2,10 @@
 
 # include "UnitBase.hpp"
 
-# include "../unit/UnitManager.hpp"
-# include "../scene/SceneManager.hpp"
 # include "../dx11/Direct3D.hpp"
+# include "../scene/SceneManager.hpp"
 # include "../map/FieldMap.hpp"
+# include "../battle/BattleManager.hpp"
 # include "../util/InputState.hpp"
 # include "../util/PathFinder.hpp"
 
@@ -29,7 +29,7 @@ UnitBase::UnitBase()
 	, m_prevPosition{ m_unitPosition }
 	, m_distanceGrid{}
 	, m_movementPath{}
-	, m_unitState{ UnitState::None }
+	, unitState{ UnitState::None }
 
 	, m_gridMoveTimer{ GridMoveInterval }
 {
@@ -101,19 +101,19 @@ void UnitBase::update()
 	// ユニットの上にマウスがあるか
 	const bool mouseOnUnit{ m_unitPosition == mousePosition };
 
-	switch (m_unitState)
+	switch (unitState)
 	{
 	case UnitState::None:		// 選択前
 
+		// アイコンを白色に
+		m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
 		// 左クリック(選択)された時
 		if (InputState::KeyDown(VK_LBUTTON) && mouseOnUnit &&
-			UnitManager::GetInstance().currentUnitState == UnitState::None)
+			BattleManager::GetInstance().currentUnitState == UnitState::None)
 		{
 			// 過去の座標を更新
 			m_prevPosition = m_unitPosition;
-
-			// 選択中は、アイコンを黄色に
-			m_iconColor = { 1.0f, 1.0f, 0.3f, 1.0f };
 
 			// 現在地からの距離の算出
 			m_distanceGrid = PathFinder::CalculateDistanceGrid(m_unitPosition, m_unitParameter.mobility);
@@ -121,28 +121,28 @@ void UnitBase::update()
 			// 距離と移動力を渡す
 			FieldMap::GetInstance().setAccessibleTileGrid(m_distanceGrid, m_unitParameter.mobility);
 
-			// UnitManagerのコマンド選択状態を初期化
-			UnitManager::GetInstance().setSelectedCommand(Command::None);
+			// BattleManagerのコマンド選択状態を初期化
+			BattleManager::GetInstance().setSelectedCommand(Command::None);
 
 			// 選択後のステートに移動
-			m_unitState = UnitState::StandBy;
-			UnitManager::GetInstance().currentUnitState = m_unitState;
+			unitState = UnitState::StandBy;
+			BattleManager::GetInstance().currentUnitState = unitState;
 		}
 		break;
 
 	case UnitState::StandBy:	// 選択後
+
+		// アイコンを白色に
+		m_iconColor = { 1.0f, 1.0f, 0.3f, 1.0f };
 
 		// 右クリック(キャンセル)された時
 		if (InputState::KeyDown(VK_RBUTTON))
 		{
 			m_unitPosition = m_prevPosition;
 
-			// 非選択中は、アイコンを白色に
-			m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-
 			// 選択前のステートに戻る
-			m_unitState = UnitState::None;
-			UnitManager::GetInstance().currentUnitState = m_unitState;
+			unitState = UnitState::None;
+			BattleManager::GetInstance().currentUnitState = unitState;
 		}
 		// 有効な移動先が左クリック(選択)された時
 		else if (InputState::KeyDown(VK_LBUTTON) &&
@@ -153,8 +153,8 @@ void UnitBase::update()
 			m_movementPath = PathFinder::CreateMovementPath(m_distanceGrid, mousePosition);
 
 			// 移動中ステートに移動
-			m_unitState = UnitState::Moving;
-			UnitManager::GetInstance().currentUnitState = m_unitState;
+			unitState = UnitState::Moving;
+			BattleManager::GetInstance().currentUnitState = unitState;
 		}
 		break;
 
@@ -164,8 +164,8 @@ void UnitBase::update()
 		if (m_movementPath.empty())
 		{
 			// 経路が空であれば、コマンド選択ステートに移動
-			m_unitState = UnitState::Acting;
-			UnitManager::GetInstance().currentUnitState = m_unitState;
+			unitState = UnitState::Acting;
+			BattleManager::GetInstance().currentUnitState = unitState;
 		}
 		else
 		{
@@ -185,12 +185,15 @@ void UnitBase::update()
 			m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 			// 選択前のステートに戻る
-			m_unitState = UnitState::None;
-			UnitManager::GetInstance().currentUnitState = m_unitState;
+			unitState = UnitState::None;
+			BattleManager::GetInstance().currentUnitState = unitState;
 		}
 		break;
 
 	case UnitState::Waiting:	// 行動終了
+
+		// アイコンを灰色に
+		m_iconColor = { 0.6f, 0.6f, 0.6f, 1.0f };
 		break;
 	default:
 		break;
@@ -229,7 +232,7 @@ void UnitBase::draw() const
 	m_direct3D.draw(m_vertexCount);
 }
 
-void UnitBase::onFinishActed(const Command& selectedCommand)
+void UnitBase::onSelectedCommand(const Command& selectedCommand)
 {
 	switch (selectedCommand)
 	{
@@ -239,17 +242,14 @@ void UnitBase::onFinishActed(const Command& selectedCommand)
 		break;
 
 	case Command::Wait:	// 待機
+		unitState = UnitState::Waiting;
 
-		m_unitState = UnitState::Waiting;
-
-		// アイコンを灰色に
-		m_iconColor = { 0.6f, 0.6f, 0.6f, 1.0f };
 	default:
 		break;
 	}
 
-	// UnitManager側を待機状態にする
-	UnitManager::GetInstance().currentUnitState = UnitState::None;
+	// BattleManager側を待機状態にする
+	BattleManager::GetInstance().currentUnitState = UnitState::None;
 }
 
 void UnitBase::setPosition(const GridPosition& targetPosition)
@@ -280,9 +280,4 @@ void UnitBase::gridMove()
 GridPosition UnitBase::getUnitPosition() const
 {
 	return m_unitPosition;
-}
-
-UnitState UnitBase::getUnitState() const
-{
-	return m_unitState;
 }

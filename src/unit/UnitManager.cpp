@@ -5,17 +5,14 @@
 # include "../core/Config.hpp"
 # include "../unit/UnitSword.hpp"
 # include "../unit/UnitAxe.hpp"
-# include "../ui/UIManager.hpp"
 
 using namespace Config::MapSettings;
 using namespace Config::UISettings;
 using namespace Config::UnitSettings;
 
 UnitManager::UnitManager()
-	: currentUnitState{ UnitState::None }
-	, m_playerUnitArray{}
+	: m_playerUnitArray{}
 	, m_enemyUnitArray{}
-	, m_selectedCommand{ Command::None }
 {
 	initialize();
 }
@@ -39,23 +36,6 @@ void UnitManager::update()
 	{
 		// 自軍ユニットの更新
 		playerUnit->update();
-
-		// 移動後のユニットを取得
-		if (playerUnit->getUnitState() == UnitState::Acting)
-		{
-			if (m_selectedCommand == Command::None)
-			{
-				// 移動後、行動前: UI描画フラグを立ててbreak
-				UIManager::GetInstance().isDrawingCommandUI = true;
-				break;
-			}
-			else
-			{
-				// 移動後、行動後: ユニット行動後の処理を呼び出し
-				playerUnit->onFinishActed(m_selectedCommand);
-			}
-		}
-		UIManager::GetInstance().isDrawingCommandUI = false;
 	}
 
 	for (const auto& enemyUnit : m_enemyUnitArray)
@@ -78,11 +58,6 @@ void UnitManager::draw() const
 		// 敵軍ユニットの描画
 		enemyUnit->draw();
 	}
-}
-
-void UnitManager::setSelectedCommand(const Command& selectedCommand)
-{
-	m_selectedCommand = selectedCommand;
 }
 
 std::vector<std::vector<bool>> UnitManager::getUnitStandingGrid() const
@@ -114,4 +89,29 @@ std::vector<std::vector<bool>> UnitManager::getUnitStandingGrid() const
 	}
 
 	return unitStandingGrid;
+}
+
+const std::vector<std::unique_ptr<UnitBase>>& UnitManager::getPlayerUnitArray() const
+{
+	return m_playerUnitArray;
+}
+
+const std::vector<std::unique_ptr<UnitBase>>& UnitManager::getEnemyUnitArray() const
+{
+	return m_enemyUnitArray;
+}
+
+void UnitManager::resetAllUnitState()
+{
+	// 範囲for文で自軍ユニットの状態を初期化
+	for (const auto& playerUnit : m_playerUnitArray)
+	{
+		playerUnit->unitState = UnitState::None;
+	}
+
+	// 範囲for文で敵軍ユニットの状態を初期化
+	for (const auto& enemyUnit : m_enemyUnitArray)
+	{
+		enemyUnit->unitState = UnitState::None;
+	}
 }

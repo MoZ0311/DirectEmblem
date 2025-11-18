@@ -1,7 +1,7 @@
 // UIManager class
 
 # include "UIManager.hpp"
-# include "../unit/UnitManager.hpp"
+# include "../battle/BattleManager.hpp"
 # include "../dx11/Direct3D.hpp"
 # include "../map/FieldMap.hpp"
 # include "../util/InputState.hpp"
@@ -257,8 +257,8 @@ void UIManager::update()
         // UIがクリックされた時
         if (InputState::KeyDown(VK_LBUTTON))
         {
-            // クリックされたことをUnitManagerに伝える
-            UnitManager::GetInstance().setSelectedCommand(m_selectingCommand);
+            // クリックされたことをBattleManagerに伝える
+            BattleManager::GetInstance().setSelectedCommand(m_selectingCommand);
         }
     }
 }

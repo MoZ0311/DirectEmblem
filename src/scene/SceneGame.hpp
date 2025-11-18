@@ -6,6 +6,7 @@
 
 class FieldMap;
 class UnitManager;
+class BattleManager;
 class UIManager;
 
 class SceneGame : public SceneBase
@@ -31,6 +32,9 @@ private:
 
     // ユニット管理クラス
     UnitManager& m_unitManager;
+
+    // 戦闘管理クラス
+    BattleManager& m_battleManager;
 
     // UI管理クラス
     UIManager& m_uiManager;

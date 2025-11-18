@@ -81,12 +81,12 @@ namespace Config
 
 		enum class Command
 		{
-			Attack,	// 攻撃
-			Skill,	// 戦技
-			Item,	// 持ち物
-			Wait,	// 待機
+			Attack,	// 攻撃コマンド
+			Skill,	// 戦技コマンド
+			Item,	// 持ち物コマンド
+			Wait,	// 待機コマンド
 
-			None	// 未選択
+			None	// コマンド未選択
 		};
 	}
 
@@ -143,6 +143,9 @@ namespace Config
 			{ 0, 1 },	// グリッドの下方向
 		};
 
+		// 無効なグリッド座標
+		static inline constexpr GridPosition InvalidPosition{ -1, -1 };
+
 		// マップの幅
 		static inline constexpr int MapWidth{ 20 };
 
@@ -175,6 +178,8 @@ namespace Config
 			int currentHealth;	// 現在のHP
 			int attackPower;	// 攻撃力
 			int defence;		// 防御力
+
+			int attackRange;	// 射程
 		};
 
 		enum class UnitState
@@ -184,10 +189,21 @@ namespace Config
 			Moving,				// 移動中
 			Acting,				// 行動中
 			Waiting,			// 行動終了
+
+			EnemyTurn			// 敵軍ターン中
 		};
 
 		// グリッド移動の間隔
 		static inline constexpr float GridMoveInterval{ 0.1f };
+	}
+
+	namespace BattleSettings
+	{
+		enum class GamePhase
+		{
+			PlayerTurn,
+			EnemyTurn,
+		};
 	}
 }
 

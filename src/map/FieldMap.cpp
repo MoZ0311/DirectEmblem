@@ -2,7 +2,7 @@
 
 # include "FieldMap.hpp"
 
-# include "../unit/UnitManager.hpp"
+# include "../battle/BattleManager.hpp"
 # include "../dx11/Direct3D.hpp"
 # include "../util/InputState.hpp"
 # include "../util/CSVReader.hpp"
@@ -299,7 +299,7 @@ void FieldMap::draw() const
     }
     
     // ˆÚ“®‰Â”\”ÍˆÍ‚ð•`‰æ
-    const UnitState currentUnitState{ UnitManager::GetInstance().currentUnitState };
+    const UnitState currentUnitState{ BattleManager::GetInstance().currentUnitState };
     if (currentUnitState == UnitState::StandBy ||
         currentUnitState == UnitState::Moving)
     {

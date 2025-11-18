@@ -21,14 +21,17 @@ public:
 	// 描画処理
 	void draw() const;
 
-	// コマンド選択時のユニットに対する操作
-	void setSelectedCommand(const Config::UISettings::Command& selectedCommand);
-
 	// ユニットの存在二次元配列の取得
 	std::vector<std::vector<bool>> getUnitStandingGrid() const;
 
-	// 任意に選択したユニットの状態
-	Config::UnitSettings::UnitState currentUnitState;
+	// 自軍ユニット配列の取得
+	const std::vector<std::unique_ptr<UnitBase>>& getPlayerUnitArray() const;
+
+	// 敵軍ユニット配列の取得
+	const std::vector<std::unique_ptr<UnitBase>>& getEnemyUnitArray() const;
+
+	// 全ユニットの状態リセット
+	void resetAllUnitState();
 
 private:
 
@@ -46,7 +49,4 @@ private:
 
 	// 敵軍ユニット配列
 	std::vector<std::unique_ptr<UnitBase>> m_enemyUnitArray;
-
-	// 選択されたコマンド
-	Config::UISettings::Command m_selectedCommand;
 };
