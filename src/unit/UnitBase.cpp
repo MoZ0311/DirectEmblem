@@ -145,7 +145,8 @@ void UnitBase::update()
 			BattleManager::GetInstance().currentUnitState = unitState;
 		}
 		// 有効な移動先が左クリック(選択)された時
-		else if (InputState::KeyDown(VK_LBUTTON) &&
+		else if (m_unitType != UnitType::Enemy && 
+			InputState::KeyDown(VK_LBUTTON) &&
 			FieldMap::GetInstance().getMouseOnMap() &&
 			FieldMap::GetInstance().getAccessibleTileGrid()[mousePosition.y][mousePosition.x])
 		{
@@ -163,9 +164,17 @@ void UnitBase::update()
 		// 経路は空であるか
 		if (m_movementPath.empty())
 		{
-			// 経路が空であれば、コマンド選択ステートに移動
-			unitState = UnitState::Acting;
-			BattleManager::GetInstance().currentUnitState = unitState;
+			if (m_unitType == UnitType::Enemy)
+			{
+				// 状態を攻撃待機へ遷移
+				unitState = UnitState::Attacking;;
+			}
+			else
+			{
+				// 経路が空であれば、コマンド選択ステートに移動
+				unitState = UnitState::Acting;
+				BattleManager::GetInstance().currentUnitState = unitState;
+			}
 		}
 		else
 		{
@@ -195,6 +204,72 @@ void UnitBase::update()
 		// アイコンを灰色に
 		m_iconColor = { 0.6f, 0.6f, 0.6f, 1.0f };
 		break;
+
+
+	case UnitState::Attacking:
+
+		// ユニットが敵であるとき
+		if (m_unitType == UnitType::Enemy)
+		{
+			// 最寄りの味方ユニットを探す
+			const GridPosition nearestUnitPosition{ BattleManager::GetInstance().findNearestPlayerUnit(m_unitPosition) };
+
+			// 距離を算出
+			const int distance{ nearestUnitPosition.manhattanDistanceFrom(m_unitPosition) };
+
+			// ユニットとのマンハッタン距離が攻撃範囲以下かつ距離が0でないとき
+			if (distance <= m_unitParameter.attackRange && distance != 0)
+			{
+				// そのマスに対して消滅判定を実行
+				BattleManager::GetInstance().executeAttack(nearestUnitPosition);
+			}
+
+			unitState = UnitState::Waiting;
+		}
+		// ユニットが味方であるとき
+		else
+		{
+			// 右クリック(キャンセル)された時
+			if (InputState::KeyDown(VK_RBUTTON))
+			{
+				m_unitPosition = m_prevPosition;
+
+				// 非選択中は、アイコンを白色に
+				m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+				// 選択前のステートに戻る
+				unitState = UnitState::None;
+				BattleManager::GetInstance().currentUnitState = unitState;
+			}
+			// 有効な攻撃先が左クリック(選択)された時
+			else if (InputState::KeyDown(VK_LBUTTON) &&
+				FieldMap::GetInstance().getMouseOnMap())
+			{
+				// 攻撃先の座標を取得
+				const GridPosition attackPosition{ FieldMap::GetInstance().getMouseGridPosition() };
+
+				// 距離を算出
+				const int distance{ attackPosition.manhattanDistanceFrom(m_unitPosition) };
+
+				// ユニットとのマンハッタン距離が攻撃範囲以下かつ距離が0でないとき
+				if (distance <= m_unitParameter.attackRange && distance != 0)
+				{
+					// そのマスに対して消滅判定を実行
+					BattleManager::GetInstance().executeAttack(attackPosition);
+					unitState = UnitState::Waiting;
+				}
+
+				// BattleManager側を待機状態にする
+				BattleManager::GetInstance().currentUnitState = UnitState::None;
+			}
+		}
+		
+		break;
+
+	case UnitState::EnemyTurn:
+
+		// 行動をAIに任せる
+		decideAction();
 	default:
 		break;
 	}
@@ -237,6 +312,11 @@ void UnitBase::onSelectedCommand(const Command& selectedCommand)
 	switch (selectedCommand)
 	{
 	case Command::Attack:
+
+		m_iconColor = DirectX::XMFLOAT4{ 1.0f, 0.0f, 0.0f, 1.0f };
+		unitState = UnitState::Attacking;
+		break;
+
 	case Command::Skill:
 	case Command::Item:
 		break;
@@ -244,12 +324,12 @@ void UnitBase::onSelectedCommand(const Command& selectedCommand)
 	case Command::Wait:	// 待機
 		unitState = UnitState::Waiting;
 
+		// BattleManager側を待機状態にする
+		BattleManager::GetInstance().currentUnitState = UnitState::None;
+
 	default:
 		break;
 	}
-
-	// BattleManager側を待機状態にする
-	BattleManager::GetInstance().currentUnitState = UnitState::None;
 }
 
 void UnitBase::setPosition(const GridPosition& targetPosition)

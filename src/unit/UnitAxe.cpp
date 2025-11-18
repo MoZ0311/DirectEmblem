@@ -4,14 +4,14 @@
 
 using namespace Config::UnitSettings;
 
-UnitAxe::UnitAxe()
+UnitAxe::UnitAxe(const Config::MapSettings::GridPosition& spawnPosition)
 {
-	setParameter();
+	setParameter(spawnPosition);
 }
 
-void UnitAxe::setParameter()
+void UnitAxe::setParameter(const Config::MapSettings::GridPosition& spawnPosition)
 {
-	setPosition({ 12, 8 });
+	setPosition(spawnPosition);
 	m_unitType = UnitType::Axe;
 	m_unitIconTexture = Texture{ L"assets/images/icon_sample.png" };
 

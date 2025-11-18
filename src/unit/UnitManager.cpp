@@ -3,8 +3,10 @@
 # include "UnitManager.hpp"
 
 # include "../core/Config.hpp"
+# include "../scene/SceneManager.hpp"
 # include "../unit/UnitSword.hpp"
 # include "../unit/UnitAxe.hpp"
+# include "../unit/UnitEnemy.hpp"
 
 using namespace Config::MapSettings;
 using namespace Config::UISettings;
@@ -19,8 +21,13 @@ UnitManager::UnitManager()
 
 void UnitManager::initialize()
 {
-	m_playerUnitArray.push_back(std::make_unique<UnitSword>());
-	m_playerUnitArray.push_back(std::make_unique<UnitAxe>());
+	m_playerUnitArray.push_back(std::make_unique<UnitSword>(GridPosition{10, 8}));
+	m_playerUnitArray.push_back(std::make_unique<UnitAxe>(GridPosition{12, 9}));
+
+	m_enemyUnitArray.push_back(std::make_unique<UnitEnemy>(GridPosition{ 0, 3 }));
+	m_enemyUnitArray.push_back(std::make_unique<UnitEnemy>(GridPosition{ 1, 3 }));
+	m_enemyUnitArray.push_back(std::make_unique<UnitEnemy>(GridPosition{ 2, 3 }));
+	m_enemyUnitArray.push_back(std::make_unique<UnitEnemy>(GridPosition{ 3, 3 }));
 }
 
 UnitManager& UnitManager::GetInstance()
@@ -32,6 +39,15 @@ UnitManager& UnitManager::GetInstance()
 
 void UnitManager::update()
 {
+	if (m_playerUnitArray.empty())
+	{
+		return;
+	}
+	if (m_enemyUnitArray.empty())
+	{
+		return;
+	}
+
 	for (const auto& playerUnit : m_playerUnitArray)
 	{
 		// 自軍ユニットの更新
@@ -114,4 +130,28 @@ void UnitManager::resetAllUnitState()
 	{
 		enemyUnit->unitState = UnitState::None;
 	}
+}
+
+void UnitManager::removeUnitPosition(const Config::MapSettings::GridPosition& position)
+{
+	// 自軍ユニット配列から削除
+	auto player_it = std::remove_if(
+		m_playerUnitArray.begin(),
+		m_playerUnitArray.end(),
+		[&position](const std::unique_ptr<UnitBase>& unit)
+		{
+			return unit->getUnitPosition() == position;
+		});
+	m_playerUnitArray.erase(player_it, m_playerUnitArray.end());
+
+
+	// 敵軍ユニット配列から削除
+	auto enemy_it = std::remove_if(
+		m_enemyUnitArray.begin(),
+		m_enemyUnitArray.end(),
+		[&position](const std::unique_ptr<UnitBase>& unit)
+		{
+			return unit->getUnitPosition() == position;
+		});
+	m_enemyUnitArray.erase(enemy_it, m_enemyUnitArray.end());
 }

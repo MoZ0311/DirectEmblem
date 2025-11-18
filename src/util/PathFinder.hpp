@@ -72,7 +72,7 @@ struct PathFinder
 				}
 
 				// mapDataのint型をTileTypeに変換
-				const Config::MapSettings::TileType nextTileType{ static_cast<Config::MapSettings::TileType>(mapData[nextPosition.y][nextPosition.x]) };
+				const Config::MapSettings::TileType nextTileType{ mapData[nextPosition.y][nextPosition.x] };
 
 				// 侵入コストを対応表から取得
 				const int accessCost{ Config::MapSettings::TileAccessCost.at(nextTileType) };

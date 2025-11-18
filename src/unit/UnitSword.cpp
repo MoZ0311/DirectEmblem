@@ -4,14 +4,14 @@
 
 using namespace Config::UnitSettings;
 
-UnitSword::UnitSword()
+UnitSword::UnitSword(const Config::MapSettings::GridPosition& spawnPosition)
 {
-	setParameter();
+	setParameter(spawnPosition);
 }
 
-void UnitSword::setParameter()
+void UnitSword::setParameter(const Config::MapSettings::GridPosition& spawnPosition)
 {
-	setPosition({ 10, 8 });
+	setPosition(spawnPosition);
 	m_unitType = UnitType::Sword;
 	m_unitIconTexture = Texture{ L"assets/images/icon_sample.png" };
 

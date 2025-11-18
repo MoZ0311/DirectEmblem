@@ -14,6 +14,12 @@ public:
 	// 更新処理
 	void update();
 
+	// 任意のグリッド座標から最も近いプレイヤーユニットの座標を算出する
+	Config::MapSettings::GridPosition findNearestPlayerUnit(const Config::MapSettings::GridPosition& startPosition) const;
+
+	// 指定されたグリッド座標のユニットに対して消滅判定を行なう
+	void executeAttack(const Config::MapSettings::GridPosition& targetPosition);
+
 	// 現在のフェーズ(ターン)の取得処理
 	Config::BattleSettings::GamePhase getCurrentPhase() const;
 

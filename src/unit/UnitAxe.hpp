@@ -9,8 +9,8 @@ class UnitAxe : public UnitBase
 public:
 
 	// コンストラクタ
-	UnitAxe();
+	UnitAxe(const Config::MapSettings::GridPosition& spawnPosition);
 
 private:
-	void setParameter() override;
+	void setParameter(const Config::MapSettings::GridPosition& spawnPosition) override;
 };

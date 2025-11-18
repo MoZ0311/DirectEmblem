@@ -45,13 +45,16 @@ protected:
 	std::vector<Util::Vertex> createVertices() const;
 
 	// 各種パラメータ設定
-	virtual void setParameter() = 0;
+	virtual void setParameter(const Config::MapSettings::GridPosition& spawnPosition) = 0;
 
 	// 指定座標に瞬間移動する処理
 	void setPosition(const Config::MapSettings::GridPosition& targetPosition);
 
 	// 移動処理
 	void gridMove();
+
+	// 敵ユニットAI: ターゲットを決定し、移動先/攻撃を判断する
+	virtual void decideAction() {};
 
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;

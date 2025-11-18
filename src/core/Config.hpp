@@ -133,6 +133,12 @@ namespace Config
 
 			// 演算子オーバーロード
 			auto operator<=>(const GridPosition&) const = default;
+
+			// マンハッタン距離の算出
+			inline int manhattanDistanceFrom(const GridPosition& from) const
+			{
+				return std::abs(x - from.x) + std::abs(y - from.y);
+			}
 		};
 
 		// グリッド座標における上下左右
@@ -168,18 +174,20 @@ namespace Config
 			Sword,	// 剣使い
 			Spear,	// 槍使い
 			Axe,	// 斧使い
-			Bow		// 弓使い
+			Bow,	// 弓使い
+
+			Enemy	// 敵
 		};
 
 		struct UnitParameter
 		{
-			int mobility;		// 移動力
-			int maxHealth;		// 最大HP
-			int currentHealth;	// 現在のHP
-			int attackPower;	// 攻撃力
-			int defence;		// 防御力
+			int mobility{ 3 };		// 移動力
+			int maxHealth;			// 最大HP
+			int currentHealth;		// 現在のHP
+			int attackPower;		// 攻撃力
+			int defence;			// 防御力
 
-			int attackRange;	// 射程
+			int attackRange{ 1 };	// 射程
 		};
 
 		enum class UnitState
@@ -189,6 +197,8 @@ namespace Config
 			Moving,				// 移動中
 			Acting,				// 行動中
 			Waiting,			// 行動終了
+
+			Attacking,			// 攻撃中
 
 			EnemyTurn			// 敵軍ターン中
 		};

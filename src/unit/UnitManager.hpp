@@ -33,6 +33,9 @@ public:
 	// 全ユニットの状態リセット
 	void resetAllUnitState();
 
+	// 任意の座標上のユニットを消し去る
+	void removeUnitPosition(const Config::MapSettings::GridPosition& position);
+
 private:
 
 	// コンストラクタ

@@ -9,8 +9,8 @@ class UnitSword : public UnitBase
 public:
 
 	// コンストラクタ
-	UnitSword();
+	UnitSword(const Config::MapSettings::GridPosition& spawnPosition);
 
 private:
-	void setParameter() override;
+	void setParameter(const Config::MapSettings::GridPosition& spawnPosition) override;
 };

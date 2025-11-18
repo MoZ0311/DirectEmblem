@@ -2,11 +2,14 @@
 
 # include "BattleManager.hpp"
 
+# include <random>
 # include "../unit/UnitBase.hpp"
 # include "../unit/UnitManager.hpp"
 # include "../ui/UIManager.hpp"
+# include "../map/FieldMap.hpp"
 
 using namespace Config::UnitSettings;
+using namespace Config::MapSettings;
 using namespace Config::BattleSettings;
 using namespace Config::UISettings;
 
@@ -39,6 +42,23 @@ void BattleManager::update()
 	default:
 		break;
 	}
+
+	switch (currentUnitState)
+	{
+	case UnitState::None:		// 選択前
+	case UnitState::Waiting:	// 行動後
+
+		// UI非表示
+		UIManager::GetInstance().isDrawingCommandUI = false;
+		break;
+
+	case UnitState::Acting:
+		// UI表示
+		UIManager::GetInstance().isDrawingCommandUI = true;
+		break;
+	default:
+		break;
+	}
 }
 
 void BattleManager::handlePlayerUnit()
@@ -58,22 +78,23 @@ void BattleManager::handlePlayerUnit()
 			allPlayerUnitsActed = false;
 		}
 
-		// 行動中のユニットを見つけたら、コマンドに応じた処理を行なう
+		// 行動中のユニットを見つけたら、コマンドに応じた処理を実行
 		if (playerUnit->unitState == UnitState::Acting)
 		{
-			if (m_selectedCommand == Command::None)
+			// None以外: 何らかのコマンドが選択された
+			if (m_selectedCommand != Command::None)
 			{
-				// コマンド未選択: UI描画フラグを立てる
-				UIManager::GetInstance().isDrawingCommandUI = true;
-			}
-			else
-			{
-				// コマンド選択後: ユニット側の処理を呼び出し
+				// デバッグ処理として戦技と持ち物を封印
+				if (m_selectedCommand != Command::Attack &&
+					m_selectedCommand != Command::Wait)
+				{
+					break;
+				}
+
+				// コマンド選択後: ユニット側の処理を呼び出す
 				playerUnit->onSelectedCommand(m_selectedCommand);
-			}
-			break;
+			}			
 		}
-		UIManager::GetInstance().isDrawingCommandUI = false;
 	}
 
 	if (allPlayerUnitsActed)
@@ -118,7 +139,72 @@ void BattleManager::handleEnemyUnit()
 
 		// フェイズをプレイヤーターンに切り替え
 		m_currentPhase = GamePhase::PlayerTurn;
+		m_currentEnemyIndex = 0;
 	}
+}
+
+GridPosition BattleManager::findNearestPlayerUnit(const GridPosition& startPosition) const
+{
+	// 最も近い座標を無効座標で宣言しておく
+	GridPosition closestPosition{ InvalidPosition };
+
+	// その時の距離も、intの最大値にしておく
+	int minDistance{ INT_MAX };
+
+	// 自軍ユニットの配列を取得
+	const auto& playerUnitArray{ UnitManager::GetInstance().getPlayerUnitArray() };
+
+	// プレイヤーユニット配列を走査
+	for (const auto& playerUnit : playerUnitArray)
+	{
+		const GridPosition playerPos{ playerUnit->getUnitPosition() };
+
+		// ユニット間の距離を計算
+		int distance{ playerPos.manhattanDistanceFrom(startPosition) };
+
+		if (distance < minDistance)
+		{
+			minDistance = distance;
+			closestPosition = playerPos;
+		}
+	}
+
+	return closestPosition;
+}
+
+void BattleManager::executeAttack(const Config::MapSettings::GridPosition& targetPosition)
+{
+	// ユニットの存在情報を事前に取得
+	const auto& unitStandingGrid{ UnitManager::GetInstance().getUnitStandingGrid() };
+
+	// 目標地点にユニットが存在する時
+	if (unitStandingGrid[targetPosition.y][targetPosition.x])
+	{
+		// そのユニットのいるタイルを取得
+		const auto& mapData{ FieldMap::GetInstance().getMapData() };
+		const TileType targetTile{ mapData[targetPosition.y][targetPosition.x] };
+		
+		// 命中率の基礎値は100%
+		int probavility{ 100 };
+
+		// 森にいる時、命中率は下がる
+		if (targetTile == TileType::Forest)
+		{
+			probavility = 50;
+		}
+
+		// 乱数エンジン作成
+		static std::mt19937 generator(std::random_device{}());
+		std::uniform_int_distribution<> distribution(0, 99);
+
+		// 乱数を作成
+		int randomNumber{ distribution(generator) };
+		if (randomNumber < probavility)
+		{
+			UnitManager::GetInstance().removeUnitPosition(targetPosition);
+		}
+	}
+	
 }
 
 GamePhase BattleManager::getCurrentPhase() const
