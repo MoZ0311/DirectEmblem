@@ -32,6 +32,7 @@ UnitBase::UnitBase()
 	, unitState{ UnitState::None }
 
 	, m_gridMoveTimer{ GridMoveInterval }
+	, isDead{ false }
 {
 	initialize();
 }
@@ -145,7 +146,8 @@ void UnitBase::update()
 			BattleManager::GetInstance().currentUnitState = unitState;
 		}
 		// 有効な移動先が左クリック(選択)された時
-		else if (m_unitType != UnitType::Enemy && 
+		else if (m_unitType != UnitType::Enemy &&
+			m_unitType != UnitType::EnemyHood &&
 			InputState::KeyDown(VK_LBUTTON) &&
 			FieldMap::GetInstance().getMouseOnMap() &&
 			FieldMap::GetInstance().getAccessibleTileGrid()[mousePosition.y][mousePosition.x])
@@ -164,7 +166,8 @@ void UnitBase::update()
 		// 経路は空であるか
 		if (m_movementPath.empty())
 		{
-			if (m_unitType == UnitType::Enemy)
+			if (m_unitType == UnitType::Enemy ||
+				m_unitType == UnitType::EnemyHood)
 			{
 				// 状態を攻撃待機へ遷移
 				unitState = UnitState::Attacking;;
@@ -209,7 +212,8 @@ void UnitBase::update()
 	case UnitState::Attacking:
 
 		// ユニットが敵であるとき
-		if (m_unitType == UnitType::Enemy)
+		if (m_unitType == UnitType::Enemy ||
+			m_unitType == UnitType::EnemyHood)
 		{
 			// 最寄りの味方ユニットを探す
 			const GridPosition nearestUnitPosition{ BattleManager::GetInstance().findNearestPlayerUnit(m_unitPosition) };
@@ -315,6 +319,7 @@ void UnitBase::onSelectedCommand(const Command& selectedCommand)
 
 		m_iconColor = DirectX::XMFLOAT4{ 1.0f, 0.0f, 0.0f, 1.0f };
 		unitState = UnitState::Attacking;
+		BattleManager::GetInstance().currentUnitState = unitState;
 		break;
 
 	case Command::Skill:
@@ -360,4 +365,9 @@ void UnitBase::gridMove()
 GridPosition UnitBase::getUnitPosition() const
 {
 	return m_unitPosition;
+}
+
+Config::UnitSettings::UnitType UnitBase::getUnitType() const
+{
+	return m_unitType;
 }

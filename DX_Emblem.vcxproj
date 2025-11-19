@@ -176,7 +176,9 @@
     <ClInclude Include="src\ui\UIManager.hpp" />
     <ClInclude Include="src\unit\UnitAxe.hpp" />
     <ClInclude Include="src\unit\UnitBase.hpp" />
+    <ClInclude Include="src\unit\UnitBow.hpp" />
     <ClInclude Include="src\unit\UnitEnemy.hpp" />
+    <ClInclude Include="src\unit\UnitEnemyBow.hpp" />
     <ClInclude Include="src\unit\UnitSword.hpp" />
     <ClInclude Include="src\unit\UnitManager.hpp" />
     <ClInclude Include="src\util\CSVReader.hpp" />
@@ -200,7 +202,9 @@
     <ClCompile Include="src\ui\UIManager.cpp" />
     <ClCompile Include="src\unit\UnitAxe.cpp" />
     <ClCompile Include="src\unit\UnitBase.cpp" />
+    <ClCompile Include="src\unit\UnitBow.cpp" />
     <ClCompile Include="src\unit\UnitEnemy.cpp" />
+    <ClCompile Include="src\unit\UnitEnemyBow.cpp" />
     <ClCompile Include="src\unit\UnitSword.cpp" />
     <ClCompile Include="src\unit\UnitManager.cpp" />
   </ItemGroup>

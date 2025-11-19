@@ -176,7 +176,8 @@ namespace Config
 			Axe,	// 斧使い
 			Bow,	// 弓使い
 
-			Enemy	// 敵
+			Enemy,	// 敵
+			EnemyHood
 		};
 
 		struct UnitParameter
@@ -269,6 +270,18 @@ namespace FilePath
 	// スライムのアイコン画像のファイルパス
 	static inline constexpr WCHAR SlimeIconPath[]{ L"assets/images/icon_slime.png" };
 
+	// プレイヤー歩兵のアイコン画像のファイルパス
+	static inline constexpr WCHAR PlayerIconPath[]{ L"assets/images/icon_player.png" };
+
+	// プレイヤー弓兵のアイコン画像のファイルパス
+	static inline constexpr WCHAR PlayerArcherIconPath[]{ L"assets/images/icon_playerhood.png" };
+
+	// 敵歩兵のアイコン画像のファイルパス
+	static inline constexpr WCHAR EnemyIconPath[]{ L"assets/images/icon_enemy.png" };
+
+	// 敵弓兵のアイコン画像のファイルパス
+	static inline constexpr WCHAR EnemyArcherIconPath[]{ L"assets/images/icon_enemyhood.png" };
+
 	// コマンドUI画像のファイルパス
 	static inline constexpr WCHAR CommandUIPath[]{ L"assets/images/command.png" };
 
@@ -283,4 +296,16 @@ namespace FilePath
 
 	// 水のタイルUI画像のファイルパス
 	static inline constexpr WCHAR WaterUIPath[]{ L"assets/images/ui_water.png" };
+
+	// プレイヤー歩兵のユニットUI画像のファイルパス
+	static inline constexpr WCHAR PlayerUIPath[]{ L"assets/images/ui_player.png" };
+
+	// プレイヤー弓兵のユニットUI画像のファイルパス
+	static inline constexpr WCHAR PlayerHoodUIPath[]{ L"assets/images/ui_playerhood.png" };
+
+	// 敵歩兵のユニットUI画像のファイルパス
+	static inline constexpr WCHAR EnemyUIPath[]{ L"assets/images/ui_enemy.png" };
+
+	// 敵弓兵のユニットUI画像のファイルパス
+	static inline constexpr WCHAR EnemyHoodUIPath[]{ L"assets/images/ui_enemyhood.png" };
 }

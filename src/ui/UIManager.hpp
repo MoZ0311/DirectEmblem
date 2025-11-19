@@ -22,7 +22,7 @@ public:
 	void update();
 
 	// 描画処理
-	void draw() const;
+	void draw();
 
 	// コマンドUIの描画フラグ
 	bool isDrawingCommandUI;
@@ -40,6 +40,9 @@ private:
 
 	// タイル情報UI用頂点情報の作成処理
 	std::vector<Util::Vertex> createTileUIVertices() const;
+
+	// ユニット情報UI用頂点情報の作成処理
+	std::vector<Util::Vertex> createUnitUIVertices() const;
 
 	// コマンドUI用頂点情報の作成処理
 	std::vector<Util::Vertex> createCommandUIVertices() const;
@@ -61,6 +64,18 @@ private:
 
 	// タイルUIの頂点バッファ
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_tileUIBuffer;
+
+	// ユニットUIのテクスチャ
+	Texture m_playerUITexture;		// 味方:歩兵
+	Texture m_playerHoodUITexture;	// 味方:弓兵
+	Texture m_enemyUITexture;		// 敵:歩兵
+	Texture m_enemyHoodUITexture;	// 敵:弓兵
+
+	// ユニットUIの頂点数
+	UINT m_unitUIVertexCount;
+
+	// ユニットUIの頂点バッファ
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_unitUIBuffer;
 
 	// コマンドUIのテクスチャ
 	Texture m_commandUITexture;
@@ -85,4 +100,7 @@ private:
 
 	// マウスオーバー中のコマンドのインデックス
 	Config::UISettings::Command m_selectingCommand;
+
+	// 直前に参照したユニットのタイプ
+	Config::UnitSettings::UnitType m_prevUnitType;
 };

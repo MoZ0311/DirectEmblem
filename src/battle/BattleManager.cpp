@@ -209,7 +209,7 @@ void BattleManager::executeAttack(const Config::MapSettings::GridPosition& targe
 		int randomNumber{ distribution(generator) };
 		if (randomNumber < probavility)
 		{
-			UnitManager::GetInstance().removeUnitPosition(targetPosition);
+			UnitManager::GetInstance().removeUnitAtPosition(targetPosition);
 		}
 	}
 	

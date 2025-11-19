@@ -1,6 +1,6 @@
-// UnitEnemy class
+// UnitEnemyBow class
 
-# include "UnitEnemy.hpp"
+# include "UnitEnemyBow.hpp"
 
 # include "../battle/BattleManager.hpp"
 # include "../util/PathFinder.hpp"
@@ -9,24 +9,25 @@ using namespace Config::UnitSettings;
 using namespace Config::MapSettings;
 using namespace FilePath;
 
-UnitEnemy::UnitEnemy(const Config::MapSettings::GridPosition& spawnPosition)
+UnitEnemyBow::UnitEnemyBow(const Config::MapSettings::GridPosition& spawnPosition)
 {
-	setParameter(spawnPosition);
+    setParameter(spawnPosition);
 }
 
-void UnitEnemy::setParameter(const Config::MapSettings::GridPosition& spawnPosition)
+void UnitEnemyBow::setParameter(const Config::MapSettings::GridPosition& spawnPosition)
 {
-	setPosition(spawnPosition);
-	m_unitType = UnitType::Enemy;
-	m_unitIconTexture = Texture{ EnemyIconPath };
+    setPosition(spawnPosition);
+    m_unitType = UnitType::EnemyHood;
+    m_unitIconTexture = Texture{ EnemyArcherIconPath };
 
-	m_unitParameter.mobility = 5;
+    m_unitParameter.mobility = 3;
+    m_unitParameter.attackRange = 2;
 }
 
-void UnitEnemy::decideAction()
+void UnitEnemyBow::decideAction()
 {
     // ターゲットの決定
-    const GridPosition targetPosition{ BattleManager::GetInstance().findNearestPlayerUnit(m_unitPosition)};
+    const GridPosition targetPosition{ BattleManager::GetInstance().findNearestPlayerUnit(m_unitPosition) };
 
     // ターゲットが見つからない場合は待機して終了
     if (targetPosition == InvalidPosition)

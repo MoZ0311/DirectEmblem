@@ -33,6 +33,9 @@ public:
 	// 敵軍ユニット配列の取得
 	const std::vector<std::unique_ptr<UnitBase>>& getEnemyUnitArray() const;
 
+	// 指定座標のユニット情報の取得
+	Config::UnitSettings::UnitType getUnitTypeAtPosition(const Config::MapSettings::GridPosition& position) const;
+
 	// ユニットの追加処理
 	void generateUnits();
 
@@ -40,7 +43,7 @@ public:
 	void resetAllUnitState();
 
 	// 任意の座標上のユニットを消し去る
-	void removeUnitPosition(const Config::MapSettings::GridPosition& position);
+	void removeUnitAtPosition(const Config::MapSettings::GridPosition& position);
 
 private:
 
