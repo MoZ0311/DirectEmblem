@@ -43,6 +43,13 @@ UIManager& UIManager::GetInstance()
 	return instance;
 }
 
+void UIManager::resetState()
+{
+    m_mouseOnUI = false;
+    m_selectingCommand = Command::None;
+    isDrawingCommandUI = false;
+}
+
 void UIManager::initialize()
 {
     // タイルUIの頂点バッファの設定

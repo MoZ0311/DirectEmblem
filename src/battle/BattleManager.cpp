@@ -28,6 +28,14 @@ BattleManager& BattleManager::GetInstance()
 	return instance;
 }
 
+void BattleManager::resetState()
+{
+	m_currentPhase = GamePhase::PlayerTurn;
+	m_selectedCommand = Command::None;
+	currentUnitState = UnitState::None;
+	m_currentEnemyIndex = 0;
+}
+
 void BattleManager::update()
 {
 	switch (m_currentPhase)

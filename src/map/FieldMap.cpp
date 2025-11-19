@@ -28,7 +28,7 @@ FieldMap::FieldMap()
     , m_moveRangeBuffer{ nullptr }
     , m_highlightBuffer{ nullptr }
 
-    , m_mouseGridPosition{ -1, -1 }
+    , m_mouseGridPosition{ InvalidPosition }
     , m_mouseOnMap{ false }
     , m_mouseOveredTile{ TileType::Grass }
 {
@@ -40,6 +40,13 @@ FieldMap& FieldMap::GetInstance()
     // 静的インスタンスを保持し、返す
     static FieldMap instance;
     return instance;
+}
+
+void FieldMap::resetState()
+{
+    m_mouseGridPosition = InvalidPosition;
+    m_mouseOnMap = false;
+    m_mouseOveredTile = TileType::Grass;
 }
 
 void FieldMap::initialize()
@@ -266,7 +273,7 @@ void FieldMap::update()
     else
     {
         // 範囲外の場合
-        m_mouseGridPosition = { -1, -1 };
+        m_mouseGridPosition = { InvalidPosition };
     }
 }
 

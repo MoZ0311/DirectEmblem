@@ -16,17 +16,19 @@ UnitManager::UnitManager()
 	: m_playerUnitArray{}
 	, m_enemyUnitArray{}
 {
-	initialize();
+
 }
 
-void UnitManager::initialize()
+void UnitManager::generateUnits()
 {
+	
+
 	m_playerUnitArray.push_back(std::make_unique<UnitSword>(GridPosition{10, 8}));
 	m_playerUnitArray.push_back(std::make_unique<UnitAxe>(GridPosition{12, 9}));
 
-	m_enemyUnitArray.push_back(std::make_unique<UnitEnemy>(GridPosition{ 0, 3 }));
-	m_enemyUnitArray.push_back(std::make_unique<UnitEnemy>(GridPosition{ 1, 3 }));
-	m_enemyUnitArray.push_back(std::make_unique<UnitEnemy>(GridPosition{ 2, 3 }));
+	//m_enemyUnitArray.push_back(std::make_unique<UnitEnemy>(GridPosition{ 0, 3 }));
+	//m_enemyUnitArray.push_back(std::make_unique<UnitEnemy>(GridPosition{ 1, 3 }));
+	//m_enemyUnitArray.push_back(std::make_unique<UnitEnemy>(GridPosition{ 2, 3 }));
 	m_enemyUnitArray.push_back(std::make_unique<UnitEnemy>(GridPosition{ 3, 3 }));
 }
 
@@ -35,6 +37,13 @@ UnitManager& UnitManager::GetInstance()
 	// 静的インスタンスを保持し、返す
 	static UnitManager instance;
 	return instance;
+}
+
+void UnitManager::resetState()
+{
+	// 配列を全てクリア
+	m_playerUnitArray.clear();
+	m_enemyUnitArray.clear();
 }
 
 void UnitManager::update()

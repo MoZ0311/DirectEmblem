@@ -168,8 +168,10 @@
     <ClInclude Include="src\map\FieldMap.hpp" />
     <ClInclude Include="src\scene\BackgroundRenderer.hpp" />
     <ClInclude Include="src\scene\SceneBase.hpp" />
+    <ClInclude Include="src\scene\SceneClear.hpp" />
     <ClInclude Include="src\scene\SceneGame.hpp" />
     <ClInclude Include="src\scene\SceneManager.hpp" />
+    <ClInclude Include="src\scene\SceneOver.hpp" />
     <ClInclude Include="src\scene\SceneTitle.hpp" />
     <ClInclude Include="src\ui\UIManager.hpp" />
     <ClInclude Include="src\unit\UnitAxe.hpp" />
@@ -192,7 +194,9 @@
     <ClCompile Include="src\scene\SceneBase.cpp" />
     <ClCompile Include="src\scene\SceneGame.cpp" />
     <ClCompile Include="src\scene\SceneManager.cpp" />
+    <ClCompile Include="src\scene\SceneOver.cpp" />
     <ClCompile Include="src\scene\SceneTitle.cpp" />
+    <ClCompile Include="src\scene\ScneClear.cpp" />
     <ClCompile Include="src\ui\UIManager.cpp" />
     <ClCompile Include="src\unit\UnitAxe.cpp" />
     <ClCompile Include="src\unit\UnitBase.cpp" />

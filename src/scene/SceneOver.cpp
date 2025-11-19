@@ -1,24 +1,24 @@
-// SceneTitle class
+// SceneOver class
 
-# include "SceneTitle.hpp"
+# include "SceneOver.hpp"
 # include "SceneManager.hpp"
 # include "../core/Config.hpp"
 # include "../util/InputState.hpp"
 
 using namespace SceneSettings;
 
-SceneTitle::SceneTitle()
-	: backgroundRenderer{ Scene::Title }
+SceneOver::SceneOver()
+	: backgroundRenderer{ Scene::Over }
 {
 
 }
 
-SceneTitle::~SceneTitle()
+SceneOver::~SceneOver()
 {
 
 }
 
-void SceneTitle::update()
+void SceneOver::update()
 {
 	if (InputState::KeyDown(VK_LBUTTON))
 	{
@@ -27,7 +27,7 @@ void SceneTitle::update()
 	}
 }
 
-void SceneTitle::draw() const
+void SceneOver::draw() const
 {
 	backgroundRenderer.draw();
 }

@@ -15,6 +15,9 @@ public:
 	// シングルトンインスタンスの生成/取得
 	static UIManager& GetInstance();
 
+	// リセット処理
+	void resetState();
+
 	// 更新処理
 	void update();
 

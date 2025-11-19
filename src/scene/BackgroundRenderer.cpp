@@ -6,17 +6,21 @@
 
 using namespace Util;
 using namespace FilePath;
+using namespace SceneSettings;
 
-BackgroundRenderer::BackgroundRenderer()
+BackgroundRenderer::BackgroundRenderer(const SceneSettings::Scene& currentScene)
 	: m_direct3D{ Direct3D::GetInstance() }
 	, m_vertexCount{ 0 }
 	, m_vertexBuffer{ nullptr }
-    , m_texture{ TitleImagePath }
+
+    , m_titleTexture{ TitleImagePath }
+    , m_clearTexture{ ClearImagePath }
+    , m_overTexture{ OverImagePath }
 {
-	initialize();
+	initialize(currentScene);
 }
 
-void BackgroundRenderer::initialize()
+void BackgroundRenderer::initialize(const SceneSettings::Scene& currentScene)
 {
 	// 頂点情報の作成
 	const std::vector<Vertex> vertices{ createVertices() };
@@ -31,7 +35,24 @@ void BackgroundRenderer::initialize()
     m_direct3D.setVertexBuffer(m_vertexBuffer);
 
     // テクスチャの設定
-    m_direct3D.setTexture(m_texture.getShaderResourceView());
+    switch (currentScene)
+    {
+    case Scene::Title:
+        m_direct3D.setTexture(m_titleTexture.getShaderResourceView());
+        break;
+
+    case Scene::Clear:
+        m_direct3D.setTexture(m_clearTexture.getShaderResourceView());
+        break;
+
+    case Scene::Over:
+        m_direct3D.setTexture(m_overTexture.getShaderResourceView());
+        break;
+
+    default:
+        break;
+    }
+    
 
     // 定数バッファを設定
     ObjectConstants constants{};

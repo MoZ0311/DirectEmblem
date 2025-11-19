@@ -4,6 +4,8 @@
 
 # include "SceneTitle.hpp"
 # include "SceneGame.hpp"
+# include "SceneClear.hpp"
+# include "SceneOver.hpp"
 
 using namespace std::chrono;
 using namespace SceneSettings;
@@ -37,6 +39,17 @@ bool SceneManager::initialize(const Scene& initScene)
 		// ゲームシーンのインスタンスを作成
 		m_currentScene = std::make_unique<SceneGame>();
 		break;
+
+	case Scene::Clear:
+		// クリアシーンのインスタンスを作成
+		m_currentScene = std::make_unique<SceneClear>();
+		break;
+
+	case Scene::Over:
+		// ゲームオーバーシーンのインスタンスを作成
+		m_currentScene = std::make_unique<SceneOver>();
+		break;
+
 
 	default:
 		// 不正なシーン引数が渡された時、falseを返す
@@ -77,9 +90,19 @@ void SceneManager::changeScene(const Scene& targetScene)
 	case Scene::Title:
 		m_currentScene = std::make_unique<SceneTitle>();
 		break;
+
 	case Scene::Game:
 		m_currentScene = std::make_unique<SceneGame>();
 		break;
+
+	case Scene::Clear:
+		m_currentScene = std::make_unique<SceneClear>();
+		break;
+
+	case Scene::Over:
+		m_currentScene = std::make_unique<SceneOver>();
+		break;
+
 	default:
 		break;
 	}
