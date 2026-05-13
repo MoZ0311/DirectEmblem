@@ -2,14 +2,19 @@
 
 # include "SceneManager.hpp"
 
+# include "SceneTitle.hpp"
+# include "SceneGame.hpp"
+
+using namespace std::chrono;
 using namespace SceneSettings;
 
 SceneManager::SceneManager()
-	: m_device{ nullptr }
-	, m_currentScene{ nullptr }
+	: m_currentScene{ nullptr }
 	, m_transitionState{ TransitionState::None }
+	, m_prevTime{ high_resolution_clock::now() }
+	, m_deltaTime{ 0.001f }
 {
-	int i{ 50 };
+
 }
 
 SceneManager& SceneManager::GetInstance()
@@ -19,49 +24,68 @@ SceneManager& SceneManager::GetInstance()
 	return instance;
 }
 
-bool SceneManager::initialize(ComPtr<ID3D11Device> device, Scene initScene)
+bool SceneManager::initialize(const Scene& initScene)
 {
-	m_device = device;
-
 	switch (initScene)
 	{
-	case SceneSettings::Scene::Title:
-		// タイトルシーンのインスタンスを作成してreturn
-		m_currentScene = std::make_unique<TitleScene>(m_device);
-		return true;
+	case Scene::Title:
+		// タイトルシーンのインスタンスを作成
+		m_currentScene = std::make_unique<SceneTitle>();
 		break;
 
-	case SceneSettings::Scene::Game:
-		// ゲームシーンのインスタンスを作成してreturn
-		m_currentScene = std::make_unique<GameScene>(m_device);
-		return true;
+	case Scene::Game:
+		// ゲームシーンのインスタンスを作成
+		m_currentScene = std::make_unique<SceneGame>();
 		break;
 
 	default:
-		break;
+		// 不正なシーン引数が渡された時、falseを返す
+		return false;
 	}
 
-	return false;
+	// 正常にシーンインスタンスが作られた時、true
+	return true;
 }
 
 void SceneManager::execute()
 {
-	m_currentScene.get()->update();
-	m_currentScene.get()->drawScene();
+	// deltaTimeの算出
+	calculateDeltaTime();
+
+	m_currentScene->updateScene();
+	m_currentScene->drawScene();
 }
 
-void SceneManager::changeScene(Scene targetScene)
+void SceneManager::calculateDeltaTime()
+{
+	const time_point<high_resolution_clock> currentTime{ high_resolution_clock::now() };
+
+	const duration<float> deltaTime{ currentTime - m_prevTime };
+
+	// 現在の時間を次のループの基準時間に更新
+	m_prevTime = currentTime;
+
+	// deltaTime更新
+	m_deltaTime = deltaTime.count();
+}
+
+void SceneManager::changeScene(const Scene& targetScene)
 {
 	m_currentScene.reset();
 	switch (targetScene)
 	{
 	case Scene::Title:
-		m_currentScene = std::make_unique<TitleScene>(m_device);
+		m_currentScene = std::make_unique<SceneTitle>();
 		break;
 	case Scene::Game:
-		m_currentScene = std::make_unique<GameScene>(m_device);
+		m_currentScene = std::make_unique<SceneGame>();
 		break;
 	default:
 		break;
 	}
+}
+
+float SceneManager::getDeltaTime() const
+{
+	return m_deltaTime;
 }

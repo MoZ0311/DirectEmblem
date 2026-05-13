@@ -1,0 +1,54 @@
+// BattleManager class
+
+#pragma once
+
+# include "../core/Config.hpp"
+
+class BattleManager
+{
+public:
+
+	// シングルトンインスタンスの生成/取得
+	static BattleManager& GetInstance();
+
+	// 更新処理
+	void update();
+
+	// 任意のグリッド座標から最も近いプレイヤーユニットの座標を算出する
+	Config::MapSettings::GridPosition findNearestPlayerUnit(const Config::MapSettings::GridPosition& startPosition) const;
+
+	// 指定されたグリッド座標のユニットに対して消滅判定を行なう
+	void executeAttack(const Config::MapSettings::GridPosition& targetPosition);
+
+	// 現在のフェーズ(ターン)の取得処理
+	Config::BattleSettings::GamePhase getCurrentPhase() const;
+
+	// コマンド選択時のユニットに対する操作
+	void setSelectedCommand(const Config::UISettings::Command& selectedCommand);
+
+	// 任意に選択したユニットの状態
+	Config::UnitSettings::UnitState currentUnitState;
+
+private:
+
+	// コンストラクタ
+	BattleManager();
+
+	// コピーコンストラクタを削除
+	BattleManager(const BattleManager&) = delete;
+
+	// プレイヤーユニットの処理
+	void handlePlayerUnit();
+
+	// 敵ユニットの処理
+	void handleEnemyUnit();
+
+	// 現在のフェーズ(ターン)
+	Config::BattleSettings::GamePhase m_currentPhase;
+
+	// 選択されたコマンド
+	Config::UISettings::Command m_selectedCommand;
+
+	// 敵軍ユニットのインデックス
+	int m_currentEnemyIndex;
+};

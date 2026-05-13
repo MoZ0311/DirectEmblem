@@ -2,10 +2,10 @@
 
 # pragma once
 
+# include <chrono>
 # include "../core/Config.hpp"
-# include "../dx11/Direct3D.hpp"
-# include "TitleScene.hpp"
-# include "GameScene.hpp"
+
+class SceneBase;
 
 class SceneManager
 {
@@ -15,25 +15,37 @@ public:
 	static SceneManager& GetInstance();
 
 	// 初期化処理
-	bool initialize(ComPtr<ID3D11Device> device, SceneSettings::Scene initScene);
+	bool initialize(const SceneSettings::Scene& initScene);
 
 	// ゲーム処理の更新/実行
 	void execute();
 
 	// シーンチェンジ
-	void changeScene(SceneSettings::Scene targetScene);
+	void changeScene(const SceneSettings::Scene& targetScene);
+
+	// deltaTimeの取得処理
+	float getDeltaTime() const;
 
 private:
 
 	// コンストラクタ
 	SceneManager();
 
-	// Direct3Dのデバイス
-	ComPtr<ID3D11Device> m_device;
+	// コピーコンストラクタを削除
+	SceneManager(const SceneManager&) = delete;
+
+	// deltaTimeの計算処理
+	void calculateDeltaTime();
 
 	// 現在のシーン
-	std::unique_ptr<BaseScene> m_currentScene;
+	std::unique_ptr<SceneBase> m_currentScene;
 
 	// シーンの切替状態
 	SceneSettings::TransitionState m_transitionState;
+
+	// 直前の時間
+	std::chrono::time_point<std::chrono::high_resolution_clock> m_prevTime;
+
+	// 前フレームからの経過時間
+	float m_deltaTime;
 };

@@ -2,16 +2,14 @@
 
 # pragma once
 
-# include "Config.hpp"
-# include "../scene/SceneManager.hpp"
-# include "../dx11/Direct3D.hpp"
+# include <windows.h>
 
 class Application
 {
 public:
 
 	// コンストラクタ
-	Application(HINSTANCE hInstance, int nCmdShow);
+	Application(const HINSTANCE& hInstance, const int nCmdShow);
 
 	// 初期化処理
 	bool initialize();
@@ -22,7 +20,7 @@ public:
 private:
 
 	// ウィンドウプロシージャ(メッセージ処理)
-	static LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	static LRESULT CALLBACK wndProc(const HWND hWnd, const UINT message, const WPARAM wParam, const LPARAM lParam);
 
 	// ウィンドウクラスの登録
 	bool registerWindowClass() const;

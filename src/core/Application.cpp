@@ -2,9 +2,15 @@
 
 # include "Application.hpp"
 
-using namespace Config;
+# include "Config.hpp"
+# include "../dx11/Direct3D.hpp"
+# include "../scene/SceneManager.hpp"
+# include "../util/InputState.hpp"
 
-Application::Application(HINSTANCE hInstance, int nCmdShow)
+using namespace Config;
+using namespace SceneSettings;
+
+Application::Application(const HINSTANCE& hInstance, const int nCmdShow)
 	: m_hInstance{ hInstance }
 	, m_nCmdShow{ nCmdShow }
 	, m_hWnd{ nullptr }
@@ -42,8 +48,8 @@ bool Application::initialize()
 		return false;
 	}
 
-	// SceneManagerの初期化
-	if (!SceneManager::GetInstance().initialize(Direct3D::GetInstance().getDevice(), SceneSettings::Scene::Game))
+	// SceneManagerの初期化(ついでに初期シーンの設定)
+	if (!SceneManager::GetInstance().initialize(Scene::Title))
 	{
 		// 失敗時、エラーメッセージとともにreturn
 		MessageBox(NULL, L"Application: SceneManagerクラスの初期化に失敗しました", L"エラー", MB_ICONERROR);
@@ -57,42 +63,41 @@ bool Application::initialize()
 MSG Application::run() const
 {
 	MSG msg{};
-	while (GetMessage(&msg, NULL, 0, 0))
+	while (true)
 	{
-		TranslateMessage(&msg); // キーボード入力を処理
-		DispatchMessage(&msg);  // WndProcへメッセージを送信
-
-		// ループ処理はココ!!
-		if (msg.message == WM_KEYDOWN)
+		// メッセージをチェック
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
-			switch (msg.wParam)
+			// WM_QUITメッセージが来たらループを抜ける（終了）
+			if (msg.message == WM_QUIT)
 			{
-			case VK_ESCAPE:
-				PostQuitMessage(0);
-				break;
-
-			case VK_SPACE:
-				SceneManager::GetInstance().changeScene(SceneSettings::Scene::Game);
-				break;
-
-			case VK_BACK:
-				SceneManager::GetInstance().changeScene(SceneSettings::Scene::Title);
-				break;
-
-			default:
 				break;
 			}
+
+			// キーボード入力を処理
+			TranslateMessage(&msg);
+
+			// WndProcへメッセージを送信
+			DispatchMessage(&msg);
 		}
+
+		// マウス情報の更新
+		InputState::UpdateMouseState(m_hWnd);
+
+		// キー情報の更新
+		InputState::UpdateKeyState();
+		
+		// ループ処理
 		SceneManager::GetInstance().execute();
 	}
 	return msg;
 }
 
-LRESULT CALLBACK Application::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK Application::wndProc(const HWND hWnd, const UINT message, const WPARAM wParam, const LPARAM lParam)
 {
-	if (message == WM_DESTROY)
+	if (message == WM_DESTROY || (wParam == VK_ESCAPE && message == WM_KEYDOWN))
 	{
-		// ウィンドウが閉じられた時、終了
+		// ウィンドウが閉じられた時、またはescキー押下で終了
 		PostQuitMessage(0);
 		return 0;
 	}
@@ -124,8 +129,11 @@ bool Application::registerWindowClass() const
 
 bool Application::createWindow()
 {
-	RECT windowRect = { 0, 0, WindowWidth, WindowHeight };
-	DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+	// クライアント領域の矩形
+	RECT windowRect{ 0, 0, WindowWidth, WindowHeight };
+
+	// メニュー等の設定
+	const DWORD dwStyle{ WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX };
 
 	// 目的のクライアント領域サイズから、ウィンドウ全体のサイズを計算
 	AdjustWindowRect(&windowRect, dwStyle, FALSE);

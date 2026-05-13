@@ -1,0 +1,106 @@
+// FieldMap class
+
+# pragma once
+
+# include "../dx11/DirectX.hpp"
+# include "../dx11/Texture.hpp"
+# include "../core/Config.hpp"
+
+class Direct3D;
+
+class FieldMap
+{
+public:
+
+	// シングルトンインスタンスの生成/取得
+	static FieldMap& GetInstance();
+
+	// 更新処理
+	void update();
+
+	// 描画処理
+	void draw() const;
+
+	// マウスが重なったタイルの算出処理
+	Config::MapSettings::GridPosition getMouseGridPosition() const;
+
+	// マウスがマップ上にあるか
+	bool getMouseOnMap() const;
+
+	// 二次元配列の取得
+	std::vector<std::vector<int>> getMapData() const;
+
+	// グリッド座標をスクリーン座標に変換
+	DirectX::XMFLOAT2 gridToScreen(const Config::MapSettings::GridPosition& gridPosition) const;
+
+	// 侵入可能タイルの取得
+	std::vector<std::vector<bool>> getAccessibleTileGrid() const;
+
+	// マウスが重なったタイルの取得
+	Config::MapSettings::TileType getMouseOveredTile() const;
+
+	// 侵入可能タイルの設定
+	void setAccessibleTileGrid(const std::vector<std::vector<int>>& distanceGrid, int mobility);
+
+private:
+
+	// コンストラクタ
+	FieldMap();
+
+	// コピーコンストラクタを削除
+	FieldMap(const FieldMap&) = delete;
+
+	// 初期化処理
+	void initialize();
+
+	// マップ用頂点情報の作成処理
+	std::vector<Util::Vertex> createMapVertices() const;
+
+	// 移動範囲用の頂点情報の作成処理
+	std::vector<Util::Vertex> createMoveRangeVertices() const;
+
+	// ハイライト用頂点情報の作成
+	std::vector<Util::Vertex> createHighlightVertices() const;
+
+	// マップデータの二次元配列
+	const std::vector<std::vector<int>> m_mapGrid;
+
+	// 侵入可能タイルの二次元配列
+	std::vector<std::vector<bool>> m_accessibleTileGrid;
+
+	// Direct3Dクラスのインスタンス
+	Direct3D& m_direct3D;
+
+	// マップのテクスチャアトラス
+	Texture m_mapTexture;
+
+	// ハイライト用のテクスチャ
+	Texture m_highlightTexture;
+
+	// マップ用の頂点数
+	UINT m_mapVertexCount;
+
+	// 移動範囲用の頂点数
+	UINT m_moveRangeVertexCount;
+
+	// ハイライト描画用の頂点数
+	UINT m_highlightVertexCount;
+
+	// マップ用の頂点バッファ
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_mapVertexBuffer;
+
+	// 移動範囲用の頂点バッファ
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_moveRangeBuffer;
+
+	// ハイライト描画用の頂点バッファ
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_highlightBuffer;
+
+	// マウスのグリッド座標
+	Config::MapSettings::GridPosition m_mouseGridPosition;
+
+	// マウスがマップ上にあるか
+	bool m_mouseOnMap;
+
+	// 最後にマウスが重なったタイル
+	Config::MapSettings::TileType m_mouseOveredTile;
+};

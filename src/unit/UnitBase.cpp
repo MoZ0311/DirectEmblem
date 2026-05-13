@@ -1,0 +1,363 @@
+// UnitBase class
+
+# include "UnitBase.hpp"
+
+# include "../dx11/Direct3D.hpp"
+# include "../scene/SceneManager.hpp"
+# include "../map/FieldMap.hpp"
+# include "../battle/BattleManager.hpp"
+# include "../util/InputState.hpp"
+# include "../util/PathFinder.hpp"
+
+using namespace Util;
+using namespace FilePath;
+using namespace Config::MapSettings;
+using namespace Config::UnitSettings;
+using namespace Config::UISettings;
+
+UnitBase::UnitBase()
+	: m_direct3D{ Direct3D::GetInstance() }
+
+	, m_unitIconTexture{ SlimeIconPath }
+	, m_iconColor{ 1.0f, 1.0f, 1.0f, 1.0f }
+	, m_vertexCount{ 0 }
+	, m_vertexBuffer{ nullptr }
+
+	, m_unitType{ UnitType::None }
+	, m_unitParameter{ 0, 0, 0, 0, 0 }
+	, m_unitPosition{ 0, 0 }
+	, m_prevPosition{ m_unitPosition }
+	, m_distanceGrid{}
+	, m_movementPath{}
+	, unitState{ UnitState::None }
+
+	, m_gridMoveTimer{ GridMoveInterval }
+{
+	initialize();
+}
+
+void UnitBase::initialize()
+{
+	// 頂点情報の作成
+	const std::vector<Vertex> vertices{ createVertices() };
+
+	// 頂点数の計算
+	m_vertexCount = static_cast<UINT>(vertices.size());
+
+	// 頂点バッファの作成
+	m_vertexBuffer = m_direct3D.createVertexBuffer(vertices);
+}
+
+std::vector<Vertex> UnitBase::createVertices() const
+{
+	// 形状は常に TileWidth x TileHeight の四角形（ローカル座標）
+	// 中心を (0, 0) とし、draw()でワールド行列により位置を設定する。
+	const float halfWidth{ TileWidth / 2.0f };
+	const float halfHeight{ TileHeight / 2.0f };
+
+	const DirectX::XMFLOAT4 color{ 1.0f, 1.0f, 1.0f, 1.0f };    // 色はデフォルト
+
+	// uv座標定義
+	const DirectX::XMFLOAT2 uvTopLeft{ 0, 0 };		// 左上
+	const DirectX::XMFLOAT2 uvBottomLeft{ 0, 1 };	// 左下
+	const DirectX::XMFLOAT2 uvTopRight{ 1, 0 };		// 右上
+	const DirectX::XMFLOAT2 uvBottomRight{ 1, 1 };	// 右下
+
+	const std::vector<Vertex> vertices{
+		// 頂点1:左下
+		{
+			{ -halfWidth, -halfHeight, 0.0f }, color, uvBottomLeft
+		},
+		// 頂点2:左上
+		{
+			{ -halfWidth, halfHeight, 0.0f }, color, uvTopLeft
+		},
+		// 頂点3:右上
+		{
+			{ halfWidth, halfHeight, 0.0f }, color, uvTopRight
+		},
+		// 頂点4:左下
+		{
+			{ -halfWidth, -halfHeight, 0.0f }, color, uvBottomLeft
+		},
+		// 頂点5:右上
+		{
+			{ halfWidth, halfHeight, 0.0f }, color, uvTopRight
+		},
+		// 頂点6:右下
+		{
+			{ halfWidth, -halfHeight, 0.0f }, color, uvBottomRight
+		}
+	};
+
+	return vertices;
+}
+
+void UnitBase::update()
+{
+	// マウスのグリッド座標を取得
+	const GridPosition mousePosition{ FieldMap::GetInstance().getMouseGridPosition()};
+	
+	// ユニットの上にマウスがあるか
+	const bool mouseOnUnit{ m_unitPosition == mousePosition };
+
+	switch (unitState)
+	{
+	case UnitState::None:		// 選択前
+
+		// アイコンを白色に
+		m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		// 左クリック(選択)された時
+		if (InputState::KeyDown(VK_LBUTTON) && mouseOnUnit &&
+			BattleManager::GetInstance().currentUnitState == UnitState::None)
+		{
+			// 過去の座標を更新
+			m_prevPosition = m_unitPosition;
+
+			// 現在地からの距離の算出
+			m_distanceGrid = PathFinder::CalculateDistanceGrid(m_unitPosition, m_unitParameter.mobility);
+
+			// 距離と移動力を渡す
+			FieldMap::GetInstance().setAccessibleTileGrid(m_distanceGrid, m_unitParameter.mobility);
+
+			// BattleManagerのコマンド選択状態を初期化
+			BattleManager::GetInstance().setSelectedCommand(Command::None);
+
+			// 選択後のステートに移動
+			unitState = UnitState::StandBy;
+			BattleManager::GetInstance().currentUnitState = unitState;
+		}
+		break;
+
+	case UnitState::StandBy:	// 選択後
+
+		// アイコンを白色に
+		m_iconColor = { 1.0f, 1.0f, 0.3f, 1.0f };
+
+		// 右クリック(キャンセル)された時
+		if (InputState::KeyDown(VK_RBUTTON))
+		{
+			m_unitPosition = m_prevPosition;
+
+			// 選択前のステートに戻る
+			unitState = UnitState::None;
+			BattleManager::GetInstance().currentUnitState = unitState;
+		}
+		// 有効な移動先が左クリック(選択)された時
+		else if (m_unitType != UnitType::Enemy && 
+			InputState::KeyDown(VK_LBUTTON) &&
+			FieldMap::GetInstance().getMouseOnMap() &&
+			FieldMap::GetInstance().getAccessibleTileGrid()[mousePosition.y][mousePosition.x])
+		{
+			// 移動経路を作成
+			m_movementPath = PathFinder::CreateMovementPath(m_distanceGrid, mousePosition);
+
+			// 移動中ステートに移動
+			unitState = UnitState::Moving;
+			BattleManager::GetInstance().currentUnitState = unitState;
+		}
+		break;
+
+	case UnitState::Moving:		// 移動中
+
+		// 経路は空であるか
+		if (m_movementPath.empty())
+		{
+			if (m_unitType == UnitType::Enemy)
+			{
+				// 状態を攻撃待機へ遷移
+				unitState = UnitState::Attacking;;
+			}
+			else
+			{
+				// 経路が空であれば、コマンド選択ステートに移動
+				unitState = UnitState::Acting;
+				BattleManager::GetInstance().currentUnitState = unitState;
+			}
+		}
+		else
+		{
+			// 経路が空でなければ、移動処理
+			gridMove();
+		}
+		
+		break;
+	case UnitState::Acting:		// 行動中
+
+		// 右クリック(キャンセル)された時
+		if (InputState::KeyDown(VK_RBUTTON))
+		{
+			m_unitPosition = m_prevPosition;
+
+			// 非選択中は、アイコンを白色に
+			m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+			// 選択前のステートに戻る
+			unitState = UnitState::None;
+			BattleManager::GetInstance().currentUnitState = unitState;
+		}
+		break;
+
+	case UnitState::Waiting:	// 行動終了
+
+		// アイコンを灰色に
+		m_iconColor = { 0.6f, 0.6f, 0.6f, 1.0f };
+		break;
+
+
+	case UnitState::Attacking:
+
+		// ユニットが敵であるとき
+		if (m_unitType == UnitType::Enemy)
+		{
+			// 最寄りの味方ユニットを探す
+			const GridPosition nearestUnitPosition{ BattleManager::GetInstance().findNearestPlayerUnit(m_unitPosition) };
+
+			// 距離を算出
+			const int distance{ nearestUnitPosition.manhattanDistanceFrom(m_unitPosition) };
+
+			// ユニットとのマンハッタン距離が攻撃範囲以下かつ距離が0でないとき
+			if (distance <= m_unitParameter.attackRange && distance != 0)
+			{
+				// そのマスに対して消滅判定を実行
+				BattleManager::GetInstance().executeAttack(nearestUnitPosition);
+			}
+
+			unitState = UnitState::Waiting;
+		}
+		// ユニットが味方であるとき
+		else
+		{
+			// 右クリック(キャンセル)された時
+			if (InputState::KeyDown(VK_RBUTTON))
+			{
+				m_unitPosition = m_prevPosition;
+
+				// 非選択中は、アイコンを白色に
+				m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+				// 選択前のステートに戻る
+				unitState = UnitState::None;
+				BattleManager::GetInstance().currentUnitState = unitState;
+			}
+			// 有効な攻撃先が左クリック(選択)された時
+			else if (InputState::KeyDown(VK_LBUTTON) &&
+				FieldMap::GetInstance().getMouseOnMap())
+			{
+				// 攻撃先の座標を取得
+				const GridPosition attackPosition{ FieldMap::GetInstance().getMouseGridPosition() };
+
+				// 距離を算出
+				const int distance{ attackPosition.manhattanDistanceFrom(m_unitPosition) };
+
+				// ユニットとのマンハッタン距離が攻撃範囲以下かつ距離が0でないとき
+				if (distance <= m_unitParameter.attackRange && distance != 0)
+				{
+					// そのマスに対して消滅判定を実行
+					BattleManager::GetInstance().executeAttack(attackPosition);
+					unitState = UnitState::Waiting;
+				}
+
+				// BattleManager側を待機状態にする
+				BattleManager::GetInstance().currentUnitState = UnitState::None;
+			}
+		}
+		
+		break;
+
+	case UnitState::EnemyTurn:
+
+		// 行動をAIに任せる
+		decideAction();
+	default:
+		break;
+	}
+}
+
+void UnitBase::draw() const
+{
+	// 画面上の座標を設定
+	DirectX::XMFLOAT2 screenUnitPosition{ FieldMap::GetInstance().gridToScreen(m_unitPosition) };
+
+	// 計算した位置をワールド行列に変換
+	DirectX::XMMATRIX worldMatrix{ DirectX::XMMatrixTranslation(screenUnitPosition.x, screenUnitPosition.y, 0.0f) };
+
+	// 定数バッファの設定
+	ObjectConstants constants{};
+	DirectX::XMStoreFloat4x4(&constants.worldMatrix, DirectX::XMMatrixTranspose(worldMatrix));
+	
+	// ビュー行列とプロジェクション行列の設定
+	DirectX::XMStoreFloat4x4(&constants.viewMatrix, DirectX::XMMatrixIdentity());
+	DirectX::XMStoreFloat4x4(&constants.projectionMatrix, DirectX::XMMatrixIdentity());
+
+	// 色の設定
+	constants.color = m_iconColor;
+
+	// 定数バッファを更新
+	m_direct3D.updateConstantBuffer(constants);
+
+	// テクスチャのセット
+	m_direct3D.setTexture(m_unitIconTexture.getShaderResourceView());
+
+	// DirectXにバッファを転送
+	m_direct3D.setVertexBuffer(m_vertexBuffer);
+
+	// 描画コマンド実行
+	m_direct3D.draw(m_vertexCount);
+}
+
+void UnitBase::onSelectedCommand(const Command& selectedCommand)
+{
+	switch (selectedCommand)
+	{
+	case Command::Attack:
+
+		m_iconColor = DirectX::XMFLOAT4{ 1.0f, 0.0f, 0.0f, 1.0f };
+		unitState = UnitState::Attacking;
+		break;
+
+	case Command::Skill:
+	case Command::Item:
+		break;
+
+	case Command::Wait:	// 待機
+		unitState = UnitState::Waiting;
+
+		// BattleManager側を待機状態にする
+		BattleManager::GetInstance().currentUnitState = UnitState::None;
+
+	default:
+		break;
+	}
+}
+
+void UnitBase::setPosition(const GridPosition& targetPosition)
+{
+	// 指定座標に移動
+	m_unitPosition = targetPosition;
+}
+
+void UnitBase::gridMove()
+{
+	const float deltaTime{ SceneManager::GetInstance().getDeltaTime() };
+	m_gridMoveTimer -= deltaTime;
+
+	// タイマーが0より小さくなったとき、処理を実行
+	if (m_gridMoveTimer < 0)
+	{
+		// 配列を辿りながら消去
+		const GridPosition nextPosition{ m_movementPath.front() };
+		m_movementPath.pop_front();
+
+		setPosition(nextPosition);
+
+		// タイマーリセット
+		m_gridMoveTimer = GridMoveInterval;
+	}
+}
+
+GridPosition UnitBase::getUnitPosition() const
+{
+	return m_unitPosition;
+}

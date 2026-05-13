@@ -1,34 +1,57 @@
 // BasicVertexShader: 頂点シェーダー
 // 頂点の位置と色をGPUの出力に変換する
+
+cbuffer ObjectConstants : register(b0)
+{
+    // C++の Util::ObjectConstants 構造体と対応させる
+    matrix worldMatrix;         // ワールド行列
+    matrix viewMatrix;          // ビュー行列
+    matrix projectionMatrix;    // プロジェクション行列
+    float4 color;               // 色
+}
+
 struct VS_INPUT
 {
-    float3 pos : POSITION;      // 頂点の位置 (x, y, z)
-    float4 color : COLOR;       // 頂点の色 (r, g, b, a)
+    float3 pos : POSITION;              // 頂点の位置 (x, y, z)
+    float4 color : COLOR;               // 頂点の色 (r, g, b, a)
+    float2 uv : TEXCOORD;               // uv座標(u, v)
 };
 
 struct PS_INPUT
 {
-    float4 pos : SV_POSITION;   // 出力位置 (システム予約セマンティクス)
-    float4 color : COLOR;       // ピクセルシェーダーに渡す色
+    float4 pos : SV_POSITION;           // 出力位置 (システム予約セマンティクス)
+    float4 color : COLOR;               // ピクセルシェーダーに渡す色
+    float2 uv : TEXCOORD;               // uv座標(u, v)
 };
 
 PS_INPUT VSMain(VS_INPUT input)
 {
     PS_INPUT output;
     
-    // 位置をそのままクリップ空間に出力（MapRendererでクリップ空間座標を設定するため）
-    output.pos = float4(input.pos, 1.0f);
+    // WVP行列の計算
+    matrix WVP = mul(worldMatrix, mul(viewMatrix, projectionMatrix));
     
-    // 色をピクセルシェーダーに渡す
-    output.color = input.color;
+    // 頂点のローカル位置をWVP行列で変換し、クリップ空間に出力
+    output.pos = mul(float4(input.pos, 1.0f), WVP);
+    
+    // 頂点バッファの色と定数バッファの色を乗算して、最終色を決定
+    output.color = input.color * color;
+    
+    // テクスチャ座標をピクセルシェーダーに渡す
+    output.uv = input.uv;
     
     return output;
 }
 
-// BasicPixelShader: ピクセルシェーダー
-// ピクセル（画面の点）の色を決定する
+// テクスチャとサンプラーを宣言
+Texture2D txTexture : register(t0); // t0スロットのテクスチャリソース
+SamplerState smpSampler : register(s0); // s0スロットのサンプラーリソース
+
 float4 PSMain(PS_INPUT input) : SV_TARGET
 {
-    // 受け取った色をそのまま出力色とする
-    return input.color;
+    // テクスチャをサンプリングして色を取得
+    float4 textureColor = txTexture.Sample(smpSampler, input.uv);
+    
+    // 受け取った色とサンプリングした色を乗算して返す
+    return input.color * textureColor;
 }
