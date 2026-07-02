@@ -45,6 +45,9 @@ public:
 	// 侵入可能タイルの設定
 	void setAccessibleTileGrid(const std::vector<std::vector<int>>& distanceGrid, int mobility);
 
+	// 攻撃可能タイルの設定
+	void setAttackableTileGrid(const std::vector<std::vector<int>>& distanceGrid, int attackRange);
+
 private:
 
 	// コンストラクタ
@@ -62,6 +65,9 @@ private:
 	// 移動範囲用の頂点情報の作成処理
 	std::vector<Util::Vertex> createMoveRangeVertices() const;
 
+	// 攻撃範囲用の頂点情報の作成処理
+	std::vector<Util::Vertex> createAttackRangeVertices() const;
+
 	// ハイライト用頂点情報の作成
 	std::vector<Util::Vertex> createHighlightVertices() const;
 
@@ -70,6 +76,9 @@ private:
 
 	// 侵入可能タイルの二次元配列
 	std::vector<std::vector<bool>> m_accessibleTileGrid;
+
+	// 攻撃可能タイルの二次元配列
+	std::vector<std::vector<bool>> m_attackableTileGrid;
 
 	// Direct3Dクラスのインスタンス
 	Direct3D& m_direct3D;
@@ -86,6 +95,9 @@ private:
 	// 移動範囲用の頂点数
 	UINT m_moveRangeVertexCount;
 
+	// 攻撃範囲用の頂点数
+	UINT m_attackRangeVertexCount;
+
 	// ハイライト描画用の頂点数
 	UINT m_highlightVertexCount;
 
@@ -94,6 +106,9 @@ private:
 
 	// 移動範囲用の頂点バッファ
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_moveRangeBuffer;
+
+	// 攻撃範囲用の頂点バッファ
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_attackRangeBuffer;
 
 	// ハイライト描画用の頂点バッファ
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_highlightBuffer;

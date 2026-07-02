@@ -243,6 +243,9 @@ void UnitBase::update()
 			{
 				m_unitPosition = m_prevPosition;
 
+				std::vector<std::vector<int>> emptyGrid(MapHeight, std::vector<int>(MapWidth, 999));
+				FieldMap::GetInstance().setAttackableTileGrid(emptyGrid, 0);
+
 				// 非選択中は、アイコンを白色に
 				m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
@@ -271,6 +274,10 @@ void UnitBase::update()
 				{
 					// そのマスに対して消滅判定を実行
 					BattleManager::GetInstance().executeAttack(attackPosition);
+
+					std::vector<std::vector<int>> emptyGrid(MapHeight, std::vector<int>(MapWidth, 999));
+					FieldMap::GetInstance().setAttackableTileGrid(emptyGrid, 0);
+
 					unitState = UnitState::Waiting;
 
 					// BattleManager側を待機状態にする
@@ -327,12 +334,21 @@ void UnitBase::onSelectedCommand(const Command& selectedCommand)
 	switch (selectedCommand)
 	{
 	case Command::Attack:
-
+	{
 		m_iconColor = DirectX::XMFLOAT4{ 1.0f, 0.0f, 0.0f, 1.0f };
+		std::vector<std::vector<int>> attackDistanceGrid(MapHeight, std::vector<int>(MapWidth, 999));
+		for (int y = 0; y < MapHeight; ++y)
+		{
+			for (int x = 0; x < MapWidth; ++x)
+			{
+				attackDistanceGrid[y][x] = m_unitPosition.manhattanDistanceFrom(GridPosition{ x, y });
+			}
+		}
+		FieldMap::GetInstance().setAttackableTileGrid(attackDistanceGrid, m_unitParameter.attackRange);
 		unitState = UnitState::Attacking;
 		BattleManager::GetInstance().currentUnitState = unitState;
 		break;
-
+	}
 	case Command::Skill:
 	case Command::Item:
 		break;
