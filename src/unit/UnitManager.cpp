@@ -37,7 +37,7 @@ void UnitManager::generateUnits()
 		m_enemyUnitArray.push_back(std::make_unique<UnitEnemy>(GridPosition{ 4, 3 }));
 		m_enemyUnitArray.push_back(std::make_unique<UnitEnemy>(GridPosition{ 6, 8 }));
 		m_enemyUnitArray.push_back(std::make_unique<UnitEnemyBow>(GridPosition{ 5, 8 }));
-		// m_enemyUnitArray.push_back(std::make_unique<UnitEnemyBow>(GridPosition{ 9, 10 }));
+		m_enemyUnitArray.push_back(std::make_unique<UnitEnemyBow>(GridPosition{ 9, 10 }));
 	}
 
 	// 青獅子
@@ -46,7 +46,7 @@ void UnitManager::generateUnits()
 		m_enemyUnitArray.push_back(std::make_unique<UnitEnemy>(GridPosition{ 18, 3 }));
 		m_enemyUnitArray.push_back(std::make_unique<UnitEnemyBow>(GridPosition{ 15, 1 }));
 		m_enemyUnitArray.push_back(std::make_unique<UnitEnemy>(GridPosition{ 15, 5 }));
-		// m_enemyUnitArray.push_back(std::make_unique<UnitEnemyBow>(GridPosition{ 14, 8 }));
+		m_enemyUnitArray.push_back(std::make_unique<UnitEnemyBow>(GridPosition{ 14, 8 }));
 	}
 }
 
@@ -96,7 +96,6 @@ void UnitManager::update()
 		std::remove_if(m_enemyUnitArray.begin(), m_enemyUnitArray.end(),
 			[](const std::unique_ptr<UnitBase>& u) { return u->isDead; }),
 		m_enemyUnitArray.end());
-
 }
 
 void UnitManager::draw() const
@@ -125,6 +124,11 @@ std::vector<std::vector<bool>> UnitManager::getUnitStandingGrid() const
 	// 範囲for文で自軍ユニットの座標を取得
 	for (const auto& playerUnit : m_playerUnitArray)
 	{
+		if (playerUnit->isDead)
+		{
+			continue;
+		}
+
 		// 自軍ユニットの位置を取得
 		const GridPosition unitPosition{ playerUnit->getUnitPosition() };
 
@@ -135,6 +139,11 @@ std::vector<std::vector<bool>> UnitManager::getUnitStandingGrid() const
 	// 範囲for文で敵軍ユニットの座標を取得
 	for (const auto& enemyUnit : m_enemyUnitArray)
 	{
+		if (enemyUnit->isDead)
+		{
+			continue;
+		}
+
 		// 敵軍ユニットの位置を取得
 		const GridPosition unitPosition{ enemyUnit->getUnitPosition() };
 
@@ -160,6 +169,11 @@ Config::UnitSettings::UnitType UnitManager::getUnitTypeAtPosition(const Config::
 	// 範囲for文で自軍ユニットの座標を取得
 	for (const auto& playerUnit : m_playerUnitArray)
 	{
+		if (playerUnit->isDead)
+		{
+			continue;
+		}
+
 		// 自軍ユニットの位置を取得
 		const GridPosition unitPosition{ playerUnit->getUnitPosition() };
 
@@ -173,6 +187,11 @@ Config::UnitSettings::UnitType UnitManager::getUnitTypeAtPosition(const Config::
 	// 範囲for文で敵軍ユニットの座標を取得
 	for (const auto& enemyUnit : m_enemyUnitArray)
 	{
+		if (enemyUnit->isDead)
+		{
+			continue;
+		}
+
 		// 敵軍ユニットの位置を取得
 		const GridPosition unitPosition{ enemyUnit->getUnitPosition() };
 
@@ -203,30 +222,6 @@ void UnitManager::resetAllUnitState()
 
 void UnitManager::removeUnitAtPosition(const Config::MapSettings::GridPosition& position)
 {
-
-	
-	// 自軍ユニット配列から削除
-	auto player_it = std::remove_if(
-		m_playerUnitArray.begin(),
-		m_playerUnitArray.end(),
-		[&position](const std::unique_ptr<UnitBase>& unit)
-		{
-			return unit->getUnitPosition() == position;
-		});
-	m_playerUnitArray.erase(player_it, m_playerUnitArray.end());
-
-
-	// 敵軍ユニット配列から削除
-	auto enemy_it = std::remove_if(
-		m_enemyUnitArray.begin(),
-		m_enemyUnitArray.end(),
-		[&position](const std::unique_ptr<UnitBase>& unit)
-		{
-			return unit->getUnitPosition() == position;
-		});
-	m_enemyUnitArray.erase(enemy_it, m_enemyUnitArray.end());
-
-	/*
 	// 範囲for文で自軍ユニットの座標を取得
 	for (const auto& playerUnit : m_playerUnitArray)
 	{
@@ -237,6 +232,7 @@ void UnitManager::removeUnitAtPosition(const Config::MapSettings::GridPosition& 
 		if (unitPosition == position)
 		{
 			playerUnit->isDead = true;
+			return;
 		}
 	}
 
@@ -250,9 +246,7 @@ void UnitManager::removeUnitAtPosition(const Config::MapSettings::GridPosition& 
 		if (unitPosition == position)
 		{
 			enemyUnit->isDead = true;
+			return;
 		}
 	}
-	*/
-	
-	
 }

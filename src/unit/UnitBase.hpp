@@ -16,7 +16,7 @@ class UnitBase
 public:
 
 	// デストラクタ
-	~UnitBase() = default;
+	virtual ~UnitBase() = default;
 
 	// 更新処理
 	void update();

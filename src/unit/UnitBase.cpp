@@ -96,6 +96,11 @@ std::vector<Vertex> UnitBase::createVertices() const
 
 void UnitBase::update()
 {
+	if (isDead)
+	{
+		return;
+	}
+
 	// マウスのグリッド座標を取得
 	const GridPosition mousePosition{ FieldMap::GetInstance().getMouseGridPosition()};
 	
@@ -255,16 +260,22 @@ void UnitBase::update()
 				// 距離を算出
 				const int distance{ attackPosition.manhattanDistanceFrom(m_unitPosition) };
 
+				// ターゲットマスのユニットのタイプを取得
+				const UnitType targetType{ UnitManager::GetInstance().getUnitTypeAtPosition(attackPosition) };
+				
+				// 攻撃対象が敵であるかどうか
+				const bool isEnemy{ targetType == UnitType::Enemy || targetType == UnitType::EnemyHood };
+
 				// ユニットとのマンハッタン距離が攻撃範囲以下かつ距離が0でないとき
-				if (distance <= m_unitParameter.attackRange && distance != 0)
+				if (distance <= m_unitParameter.attackRange && distance != 0 && isEnemy)
 				{
 					// そのマスに対して消滅判定を実行
 					BattleManager::GetInstance().executeAttack(attackPosition);
 					unitState = UnitState::Waiting;
-				}
 
-				// BattleManager側を待機状態にする
-				BattleManager::GetInstance().currentUnitState = UnitState::None;
+					// BattleManager側を待機状態にする
+					BattleManager::GetInstance().currentUnitState = UnitState::None;
+				}
 			}
 		}
 		

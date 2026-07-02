@@ -144,7 +144,7 @@ HRESULT Direct3D::createConstantBuffer()
     // 定数バッファの仕様を設定する
     D3D11_BUFFER_DESC bufferDesc{};
     bufferDesc.Usage = D3D11_USAGE_DYNAMIC;					// 頻繁に更新されるためDYNAMIC
-    bufferDesc.ByteWidth = sizeof(ObjectConstants);	// サイズは ObjectConstants 構造体のサイズ
+    bufferDesc.ByteWidth = sizeof(ObjectConstants);	        // サイズは ObjectConstants 構造体のサイズ
     bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;		// 定数バッファとしてバインド
     bufferDesc.MiscFlags = 0;
     bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;		// CPUからの書き込みを許可
