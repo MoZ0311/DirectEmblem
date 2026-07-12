@@ -16,7 +16,7 @@ class UnitBase
 public:
 
 	// デストラクタ
-	~UnitBase() = default;
+	virtual ~UnitBase() = default;
 
 	// 更新処理
 	void update();
@@ -30,8 +30,13 @@ public:
 	// 位置情報の取得
 	Config::MapSettings::GridPosition getUnitPosition() const;
 
+	// ユニットタイプの取得
+	Config::UnitSettings::UnitType getUnitType() const;
+
 	// 現在のユニットの状態
 	Config::UnitSettings::UnitState unitState;
+
+	bool isDead;
 	
 protected:
 
@@ -91,4 +96,6 @@ protected:
 
 	// グリッド移動アニメーションの間隔
 	float m_gridMoveTimer;
+
+	
 };

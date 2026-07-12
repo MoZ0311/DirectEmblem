@@ -5,6 +5,7 @@
 # include "../map/FieldMap.hpp"
 # include "../unit/UnitManager.hpp"
 # include "../battle/BattleManager.hpp"
+# include "../scene/SceneManager.hpp"
 # include "../ui/UIManager.hpp"
 # include "../util/InputState.hpp"
 
@@ -18,11 +19,17 @@ SceneGame::SceneGame()
 {
 	// 背景色を設定
 	m_backgroundColor = { 0.961f, 0.871f, 0.702f, 1.0f };
+
+	// ユニットの初期配置
+	m_unitManager.generateUnits();
 }
 
 SceneGame::~SceneGame()
 {
-
+	m_fieldMap.resetState();
+	m_unitManager.resetState();
+	m_battleManager.resetState();
+	m_uiManager.resetState();
 }
 
 void SceneGame::update()
@@ -33,9 +40,19 @@ void SceneGame::update()
 	m_uiManager.update();
 
 	// 他の全ての更新処理の後、シーン遷移の判定
-	if (InputState::KeyDown(VK_RBUTTON))
+
+	// 自軍ユニットの全滅
+	if (m_unitManager.getPlayerUnitArray().empty())
 	{
-		// SceneManager::GetInstance().changeScene(Scene::Title);
+		SceneManager::GetInstance().changeScene(Scene::Over);
+		return;
+	}
+
+	// 敵軍ユニットの全滅
+	if (m_unitManager.getEnemyUnitArray().empty())
+	{
+		SceneManager::GetInstance().changeScene(Scene::Clear);
+		return;
 	}
 }
 

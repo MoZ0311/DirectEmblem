@@ -16,19 +16,22 @@ using namespace Config::UnitSettings;
 FieldMap::FieldMap()
     : m_mapGrid{ CSVReader::ConvertToInteger(CSVReader::readCsvFile("assets/data/map_data.csv")) }
     , m_accessibleTileGrid{ MapHeight, std::vector<bool>(MapWidth, false) }
+    , m_attackableTileGrid{ MapHeight, std::vector<bool>(MapWidth, false) }
 	, m_direct3D{ Direct3D::GetInstance() }
     , m_mapTexture{ TileSheetPath }
     , m_highlightTexture{ HighlightTexturePath }
 
 	, m_mapVertexCount{ 0 }
     , m_moveRangeVertexCount{ 0 }
+    , m_attackRangeVertexCount{ 0 }
     , m_highlightVertexCount{ 0 }
 
 	, m_mapVertexBuffer{ nullptr }
     , m_moveRangeBuffer{ nullptr }
+    , m_attackRangeBuffer{ nullptr }
     , m_highlightBuffer{ nullptr }
 
-    , m_mouseGridPosition{ -1, -1 }
+    , m_mouseGridPosition{ InvalidPosition }
     , m_mouseOnMap{ false }
     , m_mouseOveredTile{ TileType::Grass }
 {
@@ -40,6 +43,13 @@ FieldMap& FieldMap::GetInstance()
     // 静的インスタンスを保持し、返す
     static FieldMap instance;
     return instance;
+}
+
+void FieldMap::resetState()
+{
+    m_mouseGridPosition = InvalidPosition;
+    m_mouseOnMap = false;
+    m_mouseOveredTile = TileType::Grass;
 }
 
 void FieldMap::initialize()
@@ -66,6 +76,18 @@ void FieldMap::initialize()
 
         // 移動範囲用のバッファを作成
         m_moveRangeBuffer = m_direct3D.createVertexBuffer(moveRangeVertices);
+    }
+
+    // 攻撃範囲の頂点バッファを設定
+    {
+        // 攻撃範囲用の頂点情報を作成
+        const std::vector<Vertex> attackRangeVertices{ createAttackRangeVertices() };
+
+        // 攻撃範囲用頂点数の計算
+        m_attackRangeVertexCount = static_cast<UINT>(attackRangeVertices.size());
+
+        // 攻撃範囲用のバッファを作成
+        m_attackRangeBuffer = m_direct3D.createVertexBuffer(attackRangeVertices);
     }
 
     // マップタイルのハイライト用頂点バッファの設定
@@ -197,6 +219,57 @@ std::vector<Vertex> FieldMap::createMoveRangeVertices() const
     return vertices;
 }
 
+std::vector<Util::Vertex> FieldMap::createAttackRangeVertices() const
+{
+    // 赤色(移動不可)
+    const DirectX::XMFLOAT4 colorRed{ 1.0f, 0.0f, 0.0f, 0.5f };
+
+    // 青色(移動可能)
+    const DirectX::XMFLOAT4 colorBlue{ 0.0f, 0.0f, 1.0f, 0.5f };
+
+    // 空の頂点群を宣言
+    std::vector<Vertex> vertices{};
+
+    // 二重ループで頂点を作成
+    for (int y{ 0 }; y < MapHeight; ++y)
+    {
+        for (int x{ 0 }; x < MapWidth; ++x)
+        {
+            // タイルの各辺の座標を計算
+            const float left{ MapStartX + x * TileWidth };
+            const float right{ left + TileWidth };
+            const float top{ MapStartY - y * TileHeight };
+            const float bottom{ top - TileHeight };
+
+            // テクスチャアトラスのuv座標計算
+            const DirectX::XMFLOAT2 uv{ 0.5f, 0.5f };
+
+            // 移動の可否で色を設定
+            const bool canAttack{ m_attackableTileGrid[y][x] };
+            const DirectX::XMFLOAT4 tileColor{ canAttack ? colorBlue : colorRed };
+
+            // 頂点1:左下
+            vertices.push_back({ { left, bottom, 0.0f }, tileColor, uv });
+
+            // 頂点1:左上
+            vertices.push_back({ { left, top, 0.0f }, tileColor, uv });
+
+            // 頂点3:右上
+            vertices.push_back({ { right, top, 0.0f }, tileColor, uv });
+
+            // 頂点4:左下
+            vertices.push_back({ { left, bottom, 0.0f }, tileColor, uv });
+
+            // 頂点5:右上
+            vertices.push_back({ { right, top, 0.0f }, tileColor, uv });
+
+            // 頂点6:右下
+            vertices.push_back({ { right, bottom, 0.0f }, tileColor, uv });
+        }
+    }
+    return vertices;
+}
+
 std::vector<Vertex> FieldMap::createHighlightVertices() const
 {
     // 形状は常に TileWidth * TileHeight の四角形
@@ -266,7 +339,7 @@ void FieldMap::update()
     else
     {
         // 範囲外の場合
-        m_mouseGridPosition = { -1, -1 };
+        m_mouseGridPosition = { InvalidPosition };
     }
 }
 
@@ -300,31 +373,65 @@ void FieldMap::draw() const
     
     // 移動可能範囲を描画
     const UnitState currentUnitState{ BattleManager::GetInstance().currentUnitState };
-    if (currentUnitState == UnitState::StandBy ||
-        currentUnitState == UnitState::Moving)
+    
+    switch (currentUnitState)
+    {
+    case UnitState::StandBy:
+    case UnitState::Moving:
+        {
+            // 移動範囲の定数バッファ情報
+            ObjectConstants moveRangeConstants{};
+
+            // ワールド行列を設定
+            DirectX::XMStoreFloat4x4(&moveRangeConstants.worldMatrix, DirectX::XMMatrixIdentity());
+            DirectX::XMStoreFloat4x4(&moveRangeConstants.viewMatrix, DirectX::XMMatrixIdentity());
+            DirectX::XMStoreFloat4x4(&moveRangeConstants.projectionMatrix, DirectX::XMMatrixIdentity());
+
+            // 移動範囲の色(頂点情報を使う為、デフォルト)
+            moveRangeConstants.color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+
+            // バッファの更新
+            m_direct3D.updateConstantBuffer(moveRangeConstants);
+
+            // 移動範囲用(ハイライトと共通)のテクスチャをセット
+            m_direct3D.setTexture(m_highlightTexture.getShaderResourceView());
+
+            // 移動範囲用のバッファを転送
+            m_direct3D.setVertexBuffer(m_moveRangeBuffer);
+
+            // 描画コマンド実行
+            m_direct3D.draw(m_moveRangeVertexCount);
+            break;
+        }
+
+    case UnitState::Attacking:
     {
         // 移動範囲の定数バッファ情報
-        ObjectConstants moveRangeConstants{};
+        ObjectConstants attackRangeConstants{};
 
         // ワールド行列を設定
-        DirectX::XMStoreFloat4x4(&moveRangeConstants.worldMatrix, DirectX::XMMatrixIdentity());
-        DirectX::XMStoreFloat4x4(&moveRangeConstants.viewMatrix, DirectX::XMMatrixIdentity());
-        DirectX::XMStoreFloat4x4(&moveRangeConstants.projectionMatrix, DirectX::XMMatrixIdentity());
+        DirectX::XMStoreFloat4x4(&attackRangeConstants.worldMatrix, DirectX::XMMatrixIdentity());
+        DirectX::XMStoreFloat4x4(&attackRangeConstants.viewMatrix, DirectX::XMMatrixIdentity());
+        DirectX::XMStoreFloat4x4(&attackRangeConstants.projectionMatrix, DirectX::XMMatrixIdentity());
 
         // 移動範囲の色(頂点情報を使う為、デフォルト)
-        moveRangeConstants.color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+        attackRangeConstants.color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
         // バッファの更新
-        m_direct3D.updateConstantBuffer(moveRangeConstants);
+        m_direct3D.updateConstantBuffer(attackRangeConstants);
 
         // 移動範囲用(ハイライトと共通)のテクスチャをセット
         m_direct3D.setTexture(m_highlightTexture.getShaderResourceView());
 
         // 移動範囲用のバッファを転送
-        m_direct3D.setVertexBuffer(m_moveRangeBuffer);
+        m_direct3D.setVertexBuffer(m_attackRangeBuffer);
 
         // 描画コマンド実行
-        m_direct3D.draw(m_moveRangeVertexCount);
+        m_direct3D.draw(m_attackRangeVertexCount);
+        break;
+    }
+    default:
+        break;
     }
     
     // ハイライトの描画
@@ -417,4 +524,20 @@ void FieldMap::setAccessibleTileGrid(const std::vector<std::vector<int>>& distan
 
     // 移動範囲用の頂点バッファを更新
     m_direct3D.updateVeretexBuffer(m_moveRangeBuffer, createMoveRangeVertices());
+}
+
+void FieldMap::setAttackableTileGrid(const std::vector<std::vector<int>>& distanceGrid, int attackRange)
+{
+    for (int y{ 0 }; y < MapHeight; ++y)
+    {
+        for (int x{ 0 }; x < MapWidth; ++x)
+        {
+            // 自分自身(距離0)を除き、攻撃範囲以内のマスを攻撃可能とする
+            const bool canAttack{ distanceGrid[y][x] > 0 && distanceGrid[y][x] <= attackRange };
+            m_attackableTileGrid[y][x] = canAttack;
+        }
+    }
+
+    // 攻撃範囲用の頂点バッファを更新
+    m_direct3D.updateVeretexBuffer(m_attackRangeBuffer, createAttackRangeVertices());
 }

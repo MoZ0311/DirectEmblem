@@ -5,11 +5,13 @@
 # include "../dx11/Direct3D.hpp"
 # include "../map/FieldMap.hpp"
 # include "../util/InputState.hpp"
+# include "../unit/UnitManager.hpp"
 
 using namespace Util;
 using namespace FilePath;
 using namespace Config::MapSettings;
 using namespace Config::UISettings;
+using namespace Config::UnitSettings;
 
 UIManager::UIManager()
 	: m_direct3D{ Direct3D::GetInstance() }
@@ -20,6 +22,13 @@ UIManager::UIManager()
     , m_waterUITexture{ WaterUIPath }
     , m_tileUIVertexCount{ 0 }
     , m_tileUIBuffer{ nullptr }
+
+    , m_playerUITexture{ PlayerUIPath }
+    , m_playerHoodUITexture{ PlayerHoodUIPath }
+    , m_enemyUITexture{ EnemyUIPath }
+    , m_enemyHoodUITexture{ EnemyHoodUIPath }
+    , m_unitUIVertexCount{ 0 }
+    , m_unitUIBuffer{ nullptr }
 
 	, m_commandUITexture{ CommandUIPath }
 	, m_commandUIVertexCount{ 0 }
@@ -33,6 +42,7 @@ UIManager::UIManager()
     , m_selectingCommand{ Command::None }
 
     , isDrawingCommandUI{ false }
+    , m_prevUnitType{ UnitType::Sword }
 {
     initialize();
 }
@@ -41,6 +51,13 @@ UIManager& UIManager::GetInstance()
 {
 	static UIManager instance;
 	return instance;
+}
+
+void UIManager::resetState()
+{
+    m_mouseOnUI = false;
+    m_selectingCommand = Command::None;
+    isDrawingCommandUI = false;
 }
 
 void UIManager::initialize()
@@ -55,6 +72,18 @@ void UIManager::initialize()
 
         // バッファの作成
         m_tileUIBuffer = m_direct3D.createVertexBuffer(vertices);
+    }
+
+    // ユニットUIの頂点バッファの設定
+    {
+        // 頂点情報の作成
+        const std::vector<Vertex> vertices{ createUnitUIVertices() };
+
+        // 頂点数の計算
+        m_unitUIVertexCount = static_cast<UINT>(vertices.size());
+
+        // バッファの作成
+        m_unitUIBuffer = m_direct3D.createVertexBuffer(vertices);
     }
 
     // コマンドUIの頂点バッファの設定
@@ -96,8 +125,67 @@ std::vector<Vertex> UIManager::createTileUIVertices() const
     // 描画位置の設定
     const float left{ CommandUILeft };
     const float right{ CommandUIRight };
-    const float top{ Config::MapSettings::MapStartY };
+    const float top{ MapStartY };
     const float bottom{ top - TileUIHeight };
+
+    const std::vector<Vertex> vertices{
+        // 頂点1:左下
+        {
+            { left, bottom, 0.0f },
+            defaultColor,
+            uvBottomLeft
+        },
+        // 頂点2:左上
+        {
+            { left, top, 0.0f },
+            defaultColor,
+            uvTopLeft
+        },
+        // 頂点3:右上
+        {
+            { right, top, 0.0f },
+            defaultColor,
+            uvTopRight
+        },
+
+        // 頂点4:左下
+        {
+            { left, bottom, 0.0f },
+            defaultColor,
+            uvBottomLeft
+        },
+        // 頂点5:右上
+        {
+            { right, top, 0.0f },
+            defaultColor,
+            uvTopRight
+        },
+        // 頂点6:右下
+        {
+            { right, bottom, 0.0f },
+            defaultColor,
+            uvBottomRight
+        },
+    };
+    return vertices;
+}
+
+std::vector<Vertex> UIManager::createUnitUIVertices() const
+{
+    // uv座標定義
+    const DirectX::XMFLOAT2 uvTopLeft{ 0, 0 };		// 左上
+    const DirectX::XMFLOAT2 uvBottomLeft{ 0, 1 };	// 左下
+    const DirectX::XMFLOAT2 uvTopRight{ 1, 0 };		// 右上
+    const DirectX::XMFLOAT2 uvBottomRight{ 1, 1 };	// 右下
+
+    // 色はそのまま(白)
+    const DirectX::XMFLOAT4 defaultColor{ 1.0f, 1.0f, 1.0f, 1.0f };
+
+    // 描画位置の設定
+    const float left{ -CommandUIRight };
+    const float right{ -CommandUILeft };
+    const float top{ MapStartY };
+    const float bottom{ CommandUIBottom };
 
     const std::vector<Vertex> vertices{
         // 頂点1:左下
@@ -263,7 +351,7 @@ void UIManager::update()
     }
 }
 
-void UIManager::draw() const
+void UIManager::draw()
 {
     // タイルUIの描画
     {
@@ -282,7 +370,7 @@ void UIManager::draw() const
         m_direct3D.updateConstantBuffer(tileUIConstants);
 
         // テクスチャのセット
-        TileType currentTileType{ FieldMap::GetInstance().getMouseOveredTile()};
+        const TileType currentTileType{ FieldMap::GetInstance().getMouseOveredTile()};
         switch (currentTileType)
         {
         case TileType::Grass:
@@ -311,6 +399,63 @@ void UIManager::draw() const
 
         // 描画コマンド実行
         m_direct3D.draw(m_tileUIVertexCount);
+    }
+
+    // ユニットUIの描画
+    {
+        // UIの頂点バッファ情報
+        ObjectConstants unitUIConstants{};
+
+        // 単位行列を設定
+        DirectX::XMStoreFloat4x4(&unitUIConstants.worldMatrix, DirectX::XMMatrixIdentity());
+        DirectX::XMStoreFloat4x4(&unitUIConstants.viewMatrix, DirectX::XMMatrixIdentity());
+        DirectX::XMStoreFloat4x4(&unitUIConstants.projectionMatrix, DirectX::XMMatrixIdentity());
+
+        // テクスチャの色そのまま
+        unitUIConstants.color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+
+        // バッファの更新
+        m_direct3D.updateConstantBuffer(unitUIConstants);
+
+        // テクスチャのセット
+        const GridPosition currentMousePosition{ FieldMap::GetInstance().getMouseGridPosition() };
+        const UnitType currentUnitType{ UnitManager::GetInstance().getUnitTypeAtPosition(currentMousePosition) };
+
+        if (currentUnitType == UnitType::Sword ||
+            currentUnitType == UnitType::Bow ||
+            currentUnitType == UnitType::Enemy ||
+            currentUnitType == UnitType::EnemyHood)
+        {
+            m_prevUnitType = currentUnitType;
+        }
+
+        switch (m_prevUnitType)
+        {
+        case UnitType::Sword:
+            m_direct3D.setTexture(m_playerUITexture.getShaderResourceView());
+            break;
+
+        case UnitType::Bow:
+            m_direct3D.setTexture(m_playerHoodUITexture.getShaderResourceView());
+            break;
+
+        case UnitType::Enemy:
+            m_direct3D.setTexture(m_enemyUITexture.getShaderResourceView());
+            break;
+
+        case UnitType::EnemyHood:
+            m_direct3D.setTexture(m_enemyHoodUITexture.getShaderResourceView());
+            break;
+
+        default:
+            break;
+        }
+
+        // DirectXにバッファを転送
+        m_direct3D.setVertexBuffer(m_unitUIBuffer);
+
+        // 描画コマンド実行
+        m_direct3D.draw(m_unitUIVertexCount);
     }
 
     if (isDrawingCommandUI)

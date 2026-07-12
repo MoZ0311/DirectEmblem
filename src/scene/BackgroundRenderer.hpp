@@ -13,7 +13,10 @@ class BackgroundRenderer
 public:
 
 	// コンストラクタ
-	BackgroundRenderer();
+	BackgroundRenderer(const SceneSettings::Scene& currentScene);
+
+	// デストラクタ
+	~BackgroundRenderer() = default;
 
 	// 描画処理
 	void draw() const;
@@ -21,7 +24,7 @@ public:
 private:
 
 	// 初期化処理
-	void initialize();
+	void initialize(const SceneSettings::Scene& currentScene);
 
 	// 頂点情報の作成処理
 	std::vector<Util::Vertex> createVertices() const;
@@ -30,7 +33,9 @@ private:
 	Direct3D& m_direct3D;
 
 	// テクスチャ情報
-	Texture m_texture;
+	Texture m_titleTexture;
+	Texture m_clearTexture;
+	Texture m_overTexture;
 
 	// 頂点数
 	UINT m_vertexCount;

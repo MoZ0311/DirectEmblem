@@ -32,6 +32,7 @@ UnitBase::UnitBase()
 	, unitState{ UnitState::None }
 
 	, m_gridMoveTimer{ GridMoveInterval }
+	, isDead{ false }
 {
 	initialize();
 }
@@ -95,6 +96,11 @@ std::vector<Vertex> UnitBase::createVertices() const
 
 void UnitBase::update()
 {
+	if (isDead)
+	{
+		return;
+	}
+
 	// マウスのグリッド座標を取得
 	const GridPosition mousePosition{ FieldMap::GetInstance().getMouseGridPosition()};
 	
@@ -145,7 +151,8 @@ void UnitBase::update()
 			BattleManager::GetInstance().currentUnitState = unitState;
 		}
 		// 有効な移動先が左クリック(選択)された時
-		else if (m_unitType != UnitType::Enemy && 
+		else if (m_unitType != UnitType::Enemy &&
+			m_unitType != UnitType::EnemyHood &&
 			InputState::KeyDown(VK_LBUTTON) &&
 			FieldMap::GetInstance().getMouseOnMap() &&
 			FieldMap::GetInstance().getAccessibleTileGrid()[mousePosition.y][mousePosition.x])
@@ -164,7 +171,8 @@ void UnitBase::update()
 		// 経路は空であるか
 		if (m_movementPath.empty())
 		{
-			if (m_unitType == UnitType::Enemy)
+			if (m_unitType == UnitType::Enemy ||
+				m_unitType == UnitType::EnemyHood)
 			{
 				// 状態を攻撃待機へ遷移
 				unitState = UnitState::Attacking;;
@@ -209,7 +217,8 @@ void UnitBase::update()
 	case UnitState::Attacking:
 
 		// ユニットが敵であるとき
-		if (m_unitType == UnitType::Enemy)
+		if (m_unitType == UnitType::Enemy ||
+			m_unitType == UnitType::EnemyHood)
 		{
 			// 最寄りの味方ユニットを探す
 			const GridPosition nearestUnitPosition{ BattleManager::GetInstance().findNearestPlayerUnit(m_unitPosition) };
@@ -234,6 +243,9 @@ void UnitBase::update()
 			{
 				m_unitPosition = m_prevPosition;
 
+				std::vector<std::vector<int>> emptyGrid(MapHeight, std::vector<int>(MapWidth, 999));
+				FieldMap::GetInstance().setAttackableTileGrid(emptyGrid, 0);
+
 				// 非選択中は、アイコンを白色に
 				m_iconColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
@@ -251,16 +263,26 @@ void UnitBase::update()
 				// 距離を算出
 				const int distance{ attackPosition.manhattanDistanceFrom(m_unitPosition) };
 
+				// ターゲットマスのユニットのタイプを取得
+				const UnitType targetType{ UnitManager::GetInstance().getUnitTypeAtPosition(attackPosition) };
+				
+				// 攻撃対象が敵であるかどうか
+				const bool isEnemy{ targetType == UnitType::Enemy || targetType == UnitType::EnemyHood };
+
 				// ユニットとのマンハッタン距離が攻撃範囲以下かつ距離が0でないとき
-				if (distance <= m_unitParameter.attackRange && distance != 0)
+				if (distance <= m_unitParameter.attackRange && distance != 0 && isEnemy)
 				{
 					// そのマスに対して消滅判定を実行
 					BattleManager::GetInstance().executeAttack(attackPosition);
-					unitState = UnitState::Waiting;
-				}
 
-				// BattleManager側を待機状態にする
-				BattleManager::GetInstance().currentUnitState = UnitState::None;
+					std::vector<std::vector<int>> emptyGrid(MapHeight, std::vector<int>(MapWidth, 999));
+					FieldMap::GetInstance().setAttackableTileGrid(emptyGrid, 0);
+
+					unitState = UnitState::Waiting;
+
+					// BattleManager側を待機状態にする
+					BattleManager::GetInstance().currentUnitState = UnitState::None;
+				}
 			}
 		}
 		
@@ -312,11 +334,21 @@ void UnitBase::onSelectedCommand(const Command& selectedCommand)
 	switch (selectedCommand)
 	{
 	case Command::Attack:
-
+	{
 		m_iconColor = DirectX::XMFLOAT4{ 1.0f, 0.0f, 0.0f, 1.0f };
+		std::vector<std::vector<int>> attackDistanceGrid(MapHeight, std::vector<int>(MapWidth, 999));
+		for (int y = 0; y < MapHeight; ++y)
+		{
+			for (int x = 0; x < MapWidth; ++x)
+			{
+				attackDistanceGrid[y][x] = m_unitPosition.manhattanDistanceFrom(GridPosition{ x, y });
+			}
+		}
+		FieldMap::GetInstance().setAttackableTileGrid(attackDistanceGrid, m_unitParameter.attackRange);
 		unitState = UnitState::Attacking;
+		BattleManager::GetInstance().currentUnitState = unitState;
 		break;
-
+	}
 	case Command::Skill:
 	case Command::Item:
 		break;
@@ -360,4 +392,9 @@ void UnitBase::gridMove()
 GridPosition UnitBase::getUnitPosition() const
 {
 	return m_unitPosition;
+}
+
+Config::UnitSettings::UnitType UnitBase::getUnitType() const
+{
+	return m_unitType;
 }

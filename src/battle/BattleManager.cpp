@@ -28,6 +28,14 @@ BattleManager& BattleManager::GetInstance()
 	return instance;
 }
 
+void BattleManager::resetState()
+{
+	m_currentPhase = GamePhase::PlayerTurn;
+	m_selectedCommand = Command::None;
+	currentUnitState = UnitState::None;
+	m_currentEnemyIndex = 0;
+}
+
 void BattleManager::update()
 {
 	switch (m_currentPhase)
@@ -201,7 +209,7 @@ void BattleManager::executeAttack(const Config::MapSettings::GridPosition& targe
 		int randomNumber{ distribution(generator) };
 		if (randomNumber < probavility)
 		{
-			UnitManager::GetInstance().removeUnitPosition(targetPosition);
+			UnitManager::GetInstance().removeUnitAtPosition(targetPosition);
 		}
 	}
 	

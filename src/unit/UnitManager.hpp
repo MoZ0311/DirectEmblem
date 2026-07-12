@@ -15,6 +15,9 @@ public:
 	// シングルトンインスタンスの生成/取得
 	static UnitManager& GetInstance();
 
+	// リセット処理
+	void resetState();
+
 	// 更新処理
 	void update();
 
@@ -30,11 +33,17 @@ public:
 	// 敵軍ユニット配列の取得
 	const std::vector<std::unique_ptr<UnitBase>>& getEnemyUnitArray() const;
 
+	// 指定座標のユニット情報の取得
+	Config::UnitSettings::UnitType getUnitTypeAtPosition(const Config::MapSettings::GridPosition& position) const;
+
+	// ユニットの追加処理
+	void generateUnits();
+
 	// 全ユニットの状態リセット
 	void resetAllUnitState();
 
 	// 任意の座標上のユニットを消し去る
-	void removeUnitPosition(const Config::MapSettings::GridPosition& position);
+	void removeUnitAtPosition(const Config::MapSettings::GridPosition& position);
 
 private:
 
@@ -43,9 +52,6 @@ private:
 
 	// コピーコンストラクタを削除
 	UnitManager(const UnitManager&) = delete;
-
-	// 初期化処理
-	void initialize();
 
 	// 自軍ユニット配列
 	std::vector<std::unique_ptr<UnitBase>> m_playerUnitArray;

@@ -3,6 +3,7 @@
 # include "UnitSword.hpp"
 
 using namespace Config::UnitSettings;
+using namespace FilePath;
 
 UnitSword::UnitSword(const Config::MapSettings::GridPosition& spawnPosition)
 {
@@ -13,7 +14,7 @@ void UnitSword::setParameter(const Config::MapSettings::GridPosition& spawnPosit
 {
 	setPosition(spawnPosition);
 	m_unitType = UnitType::Sword;
-	m_unitIconTexture = Texture{ L"assets/images/icon_sample.png" };
+	m_unitIconTexture = Texture{ PlayerIconPath };
 
-	m_unitParameter.mobility = 4;
+	m_unitParameter.mobility = 5;
 }

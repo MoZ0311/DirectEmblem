@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -168,13 +168,17 @@
     <ClInclude Include="src\map\FieldMap.hpp" />
     <ClInclude Include="src\scene\BackgroundRenderer.hpp" />
     <ClInclude Include="src\scene\SceneBase.hpp" />
+    <ClInclude Include="src\scene\SceneClear.hpp" />
     <ClInclude Include="src\scene\SceneGame.hpp" />
     <ClInclude Include="src\scene\SceneManager.hpp" />
+    <ClInclude Include="src\scene\SceneOver.hpp" />
     <ClInclude Include="src\scene\SceneTitle.hpp" />
     <ClInclude Include="src\ui\UIManager.hpp" />
     <ClInclude Include="src\unit\UnitAxe.hpp" />
     <ClInclude Include="src\unit\UnitBase.hpp" />
+    <ClInclude Include="src\unit\UnitBow.hpp" />
     <ClInclude Include="src\unit\UnitEnemy.hpp" />
+    <ClInclude Include="src\unit\UnitEnemyBow.hpp" />
     <ClInclude Include="src\unit\UnitSword.hpp" />
     <ClInclude Include="src\unit\UnitManager.hpp" />
     <ClInclude Include="src\util\CSVReader.hpp" />
@@ -192,11 +196,15 @@
     <ClCompile Include="src\scene\SceneBase.cpp" />
     <ClCompile Include="src\scene\SceneGame.cpp" />
     <ClCompile Include="src\scene\SceneManager.cpp" />
+    <ClCompile Include="src\scene\SceneOver.cpp" />
     <ClCompile Include="src\scene\SceneTitle.cpp" />
+    <ClCompile Include="src\scene\ScneClear.cpp" />
     <ClCompile Include="src\ui\UIManager.cpp" />
     <ClCompile Include="src\unit\UnitAxe.cpp" />
     <ClCompile Include="src\unit\UnitBase.cpp" />
+    <ClCompile Include="src\unit\UnitBow.cpp" />
     <ClCompile Include="src\unit\UnitEnemy.cpp" />
+    <ClCompile Include="src\unit\UnitEnemyBow.cpp" />
     <ClCompile Include="src\unit\UnitSword.cpp" />
     <ClCompile Include="src\unit\UnitManager.cpp" />
   </ItemGroup>
@@ -204,6 +212,7 @@
     <FxCompile Include="shader\Shader.hlsl" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".github\upgrades\CppBuildToolsUpgrade\assessment.md" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

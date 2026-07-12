@@ -10,6 +10,9 @@ public:
 
 	// コンストラクタ
 	Application(const HINSTANCE& hInstance, const int nCmdShow);
+	
+	// デストラクタ
+	~Application() = default;
 
 	// 初期化処理
 	bool initialize();
